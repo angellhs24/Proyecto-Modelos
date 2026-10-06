@@ -1,0 +1,18 @@
+{
+  "name": "ecosistema-podologia",
+  "version": "1.0.0",
+  "description": "Ecosistema de Gestión Médica & Agendamiento Exprés para Podología",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js",
+    "server": "cd backend && npm start"
+  },
+  "keywords": [
+    "podologia",
+    "clinica",
+    "gestion-medica"
+  ],
+  "author": "Angel Hdez",
+  "license": "ISC"
+}
