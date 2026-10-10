@@ -1,18 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Elite Foot Care | Gestión Podológica</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="modulepreload" href="js/modules/index.js">
+  <link rel="modulepreload" href="js/components/dashboardView.js">
+  <link rel="modulepreload" href="js/components/inventarioView.js">
+  <link rel="modulepreload" href="js/components/recetasView.js">
+  <link rel="modulepreload" href="js/components/pagosView.js">
+  <link rel="modulepreload" href="js/components/mapaPodologicoView.js">
+  <link rel="modulepreload" href="js/components/auditoriaView.js">
 </head>
+
 <body>
-<div id="app"></div>
-<div id="toast-container"></div>
-<script src="js/app.js"></script>
+  <div id="app"></div>
+  <div id="toast-container"></div>
+  <script src="js/vendor/fullcalendar.index.global.min.js"></script>
+  <script src="js/vendor/fullcalendar.locales-all.global.min.js"></script>
+  <script type="module" src="js/modules/index.js"></script>
+  <script src="js/app.js" defer></script>
 </body>
+
 </html>
