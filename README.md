@@ -118,47 +118,47 @@ El ecosistema esta construido bajo un patron Monorepo desacoplado que separa cla
 ## Estructura del Repositorio
 
 ```
-Ecosistema-Podologia/
-│
-├── backend/
-│   ├── config/
-│   │   └── db.js                 # Configuracion del Pool de conexiones MySQL
-│   ├── controllers/
-│   │   ├── citaController.js     # Adaptador y puente para agendamiento
-│   │   ├── clinicaController.js  # Administracion de sedes y catalogos
-│   │   ├── consultaController.js # Logica clinica, expedientes y consultas
-│   │   ├── diagnosticoController.js # Catalogo y asignacion de diagnosticos
-│   │   ├── documentoController.js   # Registro de consentimientos y notas
-│   │   ├── pacienteController.js # ABM de pacientes y antecedentes
-│   │   ├── podologoController.js # Perfiles profesionales y cedulas
-│   │   └── tratamientoController.js # Catalogo de tratamientos y costos
-│   ├── middlewares/              # Middlewares de validacion y seguridad
-│   ├── models/                   # Definicion de estructuras de datos
-│   ├── routes/
-│   │   ├── citaRoutes.js
-│   │   ├── clinicaRoutes.js
-│   │   ├── consultaRoutes.js
-│   │   ├── diagnosticoRoutes.js
-│   │   ├── documentoRoutes.js
-│   │   ├── pacienteRoutes.js
-│   │   ├── podologoRoutes.js
-│   │   └── tratamientoRoutes.js
-│   ├── .env                      # Variables de entorno locales
-│   ├── package.json              # Dependencias del backend
-│   └── server.js                 # Punto de entrada del servidor Express
-│
-├── frontend/
-│   ├── admin/                    # Modulo de administracion general
-│   ├── paciente/                 # Portal de autoservicio para pacientes
-│   └── podologo/                 # Aplicacion principal del especialista
-│       ├── css/
-│       │   └── styles.css        # Sistema de diseno y estilos boutique
-│       ├── js/
-│       │   └── app.js            # Controlador SPA, estado y logica de interfaz
-│       └── index.html            # Contenedor HTML5 principal
-│
-├── package.json                  # Scripts raiz de orquestacion
-└── README.md                     # Documentacion oficial del proyecto
+clinica-podologia/
+├── .github/
+│   └── workflows/              # CI/CD (pruebas y despliegues automáticos con GitHub Actions)
+├── backend/                    # API REST (Node.js/Express)
+│   ├── src/
+│   │   ├── config/             # Conexión DB (MySQL pool), variables de entorno
+│   │   ├── controllers/        # Controladores (auth, citas, podólogos, pacientes, etc.)
+│   │   ├── middlewares/        # authMiddleware.js, auditoriaMiddleware.js
+│   │   ├── models/             # Modelos y esquemas de persistencia
+│   │   ├── routes/             # Definición de rutas REST y RBAC
+│   │   ├── utils/              # Funciones auxiliares de auditoría y fechas
+│   │   ├── app.js              # Configuración y middlewares de Express
+│   │   └── server.js           # Arranque del listener y verificación de DB
+│   ├── .env.example            # Plantilla de variables de entorno
+│   ├── package.json            # Dependencias y scripts del backend
+│   └── test_rbac.js            # Pruebas de integración RBAC
+├── frontend-landing/           # Web pública (landing + agendamiento express sin login)
+│   ├── public/
+│   │   └── assets/             # Logos, íconos y recursos visuales
+│   ├── src/                    # Sitio web público
+│   │   ├── css/                # Estilos modernos para la landing
+│   │   ├── js/api.js           # Conector a endpoints públicos de citas
+│   │   ├── index.html          # Portal principal informativo
+│   │   ├── servicios.html      # Catálogo interactivo de tratamientos
+│   │   └── agendar.html        # Wizard interactivo de agendamiento
+│   └── package.json            # Scripts de ejecución para la landing
+├── frontend-admin/             # Panel interno integral (Admin, Recepción, Podólogo)
+│   ├── src/
+│   │   ├── components/         # Calendario, tablas, modales y expediente
+│   │   ├── views/
+│   │   │   ├── admin/          # Gestión de podólogos, sedes y pistas de auditoría
+│   │   │   ├── recepcion/      # Calendario general, turnos y asignaciones
+│   │   │   └── podologo/       # Agenda personal, ECE y recetas
+│   │   ├── guards/             # Control de acceso y redirección por rol / token
+│   │   └── services/           # Peticiones HTTP inyectando Bearer Token JWT
+│   ├── tests/                  # Pruebas unitarias (Jest) y E2E (Playwright)
+│   ├── index.html              # Contenedor SPA principal del panel interno
+│   └── package.json            # Dependencias y scripts del panel interno
+├── .gitignore
+├── README.md
+└── package.json                # Scripts raíz para orquestar todos los entornos
 ```
 
 ---

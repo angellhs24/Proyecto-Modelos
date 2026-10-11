@@ -1,17 +1,24 @@
 {
   "name": "ecosistema-podologia",
-  "version": "1.0.0",
-  "description": "Ecosistema de Gestión Médica & Agendamiento Exprés para Podología",
-  "main": "backend/server.js",
+  "version": "2.0.0",
+  "description": "Ecosistema de Gestión Médica, Portal Administrativo y Agendamiento Público para Podología",
+  "main": "backend/src/server.js",
   "scripts": {
-    "start": "node backend/server.js",
-    "dev": "node --watch backend/server.js",
-    "server": "cd backend && npm start"
+    "start": "node backend/src/server.js",
+    "dev": "node --watch backend/src/server.js",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:admin": "cd frontend-admin && npm start",
+    "dev:landing": "cd frontend-landing && npm start",
+    "test:backend": "cd backend && npm run test:rbac",
+    "test:admin": "cd frontend-admin && npm run test:unit",
+    "install:all": "npm --prefix backend install && npm --prefix frontend-admin install"
   },
   "keywords": [
     "podologia",
     "clinica",
-    "gestion-medica"
+    "gestion-medica",
+    "landing",
+    "rbac"
   ],
   "author": "Angel Hdez",
   "license": "ISC"

@@ -1,0 +1,17 @@
+{
+  "name": "frontend-landing",
+  "version": "1.0.0",
+  "description": "Portal web público y agendamiento exprés de citas para la clínica podológica",
+  "private": true,
+  "scripts": {
+    "start": "npx http-server src -p 5174 -c-1",
+    "dev": "npx http-server src -p 5174 -c-1"
+  },
+  "keywords": [
+    "podologia",
+    "citas",
+    "landing"
+  ],
+  "author": "Angel Hdez",
+  "license": "ISC"
+}
