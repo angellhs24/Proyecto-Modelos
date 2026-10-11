@@ -14,12 +14,10 @@ function auditoriaAutomaticaMiddleware(req, res, next) {
   res.on('finish', () => {
     // Solo auditar si la respuesta fue exitosa (código 200-299) y no fue marcado como manual
     if (res.statusCode >= 200 && res.statusCode < 300 && !req.auditoriaManual) {
-      const usuario =
-        req.headers['x-usuario'] ||
-        req.headers['x-user'] ||
-        req.body?.usuario_responsable ||
-        req.session?.user ||
-        'Podólogo / Personal Clínico';
+      const usuarioId =
+        req.user?.id ||
+        parseInt(req.headers['x-usuario-id'] || req.headers['x-user-id'], 10) ||
+        (req.body?.fk_usuario_id ? parseInt(req.body.fk_usuario_id, 10) : 1);
 
       const ip =
         req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
@@ -45,7 +43,9 @@ function auditoriaAutomaticaMiddleware(req, res, next) {
         diagnosticos: 'Diagnosticos',
         tratamientos: 'Tratamientos',
         documentos: 'Documentos_escaneados',
-        auditoria: 'Bitacora_Auditoria'
+        auditoria: 'Bitacora_Auditoria',
+        recepcion: 'Recepcion',
+        medico: 'Medico'
       };
 
       const tablaAfectada = tablaMap[recurso.toLowerCase()] || recurso;
@@ -60,7 +60,7 @@ function auditoriaAutomaticaMiddleware(req, res, next) {
       const accionRealizada = `${accionVerbo} ${tablaAfectada} (${req.originalUrl || req.url})`;
 
       registrarAuditoria({
-        usuario_responsable: usuario,
+        fk_usuario_id: usuarioId,
         accion_realizada: accionRealizada,
         tabla_afectada: tablaAfectada,
         direccion_ip: ip
