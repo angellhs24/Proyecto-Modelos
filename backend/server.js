@@ -15,6 +15,14 @@ const podologoRoutes = require('./routes/podologoRoutes');
 const diagnosticoRoutes = require('./routes/diagnosticoRoutes');
 const tratamientoRoutes = require('./routes/tratamientoRoutes');
 const documentoRoutes = require('./routes/documentoRoutes');
+const recetaRoutes = require('./routes/recetaRoutes');
+const inventarioRoutes = require('./routes/inventarioRoutes');
+const pagoRoutes = require('./routes/pagoRoutes');
+const mapaPodologicoRoutes = require('./routes/mapaPodologicoRoutes');
+const auditoriaRoutes = require('./routes/auditoriaRoutes');
+
+// Middleware de auditoría automática
+const { auditoriaAutomaticaMiddleware } = require('./middlewares/auditoriaMiddleware');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -22,6 +30,7 @@ const PORT = process.env.PORT || 4000;
 // Middlewares
 app.use(cors());
 app.use(express.json());
+app.use(auditoriaAutomaticaMiddleware);
 
 // Servir frontend estático de podología y carpeta completa frontend
 app.use(express.static(path.join(__dirname, '../frontend/podologo')));
@@ -41,6 +50,12 @@ app.use('/api/podologos', podologoRoutes);
 app.use('/api/diagnosticos', diagnosticoRoutes);
 app.use('/api/tratamientos', tratamientoRoutes);
 app.use('/api/documentos', documentoRoutes);
+app.use('/api/recetas', recetaRoutes);
+app.use('/api/inventario', inventarioRoutes);
+app.use('/api/pagos', pagoRoutes);
+app.use('/api/mapa-podologico', mapaPodologicoRoutes);
+app.use('/api/detalles-mapa-podologico', mapaPodologicoRoutes);
+app.use('/api/auditoria', auditoriaRoutes);
 
 // Endpoint de estado del servidor
 app.get('/api/health', (req, res) => {

@@ -1073,6 +1073,8 @@ function toast(msg) {
 function navigate(pageName) {
   state.page = pageName;
   render();
+  // Sincroniza la URL (#/pagina) para enlaces directos y botón atrás
+  if (window.Modules) window.Modules.syncHash(state.page);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1120,20 +1122,24 @@ function togglePasswordVisibility() {
   }
 }
 
+// El inicio de sesión real vive en js/components/loginView.js (POST /api/podologos/login).
 function loginSubmit(e) {
-  e.preventDefault();
-  const userIn = document.getElementById('login-user');
-  if (userIn && userIn.value.trim()) {
-    state.user = userIn.value.trim();
+  if (e) e.preventDefault();
+  const u = (document.getElementById('login-user')?.value || '').trim().toLowerCase();
+  const p = (document.getElementById('login-password')?.value || '').trim();
+  if ((u === 'demo@clinica.mx' || u === 'angel hernandez') && (p === 'demo1234' || p === 'podologia2026')) {
+    state.user = 'Demo Podólogo';
+    state.userRole = 'Podólogo Titular';
+    state.page = 'inicio';
+    render();
+    toast('Acceso demo concedido');
   }
-  state.page = 'inicio';
-  render();
-  toast(`¡Bienvenido de vuelta, Dr. ${state.user}!`);
 }
 
 function logout() {
-  state.page = 'login';
-  render();
+  // Limpia la sesión; el evento 'auth:changed' redirige a la pantalla de login.
+  if (window.Modules) window.Modules.auth.logout('manual');
+  else { state.page = 'login'; render(); }
   toast('Sesión cerrada');
 }
 
@@ -1480,6 +1486,9 @@ function renderPatientModalHtml() {
         <a href="tel:${(p.telefono||'').replace(/\D/g,'')}" class="hero-btn-pill" style="flex:1; justify-content:center; background:var(--surface-alt); box-shadow:none;">
           <i class="fa-solid fa-phone" style="color:var(--accent-mint);"></i> Llamar
         </a>
+        <button class="hero-btn-pill" style="flex:1; justify-content:center; background:var(--secondary); color:#fff; box-shadow:none;" onclick="closePatientModal(); Modules.openExpediente('${expDisplay}');">
+          <i class="fa-solid fa-file-medical"></i> Expediente
+        </button>
         <button class="hero-btn-pill" style="flex:1.2; justify-content:center; background:var(--surface); border:1px solid var(--border);" onclick="closePatientModal(); state.bookingForm.expediente='${expDisplay}'; buscarExpediente('${expDisplay}'); navigate('agendar');">
           <i class="fa-solid fa-calendar-plus" style="color:var(--primary);"></i> Agendar Cita
         </button>
@@ -1535,6 +1544,26 @@ function renderSidebar() {
           <i class="fa-solid fa-calendar-plus"></i>
           <span>Agendar Cita</span>
         </button>
+        <button class="${state.page === 'recetas' ? 'active' : ''}" onclick="navigate('recetas')">
+          <i class="fa-solid fa-prescription"></i>
+          <span>Recetas Médicas</span>
+        </button>
+        <button class="${state.page === 'mapa' ? 'active' : ''}" onclick="navigate('mapa')">
+          <i class="fa-solid fa-shoe-prints"></i>
+          <span>Mapa Podológico</span>
+        </button>
+        <button class="${state.page === 'pagos' ? 'active' : ''}" onclick="navigate('pagos')">
+          <i class="fa-solid fa-cash-register"></i>
+          <span>Caja y Pagos</span>
+        </button>
+        <button class="${state.page === 'inventario' ? 'active' : ''}" onclick="navigate('inventario')">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          <span>Inventario</span>
+        </button>
+        <button class="${state.page === 'auditoria' ? 'active' : ''}" onclick="navigate('auditoria')">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Bitácora de Auditoría</span>
+        </button>
         <button class="${state.page === 'reportes' ? 'active' : ''}" onclick="navigate('reportes')">
           <i class="fa-solid fa-chart-pie"></i>
           <span>Reportes</span>
@@ -1587,9 +1616,9 @@ function renderTopbar() {
             <i class="fa-solid fa-notes-medical"></i> <span>Registrar Consulta</span>
           </button>
 
-          <button class="icon-btn-pill" onclick="toast('Notificaciones al día. Sin alertas pendientes.')" aria-label="Notificaciones">
+          <button class="icon-btn-pill" onclick="window.Modules ? Modules.toggleNotifications() : toast('Notificaciones al día. Sin alertas pendientes.')" aria-label="Notificaciones" id="topbar-bell">
             <i class="fa-regular fa-bell"></i>
-            <span class="notif-dot"></span>
+            <span class="notif-dot" data-notif-dot style="display:none"></span>
           </button>
 
           <div class="user-avatar-pill" onclick="toast('${state.user} | ${state.userRole}')" title="Perfil">
@@ -3187,6 +3216,9 @@ function renderPatientsTableHtml(pacientes) {
                     <button class="hero-btn-pill" style="padding:6px 10px; font-size:11px; background:var(--surface-alt); box-shadow:none;" onclick="openPatientModal('${expDisplay}')" title="Ver Ficha Clínica">
                       <i class="fa-solid fa-folder-open" style="color:var(--primary);"></i> Ficha
                     </button>
+                    <button class="hero-btn-pill" style="padding:6px 10px; font-size:11px; background:var(--secondary); color:#ffffff; box-shadow:none;" onclick="Modules.openExpediente('${expDisplay}')" title="Abrir Expediente Clínico Electrónico" data-testid="btn-expediente-${expDisplay}">
+                      <i class="fa-solid fa-file-medical"></i> Expediente
+                    </button>
                     <button class="hero-btn-pill" style="padding:6px 10px; font-size:11px; background:var(--primary); color:#ffffff; box-shadow:none;" onclick="iniciarConsultaDirectaConPaciente(state.patients.find(x => (x.expediente||x.No_expediente)==='${expDisplay}') || state.patients[${idx}])" title="Atender Consulta Directa">
                       <i class="fa-solid fa-notes-medical"></i> Atender
                     </button>
@@ -3244,9 +3276,53 @@ function renderReportsPage() {
 }
 
 // ------------------------------------------
-// 4.6. PANTALLA: LOGIN BOUTIQUE
+// 4.6. PANTALLAS COMPLEMENTARIAS: INVENTARIO Y RECETAS (FALLBACK)
+// ------------------------------------------
+function renderInventarioFallbackPage() {
+  return `
+    <div style="padding: 24px;">
+      <div class="page-head" style="margin-bottom: 20px;">
+        <div>
+          <h2 class="page-title"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i> Inventario</h2>
+          <p class="page-sub">Control de insumos médicos y materiales podológicos</p>
+        </div>
+      </div>
+      <section class="module" id="inventario-root" aria-live="polite">
+        <div class="ece-card glass" style="padding: 30px; text-align: center;">
+          <i class="fa-solid fa-spinner fa-spin" style="font-size: 28px; color: var(--primary); margin-bottom: 12px;"></i>
+          <p style="color: var(--text-muted);">Cargando módulo de inventario...</p>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function renderRecetasFallbackPage() {
+  return `
+    <div style="padding: 24px;">
+      <div class="page-head" style="margin-bottom: 20px;">
+        <div>
+          <h2 class="page-title"><i class="fa-solid fa-prescription" aria-hidden="true"></i> Recetas Médicas</h2>
+          <p class="page-sub">Prescripciones podológicas y exportación a PDF</p>
+        </div>
+      </div>
+      <section class="module" id="recetas-root" aria-live="polite">
+        <div class="ece-card glass" style="padding: 30px; text-align: center;">
+          <i class="fa-solid fa-spinner fa-spin" style="font-size: 28px; color: var(--primary); margin-bottom: 12px;"></i>
+          <p style="color: var(--text-muted);">Cargando módulo de recetas...</p>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+// ------------------------------------------
+// 4.7. PANTALLA: LOGIN BOUTIQUE
 // ------------------------------------------
 function renderLoginPage() {
+  if (window.Modules && typeof window.Modules.renderLogin === 'function') {
+    return window.Modules.renderLogin();
+  }
   return `
     <div class="login-root">
       <div class="login-card-boutique">
@@ -3259,8 +3335,8 @@ function renderLoginPage() {
 
         <form onsubmit="loginSubmit(event)">
           <div class="form-field-group" style="text-align:left;">
-            <label>Usuario Podólogo</label>
-            <input type="text" id="login-user" required value="Angel Hernandez" placeholder="Tu nombre">
+            <label>Usuario Podólogo (Email)</label>
+            <input type="text" id="login-user" required value="Angel Hernandez" placeholder="doctor@clinica.mx">
           </div>
 
           <div class="form-field-group" style="text-align:left;">
@@ -3291,22 +3367,45 @@ function render() {
   const app = document.getElementById('app');
   if (!app) return;
 
+  // Verificación y protección de rutas con el módulo de seguridad
+  if (window.Modules && typeof window.Modules.guard === 'function') {
+    state.page = window.Modules.guard(state.page);
+  }
+
   if (state.page === 'login') {
     app.className = 'login-root';
     app.innerHTML = renderLoginPage();
+    if (window.Modules && typeof window.Modules.afterRender === 'function') {
+      window.Modules.afterRender('login');
+    }
     return;
   }
 
   app.className = 'app';
 
-  let mainContent = '';
-  if (state.page === 'inicio') mainContent = renderHomePage();
-  else if (state.page === 'agenda') mainContent = renderAgendaPage();
-  else if (state.page === 'pacientes') mainContent = renderPatientsPage();
-  else if (state.page === 'consulta') mainContent = renderConsultaPage();
-  else if (state.page === 'agendar') mainContent = renderBookingPage();
-  else if (state.page === 'reportes') mainContent = renderReportsPage();
-  else mainContent = renderHomePage();
+  // Si la página es atendida por los módulos avanzados (Dashboard Analítico, Agenda, ECE, Inventario, Recetas)
+  let mainContent = window.Modules && typeof window.Modules.renderPage === 'function' ? window.Modules.renderPage(state.page) : null;
+
+  if (state.page === 'inicio') {
+    if (mainContent) {
+      // Integrar el topbar editorial con saludo y buscador sobre el Dashboard Analítico moderno
+      mainContent = `
+        ${renderTopbar()}
+        ${mainContent}
+      `;
+    } else {
+      mainContent = renderHomePage();
+    }
+  } else if (!mainContent) {
+    if (state.page === 'agenda') mainContent = renderAgendaPage();
+    else if (state.page === 'pacientes') mainContent = renderPatientsPage();
+    else if (state.page === 'consulta') mainContent = renderConsultaPage();
+    else if (state.page === 'agendar') mainContent = renderBookingPage();
+    else if (state.page === 'reportes') mainContent = renderReportsPage();
+    else if (state.page === 'inventario') mainContent = renderInventarioFallbackPage();
+    else if (state.page === 'recetas') mainContent = renderRecetasFallbackPage();
+    else mainContent = renderHomePage();
+  }
 
   app.innerHTML = `
     ${renderSidebar()}
@@ -3315,6 +3414,11 @@ function render() {
     </main>
     ${renderBottomNav()}
   `;
+
+  // Montar componentes y escuchadores de los módulos avanzados
+  if (window.Modules && typeof window.Modules.afterRender === 'function') {
+    window.Modules.afterRender(state.page);
+  }
 }
 
 // ==========================================
@@ -3322,6 +3426,25 @@ function render() {
 // ==========================================
 
 async function initApp() {
+  // Conectar bridge de módulos si está presente
+  if (window.Modules) {
+    window.Modules.connect({
+      state,
+      render,
+      navigate,
+      bootData: async () => {
+        await fetchClinicas();
+        await fetchPacientes();
+        await fetchCitas();
+      },
+      clinicName: getCurrentClinicName,
+      iniciarConsulta: vincularCitaAConsulta,
+      iniciarConsultaConPaciente: iniciarConsultaDirectaConPaciente,
+      refreshLegacyCitas: fetchCitas
+    });
+    state.page = window.Modules.initialPage();
+  }
+
   // 1. Cargar datos base y renderizar de inmediato
   cargarCitasDemoSiVacio();
   render();
@@ -3337,8 +3460,21 @@ async function initApp() {
   render();
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
+if (window.Modules) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
 } else {
-  initApp();
+  window.addEventListener('modules:ready', () => {
+    initApp();
+  }, { once: true });
+  // Fallback por si modules tarda o no se cargó como ES module
+  setTimeout(() => {
+    if (!window.__appInitialized) {
+      window.__appInitialized = true;
+      initApp();
+    }
+  }, 100);
 }
