@@ -21,6 +21,11 @@ const pagoRoutes = require('./routes/pagoRoutes');
 const mapaPodologicoRoutes = require('./routes/mapaPodologicoRoutes');
 const auditoriaRoutes = require('./routes/auditoriaRoutes');
 
+// Importar Rutas especializadas RBAC
+const authRoutes = require('./routes/authRoutes');
+const recepcionistaRoutes = require('./routes/recepcionistaRoutes');
+const medicoRoutes = require('./routes/medicoRoutes');
+
 // Middleware de auditoría automática
 const { auditoriaAutomaticaMiddleware } = require('./middlewares/auditoriaMiddleware');
 
@@ -32,16 +37,34 @@ app.use(cors());
 app.use(express.json());
 app.use(auditoriaAutomaticaMiddleware);
 
-// Servir frontend estático de podología y carpeta completa frontend
+// Servir frontend estático (raíz de frontend y subcarpetas)
+app.use(express.static(path.join(__dirname, '../frontend')));
 app.use(express.static(path.join(__dirname, '../frontend/podologo')));
 app.use('/frontend', express.static(path.join(__dirname, '../frontend')));
 
-// Ruta principal explícita
+// Rutas de navegación directa a las vistas HTML
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/podologo/index.html'));
+  res.sendFile(path.join(__dirname, '../frontend/recepcion.html'));
+});
+app.get('/recepcion', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/recepcion.html'));
+});
+app.get('/recepcion.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/recepcion.html'));
+});
+app.get('/consultorio', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/consultorio.html'));
+});
+app.get('/consultorio.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/consultorio.html'));
 });
 
-// Registro de endpoints de la API REST
+// Rutas RBAC para Recepcionista y Podólogo
+app.use('/api/auth', authRoutes);
+app.use('/api/recepcion', recepcionistaRoutes);
+app.use('/api/medico', medicoRoutes);
+
+// Registro de endpoints de la API REST generales
 app.use('/api/clinicas', clinicaRoutes);
 app.use('/api/pacientes', pacienteRoutes);
 app.use('/api/consultas', consultaRoutes);
