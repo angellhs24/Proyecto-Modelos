@@ -46,6 +46,14 @@ app.use(express.static(adminPath));
 app.use('/landing', express.static(landingSrcPath));
 app.use('/public', express.static(landingPublicPath));
 
+// Rutas de navegación directa a las vistas HTML
+app.get(['/recepcion', '/recepcion.html'], (req, res) => {
+  res.sendFile(path.join(adminPath, 'recepcion.html'));
+});
+app.get(['/consultorio', '/consultorio.html'], (req, res) => {
+  res.sendFile(path.join(adminPath, 'consultorio.html'));
+});
+
 // Rutas RBAC para Recepcionista y Podólogo
 app.use('/api/auth', authRoutes);
 app.use('/api/recepcion', recepcionistaRoutes);
