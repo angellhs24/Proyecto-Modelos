@@ -2,7 +2,7 @@
  * Guard de Roles (RBAC) para Frontend-Admin
  * Valida los permisos de las vistas según el rol del usuario (admin, recepcionista, podologo).
  */
-import { hasRole, canAccessRoute, getAccessibleViews } from '../../js/core/rbac.js';
+import { hasRole, canAccessRoute, getAccessibleViews } from '../core/rbac.js';
 
 export function checkRole(userRole, requiredRoles = []) {
   if (!userRole) return false;

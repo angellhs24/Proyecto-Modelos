@@ -7,7 +7,7 @@ import {
   validateCitaForm,
   buildAlerts,
   normalizeCita
-} from '../../js/domain/scheduling.js';
+} from '../../src/domain/scheduling.js';
 
 describe('Dominio de Agenda Inteligente', () => {
   const citaA = {

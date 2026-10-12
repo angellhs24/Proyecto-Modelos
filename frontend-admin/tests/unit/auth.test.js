@@ -1,5 +1,5 @@
-import { validateCredentials, decodeJwt, isTokenExpired, normalizePodologo } from '../../js/core/auth.js';
-import { resolvePage, parseHash, buildHash } from '../../js/core/guard.js';
+import { validateCredentials, decodeJwt, isTokenExpired, normalizePodologo } from '../../src/core/auth.js';
+import { resolvePage, parseHash, buildHash } from '../../src/core/guard.js';
 
 describe('Módulo de Autenticación y Seguridad', () => {
   describe('validateCredentials', () => {

@@ -2,7 +2,7 @@
  * Servicios de Dominio de la API REST
  */
 import { http } from './httpService.js';
-import * as legacyApi from '../../js/api/index.js';
+import * as legacyApi from '../api/index.js';
 
 export const CitasService = {
   listar: (filtros) => http.get('/citas'),

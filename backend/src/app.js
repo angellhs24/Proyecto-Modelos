@@ -3,11 +3,14 @@ const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 
+// Importar Conexión a BD
+const db = require('./config/db');
+
 // Importar Rutas
 const clinicaRoutes = require('./routes/clinicaRoutes');
 const pacienteRoutes = require('./routes/pacienteRoutes');
 const consultaRoutes = require('./routes/consultaRoutes');
-const citaRoutes = require('./routes/citaRoutes'); // Alias de compatibilidad
+const citaRoutes = require('./routes/citaRoutes');
 const podologoRoutes = require('./routes/podologoRoutes');
 const diagnosticoRoutes = require('./routes/diagnosticoRoutes');
 const tratamientoRoutes = require('./routes/tratamientoRoutes');
@@ -27,18 +30,21 @@ const medicoRoutes = require('./routes/medicoRoutes');
 const { auditoriaAutomaticaMiddleware } = require('./middlewares/auditoriaMiddleware');
 
 const app = express();
+const PORT = process.env.PORT || 4000;
 
-// Middlewares
+// Middlewares globales
 app.use(cors());
 app.use(express.json());
 app.use(auditoriaAutomaticaMiddleware);
 
-// Servir frontend estático (soporte de fallback y desarrollo)
+// Servir frontend estático (soporte directo en desarrollo)
 const adminPath = path.join(__dirname, '../../frontend-admin');
-const landingPath = path.join(__dirname, '../../frontend-landing/src');
+const landingSrcPath = path.join(__dirname, '../../frontend-landing/src');
+const landingPublicPath = path.join(__dirname, '../../frontend-landing/public');
 
 app.use(express.static(adminPath));
-app.use('/landing', express.static(landingPath));
+app.use('/landing', express.static(landingSrcPath));
+app.use('/public', express.static(landingPublicPath));
 
 // Rutas RBAC para Recepcionista y Podólogo
 app.use('/api/auth', authRoutes);
@@ -49,7 +55,7 @@ app.use('/api/medico', medicoRoutes);
 app.use('/api/clinicas', clinicaRoutes);
 app.use('/api/pacientes', pacienteRoutes);
 app.use('/api/consultas', consultaRoutes);
-app.use('/api/citas', citaRoutes); // Mantiene retrocompatibilidad
+app.use('/api/citas', citaRoutes);
 app.use('/api/podologos', podologoRoutes);
 app.use('/api/diagnosticos', diagnosticoRoutes);
 app.use('/api/tratamientos', tratamientoRoutes);
@@ -70,5 +76,18 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date()
   });
 });
+
+// Si se ejecuta directamente, iniciar el servidor
+if (require.main === module) {
+  app.listen(PORT, async () => {
+    console.log(`🚀 Servidor de Podología corriendo en el puerto ${PORT}`);
+    try {
+      const res = await db.query('SELECT NOW() AS hora_actual');
+      console.log('✅ Conexión exitosa a MySQL (Clinica_Podologia):', res.rows[0].hora_actual);
+    } catch (error) {
+      console.error('❌ Error al conectar con MySQL:', error.message);
+    }
+  });
+}
 
 module.exports = app;

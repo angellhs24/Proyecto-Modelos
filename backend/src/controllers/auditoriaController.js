@@ -48,6 +48,9 @@ const obtenerLogs = async (req, res) => {
       logs: resultado.rows
     });
   } catch (error) {
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      return res.json({ total: 0, logs: [] });
+    }
     console.error('Error al obtener bitácora de auditoría:', error);
     res.status(500).json({ error: 'Error al obtener la bitácora de auditoría' });
   }

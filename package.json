@@ -2,10 +2,10 @@
   "name": "ecosistema-podologia",
   "version": "2.0.0",
   "description": "Ecosistema de Gestión Médica, Portal Administrativo y Agendamiento Público para Podología",
-  "main": "backend/src/server.js",
+  "main": "backend/src/app.js",
   "scripts": {
-    "start": "node backend/src/server.js",
-    "dev": "node --watch backend/src/server.js",
+    "start": "node backend/src/app.js",
+    "dev": "node --watch backend/src/app.js",
     "dev:backend": "cd backend && npm run dev",
     "dev:admin": "cd frontend-admin && npm start",
     "dev:landing": "cd frontend-landing && npm start",

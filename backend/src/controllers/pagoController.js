@@ -56,6 +56,9 @@ const obtenerPagos = async (req, res) => {
     const resultado = await db.query(sql, params);
     res.json(resultado.rows);
   } catch (error) {
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      return res.json([]);
+    }
     console.error('Error al obtener pagos:', error);
     res.status(500).json({ error: 'Error al consultar los registros de pagos y caja' });
   }
@@ -110,6 +113,18 @@ const obtenerResumenFinanciero = async (req, res) => {
       metodos_pago: metodos.rows
     });
   } catch (error) {
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      return res.json({
+        total_ingresos: 0,
+        ingresos_mes: 0,
+        total_transacciones: 0,
+        total_hoy: 0,
+        count_hoy: 0,
+        total_pendiente: 0,
+        count_pendiente: 0,
+        desglose_metodos: []
+      });
+    }
     console.error('Error al obtener resumen financiero:', error);
     res.status(500).json({ error: 'Error al calcular las métricas financieras' });
   }

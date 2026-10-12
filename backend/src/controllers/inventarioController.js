@@ -51,6 +51,9 @@ const obtenerInventario = async (req, res) => {
     const resultado = await db.query(sql, params);
     res.json(resultado.rows);
   } catch (error) {
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      return res.json([]);
+    }
     console.error('Error al obtener inventario:', error);
     res.status(500).json({ error: 'Error al consultar el inventario' });
   }
@@ -360,6 +363,9 @@ const obtenerMovimientos = async (req, res) => {
 
     res.json(resultado.rows);
   } catch (error) {
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      return res.json([]);
+    }
     console.error('Error al obtener movimientos de inventario:', error);
     res.status(500).json({ error: 'Error al consultar movimientos' });
   }

@@ -1,7 +1,7 @@
 /**
  * Cliente HTTP centralizado con inyección de Bearer Token JWT
  */
-import { getSession } from '../../js/core/auth.js';
+import { getSession } from '../core/auth.js';
 
 const API_BASE_URL = window.__API_BASE_URL__ || 'http://localhost:4000/api';
 

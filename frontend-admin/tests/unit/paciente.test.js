@@ -5,7 +5,7 @@ import {
   validateDiagnostico,
   validateTratamiento,
   validateDocumento
-} from '../../js/domain/paciente.js';
+} from '../../src/domain/paciente.js';
 
 describe('Dominio de Paciente y Expediente Clínico', () => {
   test('normalizePaciente procesa campos MySQL y calcula edad', () => {

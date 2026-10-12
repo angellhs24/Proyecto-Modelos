@@ -2,8 +2,8 @@
  * Guard de Autenticación y Rutas para Frontend-Admin
  * Valida la existencia y vigencia de la sesión en sessionStorage o token JWT.
  */
-import { getSession, isTokenExpired } from '../../js/core/auth.js';
-import { resolvePage, parseHash, buildHash, DEFAULT_PAGE } from '../../js/core/guard.js';
+import { getSession, isTokenExpired } from '../core/auth.js';
+import { resolvePage, parseHash, buildHash, DEFAULT_PAGE } from '../core/guard.js';
 
 export function checkAuth(hash = window.location.hash) {
   const session = getSession();

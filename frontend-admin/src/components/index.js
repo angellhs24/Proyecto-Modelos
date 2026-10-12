@@ -1,16 +1,16 @@
 /**
  * Componentes compartidos del Panel Administrativo
  */
-export * from '../../js/components/calendarView.js';
-export * from '../../js/components/dashboardView.js';
-export * from '../../js/components/expedienteView.js';
-export * from '../../js/components/footMapView.js';
-export * from '../../js/components/inventarioView.js';
-export * from '../../js/components/loginView.js';
-export * from '../../js/components/mapaPodologicoView.js';
-export * from '../../js/components/notifications.js';
-export * from '../../js/components/pagosView.js';
-export * from '../../js/components/recetasView.js';
-export * from '../../js/components/shellView.js';
-export * from '../../js/components/ui.js';
-export * from '../../js/components/auditoriaView.js';
+export * from './calendarView.js';
+export * from './dashboardView.js';
+export * from './expedienteView.js';
+export * from './footMapView.js';
+export * from './inventarioView.js';
+export * from './loginView.js';
+export * from './mapaPodologicoView.js';
+export * from './notifications.js';
+export * from './pagosView.js';
+export * from './recetasView.js';
+export * from './shellView.js';
+export * from './ui.js';
+export * from './auditoriaView.js';

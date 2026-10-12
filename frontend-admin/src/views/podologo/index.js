@@ -1,20 +1,9 @@
 /**
- * Vistas del Módulo de Podólogo (Agenda individual, expediente clínico y recetas)
+ * Vistas del Módulo de Podólogo (Módulo activo principal)
+ * Incluye: Agenda de citas, Expediente Clínico Electrónico, Mapa Podológico, Recetas y Dashboard.
  */
-import {
-  renderExpedienteShell,
-  mountExpediente,
-  renderMapaShell,
-  mountMapa,
-  renderRecetasShell,
-  mountRecetas
-} from '../../components/index.js';
-
-export {
-  renderExpedienteShell,
-  mountExpediente,
-  renderMapaShell,
-  mountMapa,
-  renderRecetasShell,
-  mountRecetas
-};
+export * from './agendaView.js';
+export * from './expedienteView.js';
+export * from './mapaPodologicoView.js';
+export * from './recetasView.js';
+export * from './dashboardView.js';

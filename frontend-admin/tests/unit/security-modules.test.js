@@ -1,8 +1,8 @@
-import { sanitizeText, sanitizeNumber, sanitizeDeep, neutralizeText, isSafeEmail, isSafeExpediente } from '../../js/core/sanitize.js';
-import { canAccessPage, can, normalizeRole, ROLES } from '../../js/core/rbac.js';
-import { validateInsumo, validateMovimiento, aplicarMovimiento, estadoStock } from '../../js/domain/inventario.js';
-import { validateReceta, normalizeReceta, buildRecetaDocument } from '../../js/domain/receta.js';
-import { computeDashboard } from '../../js/domain/dashboard.js';
+import { sanitizeText, sanitizeNumber, sanitizeDeep, neutralizeText, isSafeEmail, isSafeExpediente } from '../../src/core/sanitize.js';
+import { canAccessPage, can, normalizeRole, ROLES } from '../../src/core/rbac.js';
+import { validateInsumo, validateMovimiento, aplicarMovimiento, estadoStock } from '../../src/domain/inventario.js';
+import { validateReceta, normalizeReceta, buildRecetaDocument } from '../../src/domain/receta.js';
+import { computeDashboard } from '../../src/domain/dashboard.js';
 
 describe('Auditoría de Ciberseguridad & Validación de Entradas (XSS / RBAC)', () => {
   describe('Sanitización e Inmunización contra XSS', () => {

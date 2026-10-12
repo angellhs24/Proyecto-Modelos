@@ -5,7 +5,7 @@ import {
   marksToDiagnosticos,
   diagnosticosToMarks,
   toggleMark
-} from '../../js/domain/footMap.js';
+} from '../../src/domain/footMap.js';
 
 describe('Odontograma Podológico (Mapa del Pie)', () => {
   test('describeMark genera descripción legible de lado y zona', () => {
