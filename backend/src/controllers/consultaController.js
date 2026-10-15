@@ -278,10 +278,14 @@ const crearConsulta = async (req, res) => {
   } = req.body;
 
   try {
-    let expedienteFinal = fk_no_expediente || id_paciente;
-    const clinicaFinal = fk_clinica_id || id_clinica || 14;
+    let expedienteFinal = fk_no_expediente || id_paciente || req.body.expediente || req.body.No_expediente;
+    const clinicaFinal = fk_clinica_id || id_clinica || req.body.clinica_id || req.body.sucursal_id || 14;
 
-    const nom = req.body.nombre_completo || req.body.paciente_nombre || 'Paciente';
+    const nom = req.body.nombre_completo || req.body.paciente_nombre || req.body.nombre || '';
+    const partes = nom.trim().split(/\s+/);
+    const nombres = req.body.nombres || req.body.Nombres || partes[0] || 'Paciente';
+    const apePaterno = req.body.ape_paterno || req.body.apellidos || (partes.length > 1 ? partes[1] : 'Sin Apellido');
+    const apeMaterno = req.body.ape_materno || (partes.length > 2 ? partes.slice(2).join(' ') : null);
     const tel = req.body.telefono || req.body.paciente_telefono || null;
     const fechaNac = req.body.Fecha_nacimiento || req.body.fecha_nacimiento || null;
     const calle = req.body.Calle_direccion || req.body.calle_direccion || null;
@@ -290,9 +294,31 @@ const crearConsulta = async (req, res) => {
     const antPat = req.body.Antecedentes_patologicos || req.body.antecedentes_patologicos || null;
     const diab = req.body.es_diabetico ? 1 : 0;
     const hiper = req.body.es_hipertenso ? 1 : 0;
-    const notas = req.body.Notas || req.body.notas || req.body.notas_alergias || null;
+    const notas = req.body.Notas || req.body.notas || req.body.motivo || req.body.notas_alergias || null;
     const sexo = req.body.sexo || req.body.Sexo || 'F';
     const calzado = req.body.Calzado || req.body.calzado || null;
+
+    // Si es un paciente nuevo (sin No. de Expediente), generarlo automáticamente
+    if (!expedienteFinal) {
+      const anio = new Date().getFullYear();
+      const clinicaStr = String(clinicaFinal).padStart(2, '0').slice(-2);
+      const prefijo = `${anio}${clinicaStr}`;
+      try {
+        const resExp = await db.query(
+          `SELECT MAX(No_expediente) AS max_exp FROM Pacientes WHERE CAST(No_expediente AS CHAR) LIKE ?`,
+          [`${prefijo}%`]
+        );
+        const maxExp = resExp.rows[0]?.max_exp;
+        if (maxExp) {
+          const consecutivo = parseInt(String(maxExp).slice(-4), 10) + 1;
+          expedienteFinal = Number(`${prefijo}${String(consecutivo).padStart(4, '0')}`);
+        } else {
+          expedienteFinal = Number(`${prefijo}0001`);
+        }
+      } catch {
+        expedienteFinal = Number(`${anio}${clinicaStr}${Math.floor(1000 + Math.random() * 9000)}`);
+      }
+    }
 
     // Verificar si el paciente existe en Pacientes para evitar violación de Foreign Key
     const pacCheck = await db.query(
@@ -302,11 +328,6 @@ const crearConsulta = async (req, res) => {
 
     if (pacCheck.rows.length === 0) {
       // Paciente nuevo / Walk-in: darlo de alta automáticamente con todos los campos DDL
-      const partes = nom.trim().split(/\s+/);
-      const nombres = partes[0] || 'Paciente';
-      const apePaterno = partes[1] || 'Sin Apellido';
-      const apeMaterno = partes.length > 2 ? partes.slice(2).join(' ') : null;
-
       await db.query(
         `INSERT INTO Pacientes (
           No_expediente, Nombres, ape_paterno, ape_materno, telefono,
@@ -456,9 +477,15 @@ const crearConsulta = async (req, res) => {
     }
 
     res.status(201).json({
-      mensaje: 'Consulta registrada correctamente',
+      mensaje: 'Cita médica agendada correctamente',
       Consulta_id: consultaIdFinal,
       id_cita: consultaIdFinal,
+      no_expediente: expedienteFinal,
+      paciente: {
+        No_expediente: expedienteFinal,
+        nombre: `${nombres} ${apePaterno}`.trim(),
+        telefono: tel
+      },
       consulta: {
         Consulta_id: consultaIdFinal,
         fk_no_expediente: expedienteFinal,
