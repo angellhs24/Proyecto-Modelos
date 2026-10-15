@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elite Foot Care | Panel de Administración General (Rol ID: 1)</title>
+  
+  <!-- Tipografía Google Fonts Outfit & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  
+  <!-- Design System Base & Estilos de Administración -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- =========================================================================
+         HEADER GLASSMORPHIC SUPERIOR
+         ========================================================================= -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-logo-icon admin">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <div class="brand-title">Elite Foot Care</div>
+          <div class="brand-subtitle" style="color: #38bdf8;">Panel de Control & Administración General</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Indicador de Usuario Administrador en Sesión -->
+        <div class="user-chip" id="user-chip-container">
+          <div class="user-avatar" id="admin-avatar-initials" style="background: rgba(14, 165, 233, 0.25); color: #38bdf8;">RM</div>
+          <div class="user-meta">
+            <span class="user-name" id="admin-display-name">Lic. Roberto Méndez</span>
+            <span class="user-role-badge role-badge-admin" id="admin-role-text">Rol ID: 1 • Administrador General</span>
+          </div>
+        </div>
+
+        <!-- Accesos directos a los otros roles del ecosistema -->
+        <a href="/consultorio.html" class="role-switch-btn" title="Ir al Consultorio del Podólogo">
+          <i class="fa-solid fa-user-doctor" style="color: #c084fc;"></i>
+          <span>Consultorio</span>
+        </a>
+        <a href="/recepcion.html" class="role-switch-btn" title="Ir a la Recepción Clínica">
+          <i class="fa-solid fa-cash-register" style="color: #34d399;"></i>
+          <span>Recepción</span>
+        </a>
+        <a href="/index.html" class="role-switch-btn" title="Ir a la Plataforma Modular Integral">
+          <i class="fa-solid fa-layer-group" style="color: #fbbf24;"></i>
+          <span>Portal Integral</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- =========================================================================
+         SISTEMA DE NAVEGACIÓN POR PESTAÑAS MATERIAL 3
+         ========================================================================= -->
+    <nav class="nav-tabs-container" aria-label="Navegación del Administrador">
+      <button class="nav-tab-btn active" data-tab="tab-resumen" id="tab-btn-resumen">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>Resumen & KPIs</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="tab-podologos" id="tab-btn-podologos">
+        <i class="fa-solid fa-user-doctor"></i>
+        <span>Gestión de Podólogos</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="tab-recepcionistas" id="tab-btn-recepcionistas">
+        <i class="fa-solid fa-users-gear"></i>
+        <span>Recepcionistas</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="tab-clinicas" id="tab-btn-clinicas">
+        <i class="fa-solid fa-hospital"></i>
+        <span>Sedes Clínicas</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="tab-pacientes" id="tab-btn-pacientes">
+        <i class="fa-solid fa-hospital-user"></i>
+        <span>Pacientes & Clientes</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="tab-avisos" id="tab-btn-avisos">
+        <i class="fa-solid fa-paper-plane"></i>
+        <span>Centro de Avisos</span>
+      </button>
+    </nav>
+
+    <!-- =========================================================================
+         CONTENIDO PRINCIPAL POR PESTAÑAS
+         ========================================================================= -->
+    <main class="main-content">
+
+      <!-- =====================================================================
+           PESTAÑA 1: RESUMEN EJECUTIVO & KPIS
+           ===================================================================== -->
+      <section id="tab-resumen" class="tab-pane active">
+        <!-- 4 Tarjetas KPI Principales -->
+        <div class="grid-cols-4">
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Podólogos en Servicio</span>
+              <div class="kpi-icon-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">
+                <i class="fa-solid fa-stethoscope"></i>
+              </div>
+            </div>
+            <div class="kpi-value" id="kpi-podos-total">--</div>
+            <div class="kpi-trend" id="kpi-podos-sub">Cargando especialistas...</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Recepcionistas</span>
+              <div class="kpi-icon-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+                <i class="fa-solid fa-address-book"></i>
+              </div>
+            </div>
+            <div class="kpi-value" id="kpi-receps-total">--</div>
+            <div class="kpi-trend" id="kpi-receps-sub">Cargando personal...</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Pacientes Registrados</span>
+              <div class="kpi-icon-badge" style="background: rgba(2, 132, 199, 0.15); color: #38bdf8;">
+                <i class="fa-solid fa-hospital-user"></i>
+              </div>
+            </div>
+            <div class="kpi-value" id="kpi-pacientes-total">--</div>
+            <div class="kpi-trend" id="kpi-pacientes-sub">Cargando base clínica...</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Avisos Enviados</span>
+              <div class="kpi-icon-badge" style="background: rgba(37, 211, 102, 0.15); color: #25d366;">
+                <i class="fa-brands fa-whatsapp"></i>
+              </div>
+            </div>
+            <div class="kpi-value" id="kpi-avisos-total">--</div>
+            <div class="kpi-trend" id="kpi-avisos-sub">WhatsApp y comunicaciones</div>
+          </div>
+        </div>
+
+        <!-- Barra de Acciones Rápidas del Administrador -->
+        <div class="card" style="margin-top: 1.5rem;">
+          <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+            <div>
+              <h3 class="card-title"><i class="fa-solid fa-bolt" style="color: #fbbf24;"></i> Acciones Operativas Rápidas</h3>
+              <p class="card-subtitle">Administra los módulos clave con un solo clic</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="abrirModalNuevoPodologo()">
+              <i class="fa-solid fa-user-plus"></i> Dar de Alta Podólogo
+            </button>
+            <button class="btn btn-success" onclick="abrirModalNuevaRecepcionista()">
+              <i class="fa-solid fa-user-nurse"></i> Dar de Alta Recepcionista
+            </button>
+            <button class="btn btn-secondary" onclick="abrirModalNuevaClinica()" style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">
+              <i class="fa-solid fa-hospital-user"></i> Dar de Alta Clínica
+            </button>
+            <button class="btn btn-secondary" onclick="navegarAPestana('tab-avisos')">
+              <i class="fa-solid fa-bullhorn"></i> Redactar Aviso a Paciente
+            </button>
+            <button class="btn btn-secondary" onclick="navegarAPestana('tab-pacientes')">
+              <i class="fa-solid fa-magnifying-glass"></i> Modificar Pacientes
+            </button>
+          </div>
+        </div>
+
+        <!-- Sedes Clínicas y Actividad Reciente -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 class="card-title"><i class="fa-solid fa-hospital" style="color: #fbbf24;"></i> Sedes Clínicas</h3>
+              <button class="btn btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.78rem;" onclick="navegarAPestana('tab-clinicas')">
+                Ver Todas <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+            <div id="resumen-clinicas-lista" style="display: flex; flex-direction: column; gap: 0.85rem;">
+              <!-- Se llena dinámicamente con JS -->
+              <div style="color: var(--text-muted); font-size: 0.88rem;">Cargando sedes clínicas...</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title" style="margin-bottom: 1rem;"><i class="fa-solid fa-clock-rotate-left" style="color: #c084fc;"></i> Últimos Avisos a Pacientes</h3>
+            <div id="resumen-ultimos-avisos" style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <div style="color: var(--text-muted); font-size: 0.9rem;">Cargando historial de avisos...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           PESTAÑA 2: GESTIÓN DE PODÓLOGOS
+           ===================================================================== -->
+      <section id="tab-podologos" class="tab-pane">
+        <!-- Toolbar con búsqueda y filtros -->
+        <div class="admin-toolbar">
+          <div class="search-input-group">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="filtro-podologos-buscar" placeholder="Buscar por nombre, cédula o email...">
+          </div>
+
+          <div class="admin-toolbar-actions">
+            <select class="form-select" id="filtro-podologos-estado" style="width: auto;">
+              <option value="todos">Todos los Estados</option>
+              <option value="activos">Solo Activos</option>
+              <option value="baja">Dados de Baja</option>
+            </select>
+            <button class="btn btn-primary" onclick="abrirModalNuevoPodologo()">
+              <i class="fa-solid fa-user-plus"></i> Nuevo Podólogo
+            </button>
+          </div>
+        </div>
+
+        <!-- Grilla de Podólogos -->
+        <div class="staff-grid" id="contenedor-podologos-grid">
+          <!-- Se llena dinámicamente con JS -->
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           PESTAÑA 3: GESTIÓN DE RECEPCIONISTAS
+           ===================================================================== -->
+      <section id="tab-recepcionistas" class="tab-pane">
+        <!-- Toolbar con búsqueda y filtros -->
+        <div class="admin-toolbar">
+          <div class="search-input-group">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="filtro-recep-buscar" placeholder="Buscar por nombre, clínica o email...">
+          </div>
+
+          <div class="admin-toolbar-actions">
+            <select class="form-select" id="filtro-recep-estado" style="width: auto;">
+              <option value="todos">Todos los Estados</option>
+              <option value="activos">Solo Activas</option>
+              <option value="baja">Dadas de Baja</option>
+            </select>
+            <button class="btn btn-success" onclick="abrirModalNuevaRecepcionista()">
+              <i class="fa-solid fa-user-plus"></i> Nueva Recepcionista
+            </button>
+          </div>
+        </div>
+
+        <!-- Grilla de Recepcionistas -->
+        <div class="staff-grid" id="contenedor-recepcionistas-grid">
+          <!-- Se llena dinámicamente con JS -->
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           PESTAÑA: GESTIÓN DE SEDES CLÍNICAS (ALTA, BAJA Y EDICIÓN)
+           ===================================================================== -->
+      <section id="tab-clinicas" class="tab-pane">
+        <!-- Toolbar con búsqueda y filtros -->
+        <div class="admin-toolbar">
+          <div class="search-input-group">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="filtro-clinicas-buscar" placeholder="Buscar por nombre de sede, municipio o teléfono...">
+          </div>
+
+          <div class="admin-toolbar-actions">
+            <select class="form-select" id="filtro-clinicas-estado" style="width: auto;">
+              <option value="todos">Todas las Sedes</option>
+              <option value="activas">Solo Operativas / Activas</option>
+              <option value="baja">Dadas de Baja / Inactivas</option>
+            </select>
+            <button class="btn btn-primary" onclick="abrirModalNuevaClinica()" style="background: linear-gradient(135deg, #d97706, #fbbf24); border-color: #f59e0b;">
+              <i class="fa-solid fa-hospital-user"></i> Dar de Alta Clínica
+            </button>
+          </div>
+        </div>
+
+        <!-- Grilla de Sedes Clínicas -->
+        <div class="staff-grid" id="contenedor-clinicas-grid">
+          <!-- Se llena dinámicamente con JS -->
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           PESTAÑA 4: GESTIÓN DE PACIENTES / CLIENTES
+           ===================================================================== -->
+      <section id="tab-pacientes" class="tab-pane">
+        <!-- Toolbar con búsqueda y filtros -->
+        <div class="admin-toolbar">
+          <div class="search-input-group" style="flex: 1; max-width: 480px;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="filtro-pacientes-buscar" placeholder="Buscar por expediente, nombre, teléfono o notas...">
+          </div>
+
+          <div class="admin-toolbar-actions">
+            <select class="form-select" id="filtro-pacientes-condicion" style="width: auto;">
+              <option value="todos">Todos los Pacientes</option>
+              <option value="diabetico">Con Diabetes Mellitus</option>
+              <option value="hipertenso">Con Hipertensión Arterial</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tabla interactiva de pacientes -->
+        <div class="admin-table-container">
+          <table class="admin-table" id="tabla-pacientes-admin">
+            <thead>
+              <tr>
+                <th>Expediente</th>
+                <th>Nombre del Paciente</th>
+                <th>Edad / Sexo</th>
+                <th>Teléfono</th>
+                <th>Condición Clínica</th>
+                <th>Última Atención</th>
+                <th style="text-align: right;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-pacientes-admin">
+              <!-- Se llena dinámicamente con JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           PESTAÑA 5: CENTRO DE AVISOS Y COMUNICACIONES
+           ===================================================================== -->
+      <section id="tab-avisos" class="tab-pane">
+        <div class="notice-composer-grid">
+          
+          <!-- LADO IZQUIERDO: REDACTAR Y MANDAR AVISO -->
+          <div class="notice-box">
+            <h3 class="card-title" style="margin-bottom: 0.35rem;">
+              <i class="fa-solid fa-paper-plane" style="color: #38bdf8;"></i> Redactar Aviso al Paciente
+            </h3>
+            <p class="card-subtitle" style="margin-bottom: 1.25rem;">
+              Envía recordatorios, recomendaciones o avisos clínicos directamente a su WhatsApp o teléfono.
+            </p>
+
+            <form id="form-enviar-aviso">
+              <!-- Paciente Destinatario -->
+              <div class="form-group" style="margin-bottom: 1rem;">
+                <label class="form-label" for="aviso-select-paciente">Seleccionar Paciente Destinatario *</label>
+                <select class="form-select" id="aviso-select-paciente" required>
+                  <option value="">-- Elige un paciente de la lista --</option>
+                </select>
+              </div>
+
+              <!-- Teléfono Detectado -->
+              <div class="form-group" style="margin-bottom: 1rem;">
+                <label class="form-label" for="aviso-telefono">Teléfono de Contacto (10 dígitos)</label>
+                <input type="tel" class="form-input" id="aviso-telefono" placeholder="Ej. 5541238970" required>
+              </div>
+
+              <!-- Plantillas Rápidas -->
+              <div class="form-group" style="margin-bottom: 1rem;">
+                <label class="form-label">Plantillas Rápidas de Mensaje:</label>
+                <div class="notice-templates-bar">
+                  <span class="template-chip" data-template="recordatorio">
+                    <i class="fa-solid fa-calendar-check"></i> Recordatorio de Cita
+                  </span>
+                  <span class="template-chip" data-template="diabetico">
+                    <i class="fa-solid fa-stethoscope"></i> Control Pie Diabético
+                  </span>
+                  <span class="template-chip" data-template="seguimiento">
+                    <i class="fa-solid fa-notes-medical"></i> Seguimiento Clínico
+                  </span>
+                  <span class="template-chip" data-template="promocion">
+                    <i class="fa-solid fa-bullhorn"></i> Campaña de Prevención
+                  </span>
+                </div>
+              </div>
+
+              <!-- Canal de Envío -->
+              <div class="form-group" style="margin-bottom: 1rem;">
+                <label class="form-label">Canal de Notificación:</label>
+                <div style="display: flex; gap: 1rem;">
+                  <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #f8fafc; cursor: pointer;">
+                    <input type="radio" name="aviso-canal" value="whatsapp" checked>
+                    <i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> WhatsApp Directo
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #f8fafc; cursor: pointer;">
+                    <input type="radio" name="aviso-canal" value="sms">
+                    <i class="fa-solid fa-comment-sms" style="color: #38bdf8;"></i> SMS / Texto
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #f8fafc; cursor: pointer;">
+                    <input type="radio" name="aviso-canal" value="sistema">
+                    <i class="fa-solid fa-clipboard-check" style="color: #c084fc;"></i> Registro en Expediente
+                  </label>
+                </div>
+              </div>
+
+              <!-- Asunto -->
+              <div class="form-group" style="margin-bottom: 1rem;">
+                <label class="form-label" for="aviso-asunto">Asunto / Motivo del Aviso</label>
+                <input type="text" class="form-input" id="aviso-asunto" placeholder="Ej. Recordatorio de Consulta Programada" required>
+              </div>
+
+              <!-- Mensaje -->
+              <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label" for="aviso-mensaje">Cuerpo del Mensaje *</label>
+                <textarea class="form-textarea" id="aviso-mensaje" rows="4" placeholder="Escribe el mensaje o selecciona una plantilla rápida..." required></textarea>
+              </div>
+
+              <!-- Vista Previa del Aviso -->
+              <div class="notice-preview-card">
+                <div class="notice-preview-header">
+                  <span><i class="fa-brands fa-whatsapp"></i> Previsualización para el Paciente</span>
+                  <span id="preview-destino-telefono" style="color: var(--text-muted); font-size: 0.8rem;">Sin destinatario</span>
+                </div>
+                <div id="preview-mensaje-render" style="font-size: 0.88rem; color: #f8fafc; line-height: 1.45; white-space: pre-wrap;">
+                  El mensaje que redactes se visualizará aquí en tiempo real antes de ser enviado.
+                </div>
+              </div>
+
+              <!-- Botones de Acción -->
+              <div style="display: flex; gap: 1rem; margin-top: 1.25rem; flex-wrap: wrap;">
+                <button type="submit" class="btn btn-primary" id="btn-registrar-aviso">
+                  <i class="fa-solid fa-floppy-disk"></i> Registrar Aviso en Sistema
+                </button>
+                <a id="btn-abrir-whatsapp" href="#" target="_blank" class="whatsapp-action-btn" style="display: none;">
+                  <i class="fa-brands fa-whatsapp" style="font-size: 1.15rem;"></i> Abrir Chat en WhatsApp
+                </a>
+              </div>
+            </form>
+          </div>
+
+          <!-- LADO DERECHO: HISTORIAL DE AVISOS EMITIDOS -->
+          <div class="notice-box">
+            <h3 class="card-title" style="margin-bottom: 0.35rem;">
+              <i class="fa-solid fa-clock-rotate-left" style="color: #c084fc;"></i> Historial de Comunicaciones
+            </h3>
+            <p class="card-subtitle" style="margin-bottom: 1.25rem;">
+              Registro de avisos enviados por el Administrador y seguimiento de contacto.
+            </p>
+
+            <div id="contenedor-historial-avisos" style="max-height: 600px; overflow-y: auto; padding-right: 0.5rem;">
+              <!-- Se llena dinámicamente con JS -->
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 1: REGISTRAR / EDITAR PODÓLOGO
+       ========================================================================= -->
+  <dialog id="modal-podologo" class="glass-modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modal-podologo-titulo">
+        <i class="fa-solid fa-user-doctor" style="color: #38bdf8;"></i> Alta de Podólogo
+      </h3>
+      <button class="btn-close" onclick="cerrarModal('modal-podologo')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="form-podologo">
+      <div class="modal-body">
+        <div class="admin-modal-grid">
+          <div class="form-group">
+            <label class="form-label" for="podo-cedula">Cédula Profesional *</label>
+            <input type="text" class="form-input" id="podo-cedula" placeholder="Ej. D-98234" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="podo-turno">Turno Asignado</label>
+            <select class="form-select" id="podo-turno">
+              <option value="M">Matutino (9:00 - 14:00)</option>
+              <option value="V">Vespertino (14:00 - 19:00)</option>
+              <option value="C" selected>Completo / Mixto</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="podo-nombre">Nombre(s) *</label>
+            <input type="text" class="form-input" id="podo-nombre" placeholder="Ej. Valeria" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="podo-paterno">Apellido Paterno *</label>
+            <input type="text" class="form-input" id="podo-paterno" placeholder="Ej. Castillo" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="podo-materno">Apellido Materno</label>
+            <input type="text" class="form-input" id="podo-materno" placeholder="Ej. Romero">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="podo-telefono">Teléfono de Contacto</label>
+            <input type="tel" class="form-input" id="podo-telefono" placeholder="Ej. 5512345678">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="podo-email">Correo Electrónico *</label>
+            <input type="email" class="form-input" id="podo-email" placeholder="valeria@elitefoot.com" required>
+          </div>
+          <div class="form-group" id="grupo-podo-password">
+            <label class="form-label" for="podo-password">Contraseña de Acceso</label>
+            <input type="password" class="form-input" id="podo-password" placeholder="Contraseña o inicial (ej. podo123)">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-podologo')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btn-guardar-podologo">
+          <i class="fa-solid fa-check"></i> Guardar Podólogo
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- =========================================================================
+       MODAL 2: REGISTRAR / EDITAR RECEPCIONISTA
+       ========================================================================= -->
+  <dialog id="modal-recepcionista" class="glass-modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modal-recep-titulo">
+        <i class="fa-solid fa-user-nurse" style="color: #34d399;"></i> Alta de Recepcionista
+      </h3>
+      <button class="btn-close" onclick="cerrarModal('modal-recepcionista')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="form-recepcionista">
+      <div class="modal-body">
+        <input type="hidden" id="recep-edit-id">
+        <div class="admin-modal-grid">
+          <div class="form-group">
+            <label class="form-label" for="recep-clinica">Clínica / Sede Asignada *</label>
+            <select class="form-select" id="recep-clinica" required>
+              <option value="14">DIF Lomas de Tecámac (Sede 14)</option>
+              <option value="28">Casa Héroes Tecámac (Sede 28)</option>
+              <option value="35">Casa Adulto Mayor Flores (Sede 35)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="recep-turno">Horario / Turno</label>
+            <select class="form-select" id="recep-turno">
+              <option value="Matutino (8:00 - 15:00)">Matutino (8:00 - 15:00)</option>
+              <option value="Vespertino (14:00 - 20:00)">Vespertino (14:00 - 20:00)</option>
+              <option value="Completo (9:00 - 18:00)">Completo (9:00 - 18:00)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="recep-nombre">Nombre(s) *</label>
+            <input type="text" class="form-input" id="recep-nombre" placeholder="Ej. Ana Patricia" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="recep-paterno">Apellido Paterno *</label>
+            <input type="text" class="form-input" id="recep-paterno" placeholder="Ej. Gómez" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="recep-materno">Apellido Materno</label>
+            <input type="text" class="form-input" id="recep-materno" placeholder="Ej. Ruiz">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="recep-telefono">Teléfono</label>
+            <input type="tel" class="form-input" id="recep-telefono" placeholder="Ej. 5544332211">
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label class="form-label" for="recep-email">Correo Electrónico *</label>
+            <input type="email" class="form-input" id="recep-email" placeholder="recep.ana@elitefoot.com" required>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-recepcionista')">Cancelar</button>
+        <button type="submit" class="btn btn-success" id="btn-guardar-recepcionista">
+          <i class="fa-solid fa-check"></i> Guardar Recepcionista
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- =========================================================================
+       MODAL 3: MODIFICAR DATOS DEL PACIENTE
+       ========================================================================= -->
+  <dialog id="modal-editar-paciente" class="glass-modal" style="max-width: 780px;">
+    <div class="modal-header">
+      <h3 class="modal-title">
+        <i class="fa-solid fa-pen-to-square" style="color: #38bdf8;"></i> Modificar Datos del Paciente
+      </h3>
+      <button class="btn-close" onclick="cerrarModal('modal-editar-paciente')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="form-editar-paciente">
+      <div class="modal-body">
+        <div class="admin-modal-grid">
+          <div class="form-group">
+            <label class="form-label" for="pac-edit-exp">No. Expediente (Identificador)</label>
+            <input type="text" class="form-input" id="pac-edit-exp" readonly style="opacity: 0.8; background: rgba(0,0,0,0.3);">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pac-edit-telefono">Teléfono *</label>
+            <input type="tel" class="form-input" id="pac-edit-telefono" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pac-edit-nombres">Nombres *</label>
+            <input type="text" class="form-input" id="pac-edit-nombres" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pac-edit-paterno">Apellido Paterno *</label>
+            <input type="text" class="form-input" id="pac-edit-paterno" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pac-edit-materno">Apellido Materno</label>
+            <input type="text" class="form-input" id="pac-edit-materno">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pac-edit-calzado">Talla de Calzado (cm)</label>
+            <input type="number" step="0.5" class="form-input" id="pac-edit-calzado" placeholder="Ej. 25.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pac-edit-direccion">Calle y Dirección</label>
+            <input type="text" class="form-input" id="pac-edit-direccion" placeholder="Calle, Número, Colonia">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pac-edit-municipio">Municipio</label>
+            <input type="text" class="form-input" id="pac-edit-municipio" placeholder="Ej. Tecámac">
+          </div>
+          
+          <!-- Alertas Críticas de Salud -->
+          <div class="form-risk-card">
+            <div style="font-weight: 700; font-size: 0.88rem; color: #f8fafc; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-heart-pulse" style="color: #ef4444;"></i> Alertas de Riesgo y Condiciones Crónicas:
+            </div>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+              <label class="risk-checkbox-item">
+                <input type="checkbox" id="pac-edit-diabetico">
+                <div>
+                  <strong style="color: #fbbf24; font-size: 0.88rem;"><i class="fa-solid fa-droplet"></i> Diabético</strong>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Protocolo preventivo de pie de riesgo</div>
+                </div>
+              </label>
+              <label class="risk-checkbox-item">
+                <input type="checkbox" id="pac-edit-hipertenso">
+                <div>
+                  <strong style="color: #f87171; font-size: 0.88rem;"><i class="fa-solid fa-heart-pulse"></i> Hipertenso</strong>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Seguimiento de presión y circulación</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" style="grid-column: span 2;">
+            <label class="form-label" for="pac-edit-antecedentes"><i class="fa-solid fa-notes-medical"></i> Antecedentes Patológicos</label>
+            <textarea class="form-textarea" id="pac-edit-antecedentes" rows="2" placeholder="Cirugías, neuropatía, alergias a anestésicos..."></textarea>
+          </div>
+
+          <div class="form-group" style="grid-column: span 2;">
+            <label class="form-label" for="pac-edit-notas"><i class="fa-solid fa-clipboard"></i> Notas Administrativas y Clínicas</label>
+            <textarea class="form-textarea" id="pac-edit-notas" rows="2" placeholder="Observaciones especiales, preferencias del paciente, avisos..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-editar-paciente')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btn-guardar-paciente">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios en Paciente
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- =========================================================================
+       MODAL: REGISTRAR / EDITAR SEDE CLÍNICA
+       ========================================================================= -->
+  <dialog id="modal-clinica" class="glass-modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modal-clinica-titulo">
+        <i class="fa-solid fa-hospital" style="color: #fbbf24;"></i> Alta de Sede Clínica
+      </h3>
+      <button class="btn-close" onclick="cerrarModal('modal-clinica')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="form-clinica">
+      <div class="modal-body">
+        <input type="hidden" id="clinica-edit-id">
+        <div class="admin-modal-grid">
+          <div class="form-group" style="grid-column: span 2;">
+            <label class="form-label" for="clinica-nombre"><i class="fa-solid fa-hospital"></i> Nombre de la Clínica / Sede *</label>
+            <input type="text" class="form-input" id="clinica-nombre" placeholder="Ej. DIF Lomas de Tecámac" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="clinica-calle"><i class="fa-solid fa-location-dot"></i> Calle y Número</label>
+            <input type="text" class="form-input" id="clinica-calle" placeholder="Ej. Av. Constitución 45">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="clinica-municipio"><i class="fa-solid fa-city"></i> Municipio / Ciudad</label>
+            <input type="text" class="form-input" id="clinica-municipio" placeholder="Ej. Tecámac" value="Tecámac">
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label class="form-label" for="clinica-telefono"><i class="fa-solid fa-phone"></i> Teléfono de Contacto</label>
+            <input type="tel" class="form-input" id="clinica-telefono" placeholder="Ej. 5560229842">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-clinica')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btn-guardar-clinica" style="background: linear-gradient(135deg, #d97706, #fbbf24); border-color: #f59e0b;">
+          <i class="fa-solid fa-check"></i> Guardar Sede Clínica
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- =========================================================================
+       MODAL 4: CONFIRMACIÓN DE BAJA / REACTIVACIÓN (PODÓLOGOS, RECEPCIONISTAS Y CLÍNICAS)
+       ========================================================================= -->
+  <dialog id="modal-confirmar-estado" class="glass-modal" style="max-width: 480px;">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modal-confirm-titulo">
+        <i class="fa-solid fa-triangle-exclamation" style="color: #fbbf24;"></i> Confirmar Cambio de Estado
+      </h3>
+      <button class="btn-close" onclick="cerrarModal('modal-confirmar-estado')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <p id="modal-confirm-mensaje" style="font-size: 0.95rem; color: #f8fafc; line-height: 1.5; margin-bottom: 1rem;">
+        ¿Estás seguro de que deseas cambiar el estado de este elemento?
+      </p>
+      <div class="form-group" id="grupo-motivo-baja">
+        <label class="form-label" for="confirm-motivo"><i class="fa-solid fa-comment-dots"></i> Motivo o Justificación (Opcional):</label>
+        <input type="text" class="form-input" id="confirm-motivo" placeholder="Ej. Mantenimiento de instalaciones, permiso médico, cambio de ciclo">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-confirmar-estado')">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btn-confirmar-cambio-accion">
+        Confirmar
+      </button>
+    </div>
+  </dialog>
+
+  <!-- Contenedor de Notificaciones Toast -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts Vanilla JS -->
+  <script src="js/session.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

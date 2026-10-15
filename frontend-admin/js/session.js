@@ -8,6 +8,13 @@ const TOKEN_KEY = 'clinica_podologia_token';
 
 // Cuentas de prueba preconfiguradas según el DDL
 const DEMO_ACCOUNTS = {
+  ADMIN: {
+    email: 'admin@elitefoot.com',
+    password: 'hash_simulado_admin123',
+    rolId: 1,
+    nombre: 'Lic. Roberto Méndez',
+    cargo: 'Administrador General'
+  },
   RECEPCIONISTA: {
     email: 'recepcion@elitefoot.com',
     password: 'hash_simulado_recep123',
@@ -65,12 +72,22 @@ function logout() {
 }
 
 /**
+ * Obtiene la URL base de la API Backend (puerto 4000)
+ */
+function getApiBaseUrl() {
+  if (typeof window === 'undefined') return 'http://localhost:4000';
+  if (window.location.port === '4000') return '';
+  const hostname = window.location.hostname || 'localhost';
+  return `http://${hostname}:4000`;
+}
+
+/**
  * Iniciar sesión automática con una cuenta demo
  */
 async function autoLoginDemo(rolId) {
-  const account = rolId === 4 ? DEMO_ACCOUNTS.PODOLOGO : DEMO_ACCOUNTS.RECEPCIONISTA;
+  const account = rolId === 1 ? DEMO_ACCOUNTS.ADMIN : (rolId === 4 ? DEMO_ACCOUNTS.PODOLOGO : DEMO_ACCOUNTS.RECEPCIONISTA);
   try {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch(`${getApiBaseUrl()}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: account.email, password: account.password })
@@ -105,8 +122,10 @@ async function fetchApi(endpoint, options = {}) {
     headers['x-usuario-id'] = user.id;
   }
 
+  const fullUrl = endpoint.startsWith('http') ? endpoint : `${getApiBaseUrl()}${endpoint}`;
+
   try {
-    const response = await fetch(endpoint, {
+    const response = await fetch(fullUrl, {
       ...options,
       headers
     });

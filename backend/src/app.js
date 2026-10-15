@@ -21,10 +21,11 @@ const pagoRoutes = require('./routes/pagoRoutes');
 const mapaPodologicoRoutes = require('./routes/mapaPodologicoRoutes');
 const auditoriaRoutes = require('./routes/auditoriaRoutes');
 
-// Importar Rutas especializadas RBAC
+// Importar Rutas especializadas RBAC y Administración
 const authRoutes = require('./routes/authRoutes');
 const recepcionistaRoutes = require('./routes/recepcionistaRoutes');
 const medicoRoutes = require('./routes/medicoRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Middleware de auditoría automática
 const { auditoriaAutomaticaMiddleware } = require('./middlewares/auditoriaMiddleware');
@@ -47,6 +48,9 @@ app.use('/landing', express.static(landingSrcPath));
 app.use('/public', express.static(landingPublicPath));
 
 // Rutas de navegación directa a las vistas HTML
+app.get(['/admin', '/admin.html'], (req, res) => {
+  res.sendFile(path.join(adminPath, 'admin.html'));
+});
 app.get(['/recepcion', '/recepcion.html'], (req, res) => {
   res.sendFile(path.join(adminPath, 'recepcion.html'));
 });
@@ -54,8 +58,9 @@ app.get(['/consultorio', '/consultorio.html'], (req, res) => {
   res.sendFile(path.join(adminPath, 'consultorio.html'));
 });
 
-// Rutas RBAC para Recepcionista y Podólogo
+// Rutas RBAC y Panel de Administración
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/recepcion', recepcionistaRoutes);
 app.use('/api/medico', medicoRoutes);
 

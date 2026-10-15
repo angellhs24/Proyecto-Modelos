@@ -1,0 +1,112 @@
+{
+  "podologos_meta": {
+    "A-54906": {
+      "activo": true,
+      "fecha_alta": "2025-01-15",
+      "notas_admin": "Podóloga Especialista - Titular"
+    },
+    "B-24267": {
+      "activo": true,
+      "fecha_alta": "2025-02-10",
+      "notas_admin": "Podólogo Cirujano y Biomecánica"
+    },
+    "C-12345": {
+      "activo": true,
+      "fecha_alta": "2025-06-01",
+      "notas_admin": "Podóloga General"
+    },
+    "TEST-9988": {
+      "activo": true,
+      "fecha_alta": "2026-10-15",
+      "notas_admin": "Registrado desde Panel de Administración",
+      "fecha_modificacion": "2026-10-15",
+      "motivo_baja": null
+    }
+  },
+  "recepcionistas": [
+    {
+      "id": 1,
+      "nombre": "María",
+      "ape_paterno": "López",
+      "ape_materno": "Hernández",
+      "email": "recepcion@elitefoot.com",
+      "telefono": "5544332211",
+      "fk_clinica_id": 14,
+      "clinica_nombre": "DIF Lomas de Tecámac",
+      "turno": "Matutino (8:00 - 15:00)",
+      "activo": true,
+      "fecha_alta": "2025-03-01"
+    },
+    {
+      "id": 2,
+      "nombre": "Carlos",
+      "ape_paterno": "Morales",
+      "ape_materno": "Vázquez",
+      "email": "carlos.recepcion@elitefoot.com",
+      "telefono": "5577889900",
+      "fk_clinica_id": 28,
+      "clinica_nombre": "Casa Héroes Tecámac",
+      "turno": "Vespertino (14:00 - 20:00)",
+      "activo": true,
+      "fecha_alta": "2025-05-12"
+    },
+    {
+      "id": 3,
+      "nombre": "Elena",
+      "ape_paterno": "Sánchez",
+      "ape_materno": "Cruz",
+      "email": "elena.recep@elitefoot.com",
+      "telefono": "5511223344",
+      "fk_clinica_id": 35,
+      "clinica_nombre": "Casa Adulto Mayor Flores",
+      "turno": "Completo (9:00 - 18:00)",
+      "activo": false,
+      "fecha_alta": "2024-11-20",
+      "motivo_baja": "Permiso temporal de maternidad"
+    }
+  ],
+  "avisos": [
+    {
+      "id": "aviso-1792032717998",
+      "no_expediente": 2025280009,
+      "paciente_nombre": "Bertha Rosario Merino",
+      "telefono": "5689559488",
+      "tipo": "general",
+      "tipo_label": "Aviso General",
+      "canal": "whatsapp",
+      "asunto": "Recordatorio de Control",
+      "mensaje": "Estimada Bertha, le recordamos su revisión de podología en DIF Tecámac.",
+      "enlace_whatsapp": "https://api.whatsapp.com/send?phone=525689559488&text=Estimada%20Bertha%2C%20le%20recordamos%20su%20revisi%C3%B3n%20de%20podolog%C3%ADa%20en%20DIF%20Tec%C3%A1mac.",
+      "fecha_envio": "14/10/26, 8:51 p.m.",
+      "enviado_por": "Administrador General"
+    },
+    {
+      "id": "aviso-1",
+      "no_expediente": 2026140001,
+      "paciente_nombre": "Rosa María Martínez",
+      "telefono": "5541238970",
+      "tipo": "recordatorio_cita",
+      "tipo_label": "Recordatorio de Cita",
+      "canal": "whatsapp",
+      "asunto": "Cita Podológica Programada",
+      "mensaje": "Estimada Rosa María, le recordamos su cita de podología preventiva programada para mañana a las 10:00 AM en DIF Lomas de Tecámac.",
+      "enlace_whatsapp": "https://api.whatsapp.com/send?phone=525541238970&text=Estimada%20Rosa%20Mar%C3%ADa%2C%20le%20recordamos%20su%20cita%20de%20podolog%C3%ADa%20preventiva%20programada%20para%20ma%C3%B1ana%20a%20las%2010%3A00%20AM%20en%20DIF%20Lomas%20de%20Tec%C3%A1mac.",
+      "fecha_envio": "2026-10-14 09:30",
+      "enviado_por": "Administrador General"
+    },
+    {
+      "id": "aviso-2",
+      "no_expediente": 2026140002,
+      "paciente_nombre": "Juan Carlos Ruiz",
+      "telefono": "5533221144",
+      "tipo": "pie_diabetico",
+      "tipo_label": "Control de Pie Diabético",
+      "canal": "whatsapp",
+      "asunto": "Chequeo Trimestral Preventivo",
+      "mensaje": "Hola Juan Carlos, por protocolo de salud para pacientes con Diabetes, le sugerimos agendar su valoración trimestral de sensibilidad y corte profiláctico.",
+      "enlace_whatsapp": "https://api.whatsapp.com/send?phone=525533221144&text=Hola%20Juan%20Carlos%2C%20por%20protocolo%20de%20salud%20para%20pacientes%20con%20Diabetes%2C%20le%20sugerimos%20agendar%20su%20valoraci%C3%B3n%20trimestral.",
+      "fecha_envio": "2026-10-13 16:45",
+      "enviado_por": "Administrador General"
+    }
+  ]
+}

@@ -1568,6 +1568,10 @@ function renderSidebar() {
           <i class="fa-solid fa-chart-pie"></i>
           <span>Reportes</span>
         </button>
+        <a href="/admin.html" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: var(--radius-md, 8px); color: #38bdf8; text-decoration: none; font-size: 0.88rem; font-weight: 600; background: rgba(56, 189, 248, 0.08); margin: 0.5rem 0.5rem 0; border: 1px solid rgba(56, 189, 248, 0.2); transition: all 0.2s ease;">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Panel de Admin</span>
+        </a>
       </nav>
 
       <div class="sidebar-bottom">
