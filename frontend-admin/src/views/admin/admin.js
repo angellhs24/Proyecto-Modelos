@@ -4,10 +4,22 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // 1. Inicializar sesión para Administrador (Rol ID: 1)
+  // 1. Guardián de Acceso RBAC: Solo Administrador (Rol ID: 1)
   let currentUser = AppAuth.getCurrentUser();
-  if (!currentUser || currentUser.fk_rol_id !== 1) {
-    currentUser = await AppAuth.autoLoginDemo(1);
+  const urlParams = new URLSearchParams(window.location.search);
+  if (!currentUser) {
+    if (urlParams.get('demo') === 'true') {
+      currentUser = await AppAuth.autoLoginDemo(1);
+    } else {
+      window.location.href = 'login.html';
+      return;
+    }
+  } else if (Number(currentUser.fk_rol_id || currentUser.rolId) !== 1) {
+    AppAuth.showToast('Acceso exclusivo para Administradores. Redirigiendo a tu módulo...', 'warning');
+    setTimeout(() => {
+      AppAuth.redirectByRole(currentUser);
+    }, 1000);
+    return;
   }
 
   actualizarUIAdmin(currentUser);

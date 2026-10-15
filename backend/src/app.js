@@ -49,6 +49,9 @@ app.use('/landing', express.static(landingSrcPath));
 app.use('/public', express.static(landingPublicPath));
 
 // Rutas de navegación directa a las vistas HTML
+app.get(['/', '/login', '/login.html'], (req, res) => {
+  res.sendFile(path.join(adminPath, 'login.html'));
+});
 app.get(['/login-dev', '/login-dev.html'], (req, res) => {
   res.sendFile(path.join(adminPath, 'login-dev.html'));
 });

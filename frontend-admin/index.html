@@ -12,6 +12,21 @@
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="src/css/styles.css">
+  <script src="js/session.js"></script>
+  <script>
+    // Si no se pide el módulo legacy, redirigir automáticamente según el rol de la sesión activa
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (!urlParams.has('legacy')) {
+        const u = window.AppAuth && window.AppAuth.getCurrentUser();
+        if (u) {
+          window.AppAuth.redirectByRole(u);
+        } else {
+          window.location.href = 'login.html';
+        }
+      }
+    })();
+  </script>
 </head>
 
 <body>

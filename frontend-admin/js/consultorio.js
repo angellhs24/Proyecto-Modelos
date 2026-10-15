@@ -4,10 +4,25 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // 1. Inicializar Sesión para Rol Podólogo (ID 4)
+  // 1. Guardián de Acceso RBAC: Podólogo (Rol ID: 4) o Administrador (Rol ID: 1)
   let currentUser = AppAuth.getCurrentUser();
-  if (!currentUser || currentUser.fk_rol_id !== 4) {
-    currentUser = await AppAuth.autoLoginDemo(4);
+  const urlParams = new URLSearchParams(window.location.search);
+  if (!currentUser) {
+    if (urlParams.get('demo') === 'true') {
+      currentUser = await AppAuth.autoLoginDemo(4);
+    } else {
+      window.location.href = 'login.html';
+      return;
+    }
+  } else {
+    const rol = Number(currentUser.fk_rol_id || currentUser.rolId);
+    if (rol !== 4 && rol !== 1) {
+      AppAuth.showToast('Acceso exclusivo para Podólogos. Redirigiendo a tu módulo...', 'warning');
+      setTimeout(() => {
+        AppAuth.redirectByRole(currentUser);
+      }, 1000);
+      return;
+    }
   }
 
   actualizarUIPodologo(currentUser);

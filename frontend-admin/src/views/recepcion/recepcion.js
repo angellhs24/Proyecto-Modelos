@@ -4,10 +4,25 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // 1. Inicializar Sesión para Rol Recepcionista (ID 3)
+  // 1. Guardián de Acceso RBAC: Recepcionista (Rol ID: 3) o Administrador (Rol ID: 1)
   let currentUser = AppAuth.getCurrentUser();
-  if (!currentUser || currentUser.fk_rol_id !== 3) {
-    currentUser = await AppAuth.autoLoginDemo(3);
+  const urlParams = new URLSearchParams(window.location.search);
+  if (!currentUser) {
+    if (urlParams.get('demo') === 'true') {
+      currentUser = await AppAuth.autoLoginDemo(3);
+    } else {
+      window.location.href = 'login.html';
+      return;
+    }
+  } else {
+    const rol = Number(currentUser.fk_rol_id || currentUser.rolId);
+    if (rol !== 3 && rol !== 1) {
+      AppAuth.showToast('Acceso exclusivo para Recepción. Redirigiendo a tu módulo...', 'warning');
+      setTimeout(() => {
+        AppAuth.redirectByRole(currentUser);
+      }, 1000);
+      return;
+    }
   }
 
   actualizarUIUsuario(currentUser);

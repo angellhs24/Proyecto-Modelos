@@ -63,12 +63,59 @@ function saveSession(usuario, token) {
 }
 
 /**
- * Limpiar sesión
+ * Redirige al usuario según su Rol ID (RBAC)
+ * Rol ID 1: Administrador -> admin.html
+ * Rol ID 3: Recepcionista -> recepcion.html
+ * Rol ID 4: Podólogo      -> consultorio.html
+ */
+function redirectByRole(usuario) {
+  if (!usuario) {
+    window.location.href = 'login.html';
+    return;
+  }
+  const rol = Number(usuario.fk_rol_id || usuario.rolId || usuario.rol || 4);
+  if (rol === 1) {
+    window.location.href = 'admin.html';
+  } else if (rol === 3) {
+    window.location.href = 'recepcion.html';
+  } else if (rol === 4) {
+    window.location.href = 'consultorio.html';
+  } else {
+    window.location.href = 'consultorio.html';
+  }
+}
+
+/**
+ * Limpiar sesión y redirigir al login
  */
 function logout() {
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(TOKEN_KEY);
-  window.location.href = '/recepcion.html';
+  sessionStorage.clear();
+  window.location.href = 'login.html';
+}
+
+/**
+ * Guardián de ruta RBAC: Valida autenticación y rol permitido.
+ * Si no hay sesión -> redirige a login.html
+ * Si el rol no está permitido -> redirige a la vista correspondiente a su rol.
+ * Si todo está en orden -> retorna el objeto usuario.
+ * @param {Array<number>} allowedRoles Lista de IDs de roles permitidos, ej. [1], [3, 1] o [4, 1]
+ */
+function checkAuthGuard(allowedRoles = []) {
+  const user = getCurrentUser();
+  if (!user) {
+    console.warn('⚠️ [RBAC Guard] Sin sesión activa. Redirigiendo a login.html');
+    window.location.href = 'login.html';
+    return null;
+  }
+  const rol = Number(user.fk_rol_id || user.rolId || user.rol || 0);
+  if (allowedRoles.length > 0 && !allowedRoles.includes(rol)) {
+    console.warn(`🛡️ [RBAC Guard] Rol ${rol} no autorizado para esta vista (requerido: ${allowedRoles.join(',')}). Derivando a su portal...`);
+    redirectByRole(user);
+    return null;
+  }
+  return user;
 }
 
 /**
@@ -193,14 +240,39 @@ function showToast(message, type = 'info') {
   }, 4500);
 }
 
+/**
+ * Iniciar sesión con email y contraseña reales
+ */
+async function login(email, password) {
+  try {
+    const res = await fetch(`${getApiBaseUrl()}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: (email || '').trim(), password })
+    });
+    const data = await res.json();
+    if (res.ok && data.token) {
+      saveSession(data.usuario, data.token);
+      return { ok: true, usuario: data.usuario, token: data.token };
+    }
+    return { ok: false, error: data.error || 'Credenciales inválidas' };
+  } catch (err) {
+    return { ok: false, error: 'No se pudo conectar con el servidor: ' + err.message };
+  }
+}
+
 // Exportar globalmente para scripts Vanilla JS
 window.AppAuth = {
   getCurrentUser,
   getToken,
   saveSession,
   logout,
+  redirectByRole,
+  checkAuthGuard,
+  login,
   autoLoginDemo,
   fetchApi,
   showToast,
+  getApiBaseUrl,
   DEMO_ACCOUNTS
 };
