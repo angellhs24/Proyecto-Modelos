@@ -17,7 +17,7 @@ const tratamientoRoutes = require('./routes/tratamientoRoutes');
 const documentoRoutes = require('./routes/documentoRoutes');
 const recetaRoutes = require('./routes/recetaRoutes');
 const inventarioRoutes = require('./routes/inventarioRoutes');
-const pagoRoutes = require('./routes/pagoRoutes');
+const pagosRoutes = require('./routes/pagosRoutes');
 const mapaPodologicoRoutes = require('./routes/mapaPodologicoRoutes');
 const auditoriaRoutes = require('./routes/auditoriaRoutes');
 
@@ -64,6 +64,12 @@ app.get(['/recepcion', '/recepcion.html'], (req, res) => {
 app.get(['/consultorio', '/consultorio.html'], (req, res) => {
   res.sendFile(path.join(adminPath, 'consultorio.html'));
 });
+app.get(['/inventario', '/inventario.html'], (req, res) => {
+  res.sendFile(path.join(adminPath, 'inventario.html'));
+});
+app.get(['/caja', '/caja.html', '/cobros', '/cobros.html'], (req, res) => {
+  res.sendFile(path.join(adminPath, 'caja.html'));
+});
 
 // Rutas RBAC y Panel de Administración
 app.use('/api/auth', authRoutes);
@@ -83,7 +89,7 @@ app.use('/api/tratamientos', tratamientoRoutes);
 app.use('/api/documentos', documentoRoutes);
 app.use('/api/recetas', recetaRoutes);
 app.use('/api/inventario', inventarioRoutes);
-app.use('/api/pagos', pagoRoutes);
+app.use('/api/pagos', pagosRoutes);
 app.use('/api/mapa-podologico', mapaPodologicoRoutes);
 app.use('/api/detalles-mapa-podologico', mapaPodologicoRoutes);
 app.use('/api/auditoria', auditoriaRoutes);

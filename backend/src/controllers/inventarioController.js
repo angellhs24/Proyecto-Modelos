@@ -2,11 +2,25 @@ const db = require('../config/db');
 const { registrarAuditoria } = require('../utils/auditoria');
 
 /**
- * Obtener listado de artículos del inventario
+ * Controlador de Inventario (CRUD Completo)
+ * Tabla: Inventario
+ * - Articulo_id INT AUTO_INCREMENT PRIMARY KEY
+ * - fk_clinica_id INT NOT NULL (FK -> Clinicas)
+ * - nombre_articulo VARCHAR(100) NOT NULL
+ * - categoria VARCHAR(50)
+ * - cantidad_stock INT DEFAULT 0
+ * - unidad_medida VARCHAR(20)
+ * - stock_minimo INT DEFAULT 5
+ * - ultima_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+ */
+
+/**
+ * GET /api/inventario
+ * Listar artículos con soporte para filtros de clínica, búsqueda, categoría y alertas de stock.
  */
 const obtenerInventario = async (req, res) => {
   try {
-    const { clinica_id, q, categoria } = req.query;
+    const { clinica_id, q, categoria, bajo_stock } = req.query;
 
     let sql = `
       SELECT 
@@ -24,43 +38,68 @@ const obtenerInventario = async (req, res) => {
         i.stock_minimo,
         i.stock_minimo AS minimo,
         i.ultima_actualizacion,
-        cl.Nombre AS clinica_nombre
+        cl.Nombre AS clinica_nombre,
+        CASE 
+          WHEN i.cantidad_stock <= 0 THEN 'agotado'
+          WHEN i.cantidad_stock <= i.stock_minimo THEN 'reabastecer'
+          ELSE 'optimo'
+        END AS estado_stock,
+        (i.cantidad_stock <= i.stock_minimo) AS alerta_reabastecer
       FROM Inventario i
       LEFT JOIN Clinicas cl ON i.fk_clinica_id = cl.Clinica_id
       WHERE 1=1
     `;
     const params = [];
 
+    // Filtro por clínica específica
     if (clinica_id) {
       sql += ` AND i.fk_clinica_id = ?`;
       params.push(clinica_id);
     }
 
-    if (categoria) {
+    // Filtro por categoría
+    if (categoria && categoria !== 'Todas') {
       sql += ` AND i.categoria = ?`;
       params.push(categoria);
     }
 
-    if (q) {
-      sql += ` AND (i.nombre_articulo LIKE ? OR i.categoria LIKE ?)`;
-      params.push(`%${q}%`, `%${q}%`);
+    // Búsqueda por término (nombre, categoría o código)
+    if (q && q.trim()) {
+      const term = `%${q.trim()}%`;
+      sql += ` AND (i.nombre_articulo LIKE ? OR i.categoria LIKE ? OR CONCAT('INS-', LPAD(i.Articulo_id, 3, '0')) LIKE ?)`;
+      params.push(term, term, term);
     }
 
-    sql += ` ORDER BY i.nombre_articulo ASC`;
+    // Filtro para artículos que requieren reabastecimiento (stock <= stock_minimo)
+    if (bajo_stock === 'true' || bajo_stock === '1') {
+      sql += ` AND i.cantidad_stock <= i.stock_minimo`;
+    }
+
+    // Ordenar: primero los artículos en alerta crítica y luego alfabéticamente
+    sql += ` ORDER BY (i.cantidad_stock <= i.stock_minimo) DESC, i.cantidad_stock ASC, i.nombre_articulo ASC`;
 
     const resultado = await db.query(sql, params);
-    res.json(resultado.rows);
+
+    // Mapear respuesta asegurando formatos limpios y booleanos reales
+    const articulos = (resultado.rows || []).map(row => ({
+      ...row,
+      alerta_reabastecer: Boolean(row.alerta_reabastecer || row.cantidad_stock <= row.stock_minimo),
+      diferencia_reabastecimiento: row.cantidad_stock <= row.stock_minimo ? Math.max(0, row.stock_minimo - row.cantidad_stock) : 0
+    }));
+
+    res.json(articulos);
   } catch (error) {
     if (error.code === 'ER_NO_SUCH_TABLE') {
       return res.json([]);
     }
     console.error('Error al obtener inventario:', error);
-    res.status(500).json({ error: 'Error al consultar el inventario' });
+    res.status(500).json({ error: 'Error al consultar el catálogo de inventario' });
   }
 };
 
 /**
- * Obtener un artículo por ID
+ * GET /api/inventario/:id
+ * Obtener un artículo específico por su ID primario.
  */
 const obtenerArticuloPorId = async (req, res) => {
   const { id } = req.params;
@@ -82,7 +121,13 @@ const obtenerArticuloPorId = async (req, res) => {
         i.stock_minimo,
         i.stock_minimo AS minimo,
         i.ultima_actualizacion,
-        cl.Nombre AS clinica_nombre
+        cl.Nombre AS clinica_nombre,
+        CASE 
+          WHEN i.cantidad_stock <= 0 THEN 'agotado'
+          WHEN i.cantidad_stock <= i.stock_minimo THEN 'reabastecer'
+          ELSE 'optimo'
+        END AS estado_stock,
+        (i.cantidad_stock <= i.stock_minimo) AS alerta_reabastecer
       FROM Inventario i
       LEFT JOIN Clinicas cl ON i.fk_clinica_id = cl.Clinica_id
       WHERE i.Articulo_id = ?`,
@@ -90,18 +135,23 @@ const obtenerArticuloPorId = async (req, res) => {
     );
 
     if (resultado.rows.length === 0) {
-      return res.status(404).json({ error: 'Artículo no encontrado' });
+      return res.status(404).json({ error: `El artículo con ID ${id} no existe en el inventario.` });
     }
 
-    res.json(resultado.rows[0]);
+    const item = resultado.rows[0];
+    item.alerta_reabastecer = Boolean(item.alerta_reabastecer || item.cantidad_stock <= item.stock_minimo);
+
+    res.json(item);
   } catch (error) {
-    console.error('Error al obtener artículo:', error);
-    res.status(500).json({ error: 'Error al consultar el artículo' });
+    console.error(`Error al obtener artículo ${id}:`, error);
+    res.status(500).json({ error: 'Error al consultar el artículo solicitado' });
   }
 };
 
 /**
- * Registrar un nuevo artículo en inventario
+ * POST /api/inventario
+ * Crear un nuevo artículo en la tabla Inventario.
+ * Requiere rol Admin o Recepcionista.
  */
 const crearArticulo = async (req, res) => {
   let {
@@ -119,20 +169,21 @@ const crearArticulo = async (req, res) => {
 
   const nombreFinal = (nombre_articulo || nombre || '').trim();
   if (!nombreFinal) {
-    return res.status(400).json({ error: 'El nombre del artículo es obligatorio' });
+    return res.status(400).json({ error: 'El nombre del artículo es obligatorio.' });
   }
 
   try {
-    // Si no viene fk_clinica_id, usar la primera clínica existente
-    if (!fk_clinica_id) {
-      const clinicaRes = await db.query(`SELECT Clinica_id FROM Clinicas LIMIT 1`);
-      fk_clinica_id = clinicaRes.rows[0]?.Clinica_id || 1;
+    // Si no viene fk_clinica_id, tomar el de la recepcionista en sesión o la primera clínica activa
+    let clinicaFinal = fk_clinica_id || req.user?.fk_clinica_id;
+    if (!clinicaFinal) {
+      const clinicaRes = await db.query(`SELECT Clinica_id FROM Clinicas WHERE Activa = 1 LIMIT 1`);
+      clinicaFinal = clinicaRes.rows[0]?.Clinica_id || 1;
     }
 
-    const cantStock = parseInt(cantidad_stock !== undefined ? cantidad_stock : stock || 0, 10) || 0;
-    const stockMin = parseInt(stock_minimo !== undefined ? stock_minimo : minimo || 5, 10) || 5;
-    const cat = categoria || 'General';
-    const uni = unidad_medida || unidad || 'Pieza';
+    const cantStock = Math.max(0, parseInt(cantidad_stock !== undefined ? cantidad_stock : stock || 0, 10) || 0);
+    const stockMin = Math.max(0, parseInt(stock_minimo !== undefined ? stock_minimo : minimo || 5, 10) || 5);
+    const catFinal = (categoria || 'Material de Curación').trim();
+    const uniFinal = (unidad_medida || unidad || 'Pieza').trim();
 
     const insertRes = await db.query(
       `INSERT INTO Inventario (
@@ -143,37 +194,46 @@ const crearArticulo = async (req, res) => {
         unidad_medida,
         stock_minimo
       ) VALUES (?, ?, ?, ?, ?, ?)`,
-      [fk_clinica_id, nombreFinal, cat, cantStock, uni, stockMin]
+      [clinicaFinal, nombreFinal, catFinal, cantStock, uniFinal, stockMin]
     );
 
     const articuloId = insertRes.rows?.insertId || insertRes.fields?.insertId;
 
-    const usuarioResponsable = req.headers['x-usuario'] || 'Responsable de Farmacia';
+    // Registro de auditoría
+    const usuarioId = req.user?.Usuario_id || req.user?.id || 1;
+    const usuarioNombre = req.user?.nombre_completo || req.user?.rol || 'Recepcionista';
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || '127.0.0.1';
 
     await registrarAuditoria({
-      usuario_responsable: usuarioResponsable,
-      accion_realizada: `Alta de insumo en inventario: ${nombreFinal} (Stock inicial: ${cantStock} ${uni})`,
+      fk_usuario_id: usuarioId,
+      accion_realizada: `[Inventario] Alta de artículo: "${nombreFinal}" | Stock Inicial: ${cantStock} ${uniFinal} | Mínimo: ${stockMin} (por ${usuarioNombre})`,
       tabla_afectada: 'Inventario',
       direccion_ip: ip
     });
-    req.auditoriaManual = true;
 
     res.status(201).json({
-      mensaje: 'Artículo registrado exitosamente',
+      mensaje: 'Artículo registrado exitosamente en el inventario.',
       Articulo_id: articuloId,
       id: articuloId,
-      nombre: nombreFinal,
-      cantidad_stock: cantStock
+      codigo: `INS-${String(articuloId).padStart(3, '0')}`,
+      fk_clinica_id: clinicaFinal,
+      nombre_articulo: nombreFinal,
+      categoria: catFinal,
+      cantidad_stock: cantStock,
+      unidad_medida: uniFinal,
+      stock_minimo: stockMin,
+      alerta_reabastecer: cantStock <= stockMin
     });
   } catch (error) {
-    console.error('Error al crear artículo:', error);
-    res.status(500).json({ error: 'Error al registrar el artículo en inventario' });
+    console.error('Error al crear artículo en inventario:', error);
+    res.status(500).json({ error: 'Error interno al registrar el artículo en el inventario.' });
   }
 };
 
 /**
- * Actualizar un artículo
+ * PUT /api/inventario/:id
+ * Editar un artículo existente (especialmente actualizar cantidad_stock, pero también otros campos).
+ * Requiere rol Admin o Recepcionista.
  */
 const actualizarArticulo = async (req, res) => {
   const { id } = req.params;
@@ -191,19 +251,37 @@ const actualizarArticulo = async (req, res) => {
   } = req.body;
 
   try {
-    const articuloActual = await db.query(`SELECT * FROM Inventario WHERE Articulo_id = ?`, [id]);
+    const articuloActual = await db.query(
+      `SELECT * FROM Inventario WHERE Articulo_id = ?`,
+      [id]
+    );
+
     if (articuloActual.rows.length === 0) {
-      return res.status(404).json({ error: 'Artículo no encontrado' });
+      return res.status(404).json({ error: `El artículo con ID ${id} no existe en el inventario.` });
     }
 
     const act = articuloActual.rows[0];
 
-    const nombreFinal = (nombre_articulo !== undefined ? nombre_articulo : nombre) || act.nombre_articulo;
-    const catFinal = categoria !== undefined ? categoria : act.categoria;
-    const stockFinal = cantidad_stock !== undefined ? parseInt(cantidad_stock, 10) : stock !== undefined ? parseInt(stock, 10) : act.cantidad_stock;
-    const uniFinal = (unidad_medida !== undefined ? unidad_medida : unidad) || act.unidad_medida;
-    const minFinal = stock_minimo !== undefined ? parseInt(stock_minimo, 10) : minimo !== undefined ? parseInt(minimo, 10) : act.stock_minimo;
-    const clinicaFinal = fk_clinica_id || act.fk_clinica_id;
+    const nombreFinal = (nombre_articulo !== undefined ? nombre_articulo : nombre) !== undefined
+      ? String(nombre_articulo !== undefined ? nombre_articulo : nombre).trim()
+      : act.nombre_articulo;
+
+    if (!nombreFinal) {
+      return res.status(400).json({ error: 'El nombre del artículo no puede estar vacío.' });
+    }
+
+    const catFinal = categoria !== undefined ? String(categoria).trim() : act.categoria;
+    const uniFinal = (unidad_medida !== undefined ? unidad_medida : unidad) !== undefined
+      ? String(unidad_medida !== undefined ? unidad_medida : unidad).trim()
+      : act.unidad_medida;
+
+    const cantRaw = cantidad_stock !== undefined ? cantidad_stock : stock;
+    const stockFinal = cantRaw !== undefined ? Math.max(0, parseInt(cantRaw, 10) || 0) : act.cantidad_stock;
+
+    const minRaw = stock_minimo !== undefined ? stock_minimo : minimo;
+    const minFinal = minRaw !== undefined ? Math.max(0, parseInt(minRaw, 10) || 0) : act.stock_minimo;
+
+    const clinicaFinal = fk_clinica_id ? parseInt(fk_clinica_id, 10) : act.fk_clinica_id;
 
     await db.query(
       `UPDATE Inventario SET
@@ -212,61 +290,100 @@ const actualizarArticulo = async (req, res) => {
         categoria = ?,
         cantidad_stock = ?,
         unidad_medida = ?,
-        stock_minimo = ?
+        stock_minimo = ?,
+        ultima_actualizacion = NOW()
       WHERE Articulo_id = ?`,
       [clinicaFinal, nombreFinal, catFinal, stockFinal, uniFinal, minFinal, id]
     );
 
-    const usuarioResponsable = req.headers['x-usuario'] || 'Responsable de Farmacia';
+    // Auditoría de cambios, resaltando si hubo variación de stock
+    const usuarioId = req.user?.Usuario_id || req.user?.id || 1;
+    const usuarioNombre = req.user?.nombre_completo || req.user?.rol || 'Recepcionista';
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || '127.0.0.1';
 
+    let detalleCambio = `[Inventario] Modificación ID ${id} ("${nombreFinal}"): `;
+    if (act.cantidad_stock !== stockFinal) {
+      detalleCambio += `Stock actualizado de ${act.cantidad_stock} a ${stockFinal} ${uniFinal}. `;
+    }
+    if (act.stock_minimo !== minFinal) {
+      detalleCambio += `Stock mínimo de ${act.stock_minimo} a ${minFinal}. `;
+    }
+    detalleCambio += `(por ${usuarioNombre})`;
+
     await registrarAuditoria({
-      usuario_responsable: usuarioResponsable,
-      accion_realizada: `Actualización de artículo ${id}: ${nombreFinal}`,
+      fk_usuario_id: usuarioId,
+      accion_realizada: detalleCambio.slice(0, 255),
       tabla_afectada: 'Inventario',
       direccion_ip: ip
     });
-    req.auditoriaManual = true;
 
-    res.json({ mensaje: 'Artículo actualizado correctamente' });
+    res.json({
+      mensaje: 'Artículo actualizado exitosamente.',
+      articulo: {
+        Articulo_id: parseInt(id, 10),
+        id: parseInt(id, 10),
+        codigo: `INS-${String(id).padStart(3, '0')}`,
+        fk_clinica_id: clinicaFinal,
+        nombre_articulo: nombreFinal,
+        categoria: catFinal,
+        cantidad_stock: stockFinal,
+        unidad_medida: uniFinal,
+        stock_minimo: minFinal,
+        alerta_reabastecer: stockFinal <= minFinal
+      }
+    });
   } catch (error) {
-    console.error('Error al actualizar artículo:', error);
-    res.status(500).json({ error: 'Error al actualizar el artículo' });
+    console.error(`Error al actualizar artículo ${id}:`, error);
+    res.status(500).json({ error: 'Error interno al actualizar el artículo.' });
   }
 };
 
 /**
- * Eliminar un artículo
+ * DELETE /api/inventario/:id
+ * Eliminar un artículo del inventario.
+ * Requiere rol Admin o Recepcionista.
  */
 const eliminarArticulo = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const articuloRes = await db.query(`SELECT nombre_articulo FROM Inventario WHERE Articulo_id = ?`, [id]);
-    const nombre = articuloRes.rows[0]?.nombre_articulo || id;
+    const articuloRes = await db.query(
+      `SELECT nombre_articulo, cantidad_stock, unidad_medida FROM Inventario WHERE Articulo_id = ?`,
+      [id]
+    );
+
+    if (articuloRes.rows.length === 0) {
+      return res.status(404).json({ error: `El artículo con ID ${id} no existe o ya fue eliminado.` });
+    }
+
+    const { nombre_articulo, cantidad_stock, unidad_medida } = articuloRes.rows[0];
 
     await db.query(`DELETE FROM Inventario WHERE Articulo_id = ?`, [id]);
 
-    const usuarioResponsable = req.headers['x-usuario'] || 'Responsable de Farmacia';
+    // Auditoría
+    const usuarioId = req.user?.Usuario_id || req.user?.id || 1;
+    const usuarioNombre = req.user?.nombre_completo || req.user?.rol || 'Recepcionista';
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || '127.0.0.1';
 
     await registrarAuditoria({
-      usuario_responsable: usuarioResponsable,
-      accion_realizada: `Eliminación de insumo ${id}: ${nombre}`,
+      fk_usuario_id: usuarioId,
+      accion_realizada: `[Inventario] Eliminación de insumo ID ${id}: "${nombre_articulo}" (Remanente: ${cantidad_stock} ${unidad_medida}) por ${usuarioNombre}`,
       tabla_afectada: 'Inventario',
       direccion_ip: ip
     });
-    req.auditoriaManual = true;
 
-    res.json({ mensaje: 'Artículo eliminado correctamente del inventario' });
+    res.json({
+      mensaje: `Artículo "${nombre_articulo}" (ID: ${id}) eliminado correctamente del inventario.`
+    });
   } catch (error) {
-    console.error('Error al eliminar artículo:', error);
-    res.status(500).json({ error: 'Error al eliminar el artículo' });
+    console.error(`Error al eliminar artículo ${id}:`, error);
+    res.status(500).json({ error: 'Error interno al eliminar el artículo de inventario.' });
   }
 };
 
 /**
- * Registrar un movimiento de entrada o salida de inventario
+ * POST /api/inventario/:id/movimientos (Opcional complementario)
+ * Registrar movimiento rápido (entrada/salida de stock)
  */
 const registrarMovimiento = async (req, res) => {
   const { id } = req.params;
@@ -299,43 +416,35 @@ const registrarMovimiento = async (req, res) => {
         });
       }
       nuevoStock -= cantVal;
-    } else if (tipoMov === 'ajuste') {
-      nuevoStock = cantVal;
     } else {
       return res.status(400).json({ error: 'Tipo de movimiento no válido (entrada o salida)' });
     }
 
-    await db.query(`UPDATE Inventario SET cantidad_stock = ? WHERE Articulo_id = ?`, [nuevoStock, id]);
+    await db.query(
+      `UPDATE Inventario SET cantidad_stock = ?, ultima_actualizacion = NOW() WHERE Articulo_id = ?`,
+      [nuevoStock, id]
+    );
 
-    const motivoFinal = motivo || notas || (esEntrada ? 'Reabastecimiento clínico' : 'Consumo en quiropodia');
-    const usuarioResponsable = req.headers['x-usuario'] || 'Responsable de Insumos';
+    const motivoFinal = motivo || notas || (esEntrada ? 'Reabastecimiento clínico' : 'Consumo en atención');
+    const usuarioId = req.user?.Usuario_id || req.user?.id || 1;
+    const usuarioNombre = req.user?.nombre_completo || req.user?.rol || 'Recepcionista';
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || '127.0.0.1';
 
-    const detalleAccion = `Movimiento de Inventario [${esEntrada ? 'ENTRADA' : 'SALIDA'}]: ${articulo.nombre_articulo} | Cantidad: ${cantVal} | Stock resultante: ${nuevoStock} | Motivo: ${motivoFinal}`;
-
     await registrarAuditoria({
-      usuario_responsable: usuarioResponsable,
-      accion_realizada: detalleAccion,
+      fk_usuario_id: usuarioId,
+      accion_realizada: `[Inventario Movimiento] ${esEntrada ? 'ENTRADA' : 'SALIDA'} en "${articulo.nombre_articulo}" (+/-${cantVal} ${articulo.unidad_medida}). Stock resultante: ${nuevoStock}. Motivo: ${motivoFinal} (por ${usuarioNombre})`,
       tabla_afectada: 'Inventario',
       direccion_ip: ip
     });
-    req.auditoriaManual = true;
 
     res.json({
       mensaje: 'Movimiento registrado con éxito',
-      insumo: {
+      articulo: {
         ...articulo,
         id: articulo.Articulo_id,
         cantidad_stock: nuevoStock,
-        stock: nuevoStock
-      },
-      movimiento: {
-        id: Date.now(),
-        insumo_id: id,
-        tipo: esEntrada ? 'entrada' : 'salida',
-        cantidad: cantVal,
-        motivo: motivoFinal,
-        fecha: new Date().toISOString()
+        stock: nuevoStock,
+        alerta_reabastecer: nuevoStock <= articulo.stock_minimo
       }
     });
   } catch (error) {
@@ -345,23 +454,27 @@ const registrarMovimiento = async (req, res) => {
 };
 
 /**
- * Obtener historial de movimientos desde la bitácora de auditoría
+ * GET /api/inventario/movimientos
+ * Obtener historial de auditoría de inventario
  */
 const obtenerMovimientos = async (req, res) => {
   try {
     const resultado = await db.query(
       `SELECT 
-        Log_id AS id,
-        usuario_responsable AS usuario,
-        accion_realizada AS detalle,
-        fecha_hora AS fecha
-      FROM Bitacora_Auditoria
-      WHERE tabla_afectada = 'Inventario'
-      ORDER BY fecha_hora DESC, Log_id DESC
+        b.Log_id AS id,
+        b.fk_usuario_id,
+        COALESCE(u.email, 'Sistema') AS usuario_email,
+        b.accion_realizada AS detalle,
+        b.fecha_hora AS fecha,
+        b.direccion_ip
+      FROM Bitacora_Auditoria b
+      LEFT JOIN Usuarios u ON b.fk_usuario_id = u.Usuario_id
+      WHERE b.tabla_afectada = 'Inventario'
+      ORDER BY b.fecha_hora DESC, b.Log_id DESC
       LIMIT 100`
     );
 
-    res.json(resultado.rows);
+    res.json(resultado.rows || []);
   } catch (error) {
     if (error.code === 'ER_NO_SUCH_TABLE') {
       return res.json([]);
