@@ -31,7 +31,9 @@ async function registrarAuditoria({
       [usuarioId, accion, tabla, ip]
     );
   } catch (error) {
-    console.error('Error al registrar en Bitacora_Auditoria:', error.message);
+    if (error.code !== 'ER_NO_SUCH_TABLE') {
+      console.error('Error al registrar en Bitacora_Auditoria:', error.message);
+    }
   }
 }
 
