@@ -25,6 +25,7 @@ const auditoriaRoutes = require('./routes/auditoriaRoutes');
 const authRoutes = require('./routes/authRoutes');
 const recepcionistaRoutes = require('./routes/recepcionistaRoutes');
 const medicoRoutes = require('./routes/medicoRoutes');
+const devRoutes = require('./routes/devRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
 // Middleware de auditoría automática
@@ -48,6 +49,9 @@ app.use('/landing', express.static(landingSrcPath));
 app.use('/public', express.static(landingPublicPath));
 
 // Rutas de navegación directa a las vistas HTML
+app.get(['/login-dev', '/login-dev.html'], (req, res) => {
+  res.sendFile(path.join(adminPath, 'login-dev.html'));
+});
 app.get(['/admin', '/admin.html'], (req, res) => {
   res.sendFile(path.join(adminPath, 'admin.html'));
 });
@@ -60,6 +64,7 @@ app.get(['/consultorio', '/consultorio.html'], (req, res) => {
 
 // Rutas RBAC y Panel de Administración
 app.use('/api/auth', authRoutes);
+app.use('/api/dev', devRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/recepcion', recepcionistaRoutes);
 app.use('/api/medico', medicoRoutes);
