@@ -600,7 +600,7 @@ const actualizarPacienteAdmin = async (req, res) => {
 // 5. GESTIÓN DE ANUNCIOS Y COMUNICADOS EN LA PÁGINA WEB DE LA CLÍNICA
 // --------------------------------------------------------------------------
 const enviarAvisoPaciente = async (req, res) => {
-  const { titulo, asunto, mensaje, tipo, ubicacion, cta_texto, cta_enlace, activo, no_expediente, paciente_nombre } = req.body;
+  const { titulo, asunto, mensaje, tipo, ubicacion, cta_texto, cta_enlace, sec_texto, sec_enlace, activo, no_expediente, paciente_nombre } = req.body;
 
   const textoMensaje = mensaje || req.body.texto || '';
   const tituloAnuncio = titulo || asunto || 'Comunicado Oficial de la Clínica';
@@ -636,10 +636,12 @@ const enviarAvisoPaciente = async (req, res) => {
       mensaje: textoMensaje,
       tipo: tipo || 'aviso_importante',
       tipo_label: tipoLabels[tipo] || 'Anuncio Web',
-      ubicacion: ubicacion || 'barra_superior',
-      ubicacion_label: ubicacionLabels[ubicacion] || 'Barra Superior (Cintillo)',
-      cta_texto: cta_texto || 'Agendar Cita',
+      ubicacion: ubicacion || 'hero_banner',
+      ubicacion_label: ubicacionLabels[ubicacion] || 'Banner Principal (Inicio)',
+      cta_texto: cta_texto !== undefined ? cta_texto : 'Agendar Cita',
       cta_enlace: cta_enlace || '#agendar',
+      sec_texto: sec_texto !== undefined ? sec_texto : 'Ver Servicios',
+      sec_enlace: sec_enlace || '#servicios',
       activo: activo !== false,
       fecha_envio: new Date().toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }),
       fecha_creacion: new Date().toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }),

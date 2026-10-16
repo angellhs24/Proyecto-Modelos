@@ -12,7 +12,7 @@ const DEMO_ACCOUNTS = {
     email: 'admin@elitefoot.com',
     password: 'hash_simulado_admin123',
     rolId: 1,
-    nombre: 'Lic. Roberto Méndez',
+    nombre: 'Lic. Angel Hernandez',
     cargo: 'Administrador General'
   },
   RECEPCIONISTA: {

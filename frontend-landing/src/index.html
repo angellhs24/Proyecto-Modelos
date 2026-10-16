@@ -28,38 +28,6 @@
        1. ENCABEZADO Y NAVEGACIÓN BOUTIQUE
        ========================================================================= -->
   <header class="navbar-header">
-    <!-- =========================================================================
-         0. ANUNCIOS EN VIVO — HISTORIAS DE INSTAGRAM CLÍNICAS (Auto-Rotativo)
-         ========================================================================= -->
-    <aside id="stories-announcements-bar" class="stories-announcements-bar" aria-label="Historias y Anuncios de la Clínica" style="display: none;">
-      <!-- Fila de Progreso de Historias (Segmentos estilo Instagram Stories) -->
-      <div class="stories-progress-row" id="stories-progress-row" role="progressbar" aria-label="Progreso de historias clínicas">
-        <!-- Inyectado dinámicamente con JS -->
-      </div>
-
-      <div class="stories-shell">
-        <!-- Flecha Anterior -->
-        <button type="button" class="stories-arrow stories-prev" id="stories-btn-prev" aria-label="Historia anterior" title="Anterior">
-          <i class="fa-solid fa-chevron-left"></i>
-        </button>
-
-        <!-- Escenario del Anuncio / Historia Activa -->
-        <div class="stories-stage" id="stories-stage" aria-live="polite">
-          <!-- Slide inyectado con animación suave -->
-        </div>
-
-        <!-- Flecha Siguiente -->
-        <button type="button" class="stories-arrow stories-next" id="stories-btn-next" aria-label="Siguiente historia" title="Siguiente">
-          <i class="fa-solid fa-chevron-right"></i>
-        </button>
-
-        <!-- Botón Pausa / Reanudar -->
-        <button type="button" class="stories-pause-btn" id="stories-btn-pause" aria-label="Pausar o reanudar rotación" title="Pausar rotación">
-          <i class="fa-solid fa-pause" id="stories-pause-icon"></i>
-        </button>
-      </div>
-    </aside>
-
     <div class="navbar-container">
       <a href="#inicio" class="brand-logo">
         <span class="brand-part-1">PODOLOGÍA</span><span class="brand-part-2">PROFESIONAL</span>
@@ -119,35 +87,55 @@
   </header>
 
   <!-- =========================================================================
-       2. HERO SECTION ("El arte de caminar con ligereza")
+       2. HERO SECTION CON HISTORIAS DE INSTAGRAM (Auto-Rotativo en Grande)
        ========================================================================= -->
   <section id="inicio" class="hero-section">
     <div class="hero-overlay"></div>
     <div class="hero-ambient-glow"></div>
 
-    <div class="hero-content">
-      <!-- Tagline Flotante con Pulso -->
-      <div class="hero-tagline-badge">
-        <span class="pulse-dot"></span>
-        <span>ATENCIÓN MÉDICA DE ALTA PRECISIÓN & BIENESTAR</span>
+    <!-- Flechas flotantes estilo Story Navigation en los costados del Hero -->
+    <button type="button" class="hero-story-arrow hero-story-prev" id="hero-btn-prev" aria-label="Historia anterior" title="Historia anterior" style="display: none;">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <button type="button" class="hero-story-arrow hero-story-next" id="hero-btn-next" aria-label="Siguiente historia" title="Siguiente historia" style="display: none;">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+
+    <div class="hero-content" id="hero-content">
+      <!-- 0. BARRAS DE PROGRESO DE HISTORIAS DE INSTAGRAM EN EL HERO -->
+      <div class="hero-stories-progress-container" id="hero-stories-progress" style="display: none;">
+        <div class="hero-stories-progress-row" id="hero-stories-progress-row" role="progressbar" aria-label="Historias clínicas">
+          <!-- Inyectado dinámicamente según historias activas -->
+        </div>
       </div>
 
-      <h1 class="hero-title">
+      <!-- Tagline Flotante con Pulso / Categoría de la Historia Activa -->
+      <div class="hero-tagline-badge" id="hero-tagline-badge">
+        <span class="pulse-dot" id="hero-pulse-dot"></span>
+        <span id="hero-badge-text">ATENCIÓN MÉDICA DE ALTA PRECISIÓN &amp; BIENESTAR</span>
+      </div>
+
+      <!-- Gran Titular del Hero (Cambia con la historia activa en grande) -->
+      <h1 class="hero-title" id="hero-title">
         El arte de caminar <span class="gradient-text">con ligereza</span>
       </h1>
 
-      <p class="hero-subtitle">
+      <!-- Mensaje / Subtítulo explicativo -->
+      <p class="hero-subtitle" id="hero-subtitle">
         Más que un tratamiento médico, una renovación total para el motor de tu cuerpo. Quiropodía elite, pie diabético,
         biomecánica y cirugía ungueal con tecnología de vanguardia.
       </p>
 
-      <div class="hero-actions">
+      <!-- Botones de Acción de la Historia -->
+      <div class="hero-actions" id="hero-actions">
         <button type="button" class="btn btn-primary-pill btn-abrir-agendar btn-glow-pulse"
-          onclick="abrirModalAgendar()">
-          <i class="fa-regular fa-calendar-plus"></i> RESERVAR AHORA
+          id="hero-btn-primary" onclick="abrirModalAgendar()">
+          <i class="fa-regular fa-calendar-plus" id="hero-btn-primary-icon"></i>
+          <span id="hero-btn-primary-text">RESERVAR AHORA</span>
         </button>
-        <a href="#servicios" class="btn btn-outline-white btn-hero-secondary">
-          <i class="fa-solid fa-arrow-down arrow-bounce"></i> VER SERVICIOS
+        <a href="#servicios" class="btn btn-outline-white btn-hero-secondary" id="hero-btn-secondary">
+          <i class="fa-solid fa-arrow-down arrow-bounce" id="hero-btn-sec-icon"></i>
+          <span id="hero-btn-sec-text">VER SERVICIOS</span>
         </a>
       </div>
 
@@ -725,11 +713,11 @@
 
                 <!-- Búsqueda Rápida de Expediente o Teléfono -->
                 <div class="form-field-group-lux">
-                  <label for="booking-input-expediente"><i class="fa-solid fa-id-card"></i> No. de Expediente o Teléfono
+                  <label for="booking-input-expediente"><i class="fa-solid fa-id-card-clip"></i> No. de Expediente Clínico
                     (Opcional)</label>
                   <div class="expediente-search-row-lux">
-                    <input type="text" id="booking-input-expediente" placeholder="Ej. 2026140001 o 55 4123 8970"
-                      autocomplete="off">
+                    <input type="text" id="booking-input-expediente" placeholder="Ej. 2026140001 (Sólo expediente clínico)"
+                      inputmode="numeric" pattern="[0-9]*" autocomplete="off">
                     <button type="button" class="btn-search-exp-lux" id="btn-buscar-expediente"
                       onclick="buscarExpedientePaciente()">
                       <i class="fa-solid fa-magnifying-glass"></i> <span>Buscar</span>
@@ -840,21 +828,25 @@
 
               </div>
 
-              <!-- PASO 2: SEDE DE CONSULTA -->
+              <!-- PASO 2: SEDE Y ESPECIALISTA DE CONSULTA -->
               <div class="booking-form-section-lux">
                 <div class="section-step-indicator-lux">
                   <div class="step-circle-lux">2</div>
                   <div>
-                    <h3>Sede de Consulta</h3>
-                    <p>Selecciona la clínica donde se atenderá el paciente</p>
+                    <h3>Sede de Consulta y Especialista</h3>
+                    <p>Elige la clínica y el podólogo o podóloga de tu preferencia</p>
                   </div>
                 </div>
 
+                <!-- 1. Selección de Sede Clínica -->
+                <label class="booking-subsection-label-lux">
+                  <i class="fa-solid fa-hospital"></i> 1. Elige la Sede Clínica:
+                </label>
                 <div class="clinics-select-grid-lux" id="clinics-container-lux">
                   <!-- Clínica 14: DIF Lomas de Tecámac (Default activa) -->
                   <div class="clinic-card-lux active" data-clinica-id="14" data-nombre="DIF Lomas de Tecámac"
                     data-direccion="Av. Constitución, Tecámac" data-tel="5560229842"
-                    data-especialista="Maribel Benita Santillan Velasco" onclick="seleccionarSedeClinica(14)">
+                    onclick="seleccionarSedeClinica(14)">
                     <div class="clinic-icon-box">
                       <i class="fa-solid fa-hospital"></i>
                     </div>
@@ -868,7 +860,7 @@
                   <!-- Clínica 28: Casa Héroes Tecámac -->
                   <div class="clinic-card-lux" data-clinica-id="28" data-nombre="Casa Héroes Tecámac"
                     data-direccion="Av. Felipe Villanueva, Tecámac" data-tel="5515311359"
-                    data-especialista="Maribel Benita Santillan Velasco" onclick="seleccionarSedeClinica(28)">
+                    onclick="seleccionarSedeClinica(28)">
                     <div class="clinic-icon-box">
                       <i class="fa-solid fa-hospital"></i>
                     </div>
@@ -882,7 +874,7 @@
                   <!-- Clínica 35: Casa Adulto Mayor Flores -->
                   <div class="clinic-card-lux" data-clinica-id="35" data-nombre="Casa Adulto Mayor Flores"
                     data-direccion="Av. Las Flores, Tecámac" data-tel="5559388260"
-                    data-especialista="Maribel Benita Santillan Velasco" onclick="seleccionarSedeClinica(35)">
+                    onclick="seleccionarSedeClinica(35)">
                     <div class="clinic-icon-box">
                       <i class="fa-solid fa-hospital"></i>
                     </div>
@@ -894,6 +886,17 @@
                   </div>
                 </div>
                 <input type="hidden" id="booking-id-clinica" value="14">
+
+                <!-- 2. Selección de Especialista Podólogo(a) -->
+                <div style="margin-top: 20px;">
+                  <label class="booking-subsection-label-lux">
+                    <i class="fa-solid fa-user-doctor"></i> 2. Elige a tu Especialista Podólogo(a):
+                  </label>
+                  <div class="podologos-select-grid-lux" id="podologos-container-lux">
+                    <!-- Renderizado dinámicamente desde la base de datos vía /api/podologos -->
+                  </div>
+                  <input type="hidden" id="booking-cedula-podologo" value="B-24267">
+                </div>
               </div>
 
               <!-- PASO 3: FECHA Y HORARIO DE LA CITA -->
@@ -938,7 +941,7 @@
                 <!-- Bloques de Horarios Frecuentes / Disponibles -->
                 <label class="time-slots-heading-lux">
                   <i class="fa-solid fa-list-check" style="color: var(--caramel-ochre);"></i> Horarios de Atención
-                  (<span id="label-sede-horarios">DIF Lomas de Tecámac</span>):
+                  (<span id="label-sede-horarios">DIF Lomas de Tecámac</span> · <span id="label-podologo-horarios">Cargando...</span>):
                 </label>
                 <div class="time-slots-grid-lux" id="time-slots-container">
                   <button type="button" class="slot-pill-lux" data-time="09:00 AM"

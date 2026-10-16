@@ -5,9 +5,9 @@ const medicoController = require('./medicoController');
 const obtenerPodologos = async (req, res) => {
   try {
     const [rows] = await db.pool.query(
-      `SELECT Cedula_podologo, fk_usuario_id, Nombre, ape_paterno, ape_materno, 
+      `SELECT Cedula_podologo, Cedula_podologo AS cedula, Nombre, ape_paterno, ape_materno, 
               TRIM(CONCAT(Nombre, ' ', ape_paterno, ' ', COALESCE(ape_materno, ''))) AS nombre_completo,
-              Telefono_pod 
+              Telefono_pod, Telefono_pod AS telefono, Email, turno 
        FROM Podologos 
        ORDER BY Nombre ASC`
     );
@@ -23,9 +23,9 @@ const obtenerPodologoPorCedula = async (req, res) => {
   const { cedula } = req.params;
   try {
     const [rows] = await db.pool.query(
-      `SELECT Cedula_podologo, fk_usuario_id, Nombre, ape_paterno, ape_materno, 
+      `SELECT Cedula_podologo, Cedula_podologo AS cedula, Nombre, ape_paterno, ape_materno, 
               TRIM(CONCAT(Nombre, ' ', ape_paterno, ' ', COALESCE(ape_materno, ''))) AS nombre_completo,
-              Telefono_pod 
+              Telefono_pod, Telefono_pod AS telefono, Email, turno 
        FROM Podologos 
        WHERE Cedula_podologo = ?`,
       [cedula]

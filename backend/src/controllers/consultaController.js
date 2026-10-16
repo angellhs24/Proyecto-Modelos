@@ -138,6 +138,11 @@ const obtenerConsultas = async (req, res) => {
       sql += ` AND c.fk_no_expediente = ?`;
       params.push(expediente);
     }
+    const podologoFiltro = req.query.podologo_cedula || req.query.cedula_podologo || req.query.cedula;
+    if (podologoFiltro) {
+      sql += ` AND c.fk_cedula_podologo = ?`;
+      params.push(podologoFiltro);
+    }
 
     sql += ` ORDER BY c.fecha_hora DESC`;
 
@@ -146,6 +151,67 @@ const obtenerConsultas = async (req, res) => {
   } catch (error) {
     console.error('Error al obtener consultas:', error);
     res.status(500).json({ error: 'Error al obtener las consultas' });
+  }
+};
+
+// Consultar disponibilidad de horarios en tiempo real por clínica, especialista y fecha
+const obtenerDisponibilidadHorarios = async (req, res) => {
+  const { clinica_id, id_clinica, fecha, cedula_podologo, cedula } = req.query;
+  const clinicaFinal = clinica_id || id_clinica;
+  const podologoFinal = cedula_podologo || cedula;
+
+  if (!fecha) {
+    return res.status(400).json({ error: 'El parámetro fecha (YYYY-MM-DD) es requerido' });
+  }
+
+  try {
+    let sql = `
+      SELECT c.Consulta_id,
+             c.fk_clinica_id,
+             c.fk_cedula_podologo,
+             c.fecha_hora,
+             DATE_FORMAT(c.fecha_hora, '%H:%i') AS hora_24,
+             DATE_FORMAT(c.fecha_hora, '%h:%i %p') AS hora_12,
+             c.estado,
+             TRIM(CONCAT(pod.Nombre, ' ', pod.ape_paterno, ' ', COALESCE(pod.ape_materno, ''))) AS podologo_nombre,
+             cl.Nombre AS clinica_nombre
+      FROM Consultas c
+      LEFT JOIN Podologos pod ON c.fk_cedula_podologo = pod.Cedula_podologo
+      LEFT JOIN Clinicas cl ON c.fk_clinica_id = cl.Clinica_id
+      WHERE DATE(c.fecha_hora) = ?
+        AND c.estado != 'Cancelada'
+    `;
+    const params = [fecha];
+
+    if (podologoFinal && clinicaFinal) {
+      sql += ` AND (c.fk_cedula_podologo = ? OR c.fk_clinica_id = ?)`;
+      params.push(podologoFinal, clinicaFinal);
+    } else if (podologoFinal) {
+      sql += ` AND c.fk_cedula_podologo = ?`;
+      params.push(podologoFinal);
+    } else if (clinicaFinal) {
+      sql += ` AND c.fk_clinica_id = ?`;
+      params.push(clinicaFinal);
+    }
+
+    const { rows } = await db.query(sql, params);
+
+    // Normalizar horas ocupadas (ej. "10:00 AM", "02:00 PM")
+    const horasOcupadas12 = rows.map((r) => r.hora_12 ? r.hora_12.trim().toUpperCase() : null).filter(Boolean);
+    const horasOcupadas24 = rows.map((r) => r.hora_24 ? r.hora_24.trim() : null).filter(Boolean);
+
+    res.json({
+      fecha,
+      clinica_id: clinicaFinal || null,
+      cedula_podologo: podologoFinal || null,
+      total_ocupadas: rows.length,
+      horas_ocupadas: horasOcupadas12,
+      horas_24_ocupadas: horasOcupadas24,
+      detalles: rows
+    });
+  } catch (error) {
+    console.error('Error al consultar disponibilidad:', error);
+    res.status(500).json({ error: 'Error al consultar disponibilidad de horarios' });
   }
 };
 
@@ -295,7 +361,8 @@ const crearConsulta = async (req, res) => {
     const diab = req.body.es_diabetico ? 1 : 0;
     const hiper = req.body.es_hipertenso ? 1 : 0;
     const notas = req.body.Notas || req.body.notas || req.body.motivo || req.body.notas_alergias || null;
-    const sexo = req.body.sexo || req.body.Sexo || 'F';
+    const sexoRaw = req.body.sexo || req.body.Sexo || null;
+    const sexoChar = sexoRaw ? (String(sexoRaw).trim().toUpperCase().startsWith('M') ? 'M' : (String(sexoRaw).trim().toUpperCase().startsWith('F') ? 'F' : 'O')) : null;
     const calzado = req.body.Calzado || req.body.calzado || null;
 
     // Si es un paciente nuevo (sin No. de Expediente), generarlo automáticamente
@@ -342,7 +409,7 @@ const crearConsulta = async (req, res) => {
           apeMaterno,
           tel,
           fechaNac,
-          sexo ? sexo[0].toUpperCase() : 'F',
+          sexoChar || 'F',
           calzado,
           calle,
           mun,
@@ -359,6 +426,7 @@ const crearConsulta = async (req, res) => {
         `UPDATE Pacientes SET
           telefono = COALESCE(?, telefono),
           Fecha_nacimiento = COALESCE(?, Fecha_nacimiento),
+          Sexo = COALESCE(?, Sexo),
           Calle_direccion = COALESCE(?, Calle_direccion),
           Municipio = COALESCE(?, Municipio),
           Ocupacion = COALESCE(?, Ocupacion),
@@ -370,6 +438,7 @@ const crearConsulta = async (req, res) => {
         [
           tel,
           fechaNac,
+          sexoChar,
           calle,
           mun,
           ocup,
@@ -400,6 +469,29 @@ const crearConsulta = async (req, res) => {
     }
 
     fechaHoraFinal = normalizarFechaHoraMySQL(fechaHoraFinal);
+
+    // Validar que el especialista o la clínica no tengan ya una cita confirmada en ese mismo horario
+    const conflicto = await db.query(
+      `SELECT c.Consulta_id, pod.Nombre, pod.ape_paterno, cl.Nombre AS clinica_nombre, c.fk_clinica_id, c.fk_cedula_podologo
+       FROM Consultas c
+       LEFT JOIN Podologos pod ON c.fk_cedula_podologo = pod.Cedula_podologo
+       LEFT JOIN Clinicas cl ON c.fk_clinica_id = cl.Clinica_id
+       WHERE c.fecha_hora = ? 
+         AND (c.fk_cedula_podologo = ? OR c.fk_clinica_id = ?)
+         AND c.estado != 'Cancelada'
+       LIMIT 1`,
+      [fechaHoraFinal, podologoFinal, clinicaFinal]
+    );
+
+    if (conflicto.rows.length > 0) {
+      const row = conflicto.rows[0];
+      const esMismoPodologo = (row.fk_cedula_podologo === podologoFinal);
+      const nombrePod = row.Nombre ? `${row.Nombre} ${row.ape_paterno}` : 'El especialista';
+      const mensajeError = esMismoPodologo
+        ? `${nombrePod} ya cuenta con una cita confirmada en este horario. Por favor selecciona otro horario o especialista disponible.`
+        : `La sede ${row.clinica_nombre || 'seleccionada'} ya cuenta con una consulta en este horario. Por favor selecciona otro horario disponible.`;
+      return res.status(409).json({ error: mensajeError });
+    }
 
     const consultaIdFinal = Consulta_id || (await generarConsultaId(clinicaFinal));
     const estadoFinal = estado || 'Confirmada';
@@ -564,6 +656,7 @@ const eliminarConsulta = async (req, res) => {
 
 module.exports = {
   obtenerConsultas,
+  obtenerDisponibilidadHorarios,
   obtenerConsultasPorClinica,
   obtenerDetalleConsulta,
   crearConsulta,

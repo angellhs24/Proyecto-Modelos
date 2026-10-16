@@ -1,11 +1,13 @@
 const {
   crearConsulta,
   obtenerConsultasPorClinica,
-  obtenerConsultas
+  obtenerConsultas,
+  obtenerDisponibilidadHorarios
 } = require('./consultaController');
 
 module.exports = {
   crearCita: crearConsulta,
   obtenerCitasPorClinica: obtenerConsultasPorClinica,
-  obtenerCitas: obtenerConsultas
+  obtenerCitas: obtenerConsultas,
+  obtenerDisponibilidadHorarios
 };

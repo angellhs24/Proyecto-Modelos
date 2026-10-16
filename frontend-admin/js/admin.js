@@ -1267,35 +1267,42 @@ function renderHistorialAvisos(avisos) {
       const estaActivo = a.activo !== false;
       const iconoClase = categoriaIconos[a.tipo] || 'fa-solid fa-bullhorn';
       return `
-      <div class="notice-history-item" style="border: 1px solid var(--color-ash-border); border-radius: var(--radius-cardinner); padding: 16px; background: ${estaActivo ? '#ffffff' : '#fafafa'}; opacity: ${estaActivo ? '1' : '0.85'};">
+      <div class="notice-history-item" style="border: 1px solid var(--color-ash-border); border-radius: var(--radius-cardinner); padding: 16px; background: ${estaActivo ? '#ffffff' : '#f8fafc'}; opacity: ${estaActivo ? '1' : '0.88'};">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px;">
           <div>
             <span class="badge ${estaActivo ? 'badge-active' : 'badge-inactive'}" style="font-size: 0.72rem; margin-right: 6px;">
               ${estaActivo ? '● En Vivo en Historias Web' : '○ Pausada'}
             </span>
-            <span class="badge badge-primary" style="font-size: 0.72rem; background: var(--color-fog); color: var(--color-carbon); border: 1px solid var(--color-ash-border);">
+            <span class="badge badge-primary" style="font-size: 0.72rem; background: #f1f5f9; color: #0f172a; font-weight: 600; border: 1px solid #cbd5e1;">
               <i class="${iconoClase}"></i> ${escapeHtml(a.tipo_label || 'Anuncio Web')}
             </span>
           </div>
-          <span style="font-size: 0.74rem; color: var(--color-stone); white-space: nowrap;">
+          <span style="font-size: 0.76rem; color: #475569; font-weight: 500; white-space: nowrap;">
             ${escapeHtml(a.fecha_envio || a.fecha_creacion || '')}
           </span>
         </div>
 
-        <h4 style="font-size: 0.95rem; font-weight: 600; color: var(--color-midnight-ink); margin: 0 0 6px 0;">
+        <h4 style="font-size: 0.98rem; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">
           ${escapeHtml(a.titulo || a.asunto || 'Anuncio Web')}
         </h4>
 
-        <div style="font-size: 0.85rem; color: var(--color-carbon); line-height: 1.45; margin-bottom: 12px;">
+        <div style="font-size: 0.88rem; color: #334155; line-height: 1.5; margin-bottom: 12px;">
           ${escapeHtml(a.mensaje)}
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--color-ash-border); padding-top: 10px; flex-wrap: wrap; gap: 8px;">
-          <div style="font-size: 0.76rem; color: var(--color-stone);">
+          <div style="font-size: 0.78rem; color: #475569; display: flex; flex-direction: column; gap: 4px;">
+            <div>
+              ${
+                a.cta_texto
+                  ? `<span>Botón 1: <strong style="color: #0f172a;">${escapeHtml(a.cta_texto)}</strong> &rarr; <code style="font-size: 0.74rem; color: #0369a1; background: #f0f9ff; padding: 2px 6px; border-radius: 4px; border: 1px solid #bae6fd;">${escapeHtml(a.cta_enlace || '#')}</code></span>`
+                  : '<span>Sin botón 1</span>'
+              }
+            </div>
             ${
-              a.cta_texto
-                ? `<span>Botón: <strong style="color: var(--color-midnight-ink);">${escapeHtml(a.cta_texto)}</strong> &rarr; <code style="font-size: 0.72rem;">${escapeHtml(a.cta_enlace || '#')}</code></span>`
-                : '<span>Sin botón CTA</span>'
+              a.sec_texto
+                ? `<div><span>Botón 2: <strong style="color: #0f172a;">${escapeHtml(a.sec_texto)}</strong> &rarr; <code style="font-size: 0.74rem; color: #0369a1; background: #f0f9ff; padding: 2px 6px; border-radius: 4px; border: 1px solid #bae6fd;">${escapeHtml(a.sec_enlace || '#')}</code></span></div>`
+                : ''
             }
           </div>
           <div style="display: inline-flex; gap: 6px;">
@@ -1369,12 +1376,15 @@ function configurarEventosAvisos() {
   const textareaMensaje = document.getElementById('aviso-mensaje');
   const inputCtaTexto = document.getElementById('aviso-cta-texto');
   const inputCtaEnlace = document.getElementById('aviso-cta-enlace');
+  const inputSecTexto = document.getElementById('aviso-sec-texto');
+  const inputSecEnlace = document.getElementById('aviso-sec-enlace');
   const checkActivo = document.getElementById('aviso-activo-check');
 
   const previewTitulo = document.getElementById('preview-titulo-render');
   const previewMensaje = document.getElementById('preview-mensaje-render');
   const previewCategoria = document.getElementById('preview-categoria-badge');
   const previewCta = document.getElementById('preview-cta-render');
+  const previewSec = document.getElementById('preview-sec-render');
 
   const templateChips = document.querySelectorAll('.template-chip');
   const btnLimpiar = document.getElementById('btn-limpiar-aviso');
@@ -1384,13 +1394,20 @@ function configurarEventosAvisos() {
     const msg = textareaMensaje?.value.trim() || 'El contenido redactado aparecerá aquí tal como lo verán los pacientes en la página de la clínica.';
     const categoriaText = selectTipo?.selectedOptions[0]?.textContent?.trim() || '📢 Aviso Importante';
     const ctaText = inputCtaTexto?.value.trim() || 'Agendar Cita';
+    const secText = inputSecTexto?.value.trim() || 'Ver Servicios';
 
     if (previewTitulo) previewTitulo.textContent = titulo;
     if (previewMensaje) previewMensaje.textContent = msg;
     if (previewCategoria) previewCategoria.textContent = categoriaText;
+
     if (previewCta) {
       previewCta.textContent = ctaText;
       previewCta.style.display = inputCtaTexto?.value.trim() ? 'inline-block' : 'none';
+    }
+
+    if (previewSec) {
+      previewSec.textContent = secText;
+      previewSec.style.display = inputSecTexto?.value.trim() ? 'inline-block' : 'none';
     }
   }
 
@@ -1398,6 +1415,7 @@ function configurarEventosAvisos() {
   textareaMensaje?.addEventListener('input', actualizarPreviewWeb);
   selectTipo?.addEventListener('change', actualizarPreviewWeb);
   inputCtaTexto?.addEventListener('input', actualizarPreviewWeb);
+  inputSecTexto?.addEventListener('input', actualizarPreviewWeb);
 
   // Plantillas rápidas para la web de la clínica
   const plantillas = {
@@ -1406,28 +1424,36 @@ function configurarEventosAvisos() {
       tipo: 'promocion',
       mensaje: 'Cuida de tus pies con el respaldo de nuestros especialistas. Disfruta de un 15% de descuento en tu consulta integral al agendar a través del portal web.',
       cta_texto: 'Aprovechar Descuento',
-      cta_enlace: '#agendar'
+      cta_enlace: '#agendar',
+      sec_texto: 'Ver Servicios',
+      sec_enlace: '#servicios'
     },
     festivo: {
       titulo: '⏰ Horario Especial en Días Festivos',
       tipo: 'horario_especial',
       mensaje: 'Informamos a nuestros estimados pacientes que el próximo lunes festivo laboraremos en horario especial matutino de 9:00 AM a 2:00 PM con previa cita.',
       cta_texto: 'Agendar Cita',
-      cta_enlace: '#agendar'
+      cta_enlace: '#agendar',
+      sec_texto: 'Nuestras Sedes',
+      sec_enlace: '#sedes'
     },
     novedad: {
       titulo: '✨ ¡Nueva Área de Biomecánica y Láser Podológico!',
       tipo: 'novedad',
       mensaje: 'Estrenamos tecnología avanzada para estudio computarizado de la pisada y tratamientos indoloros en la Sede Lomas de Tecámac.',
       cta_texto: 'Conocer Sedes',
-      cta_enlace: '#sedes'
+      cta_enlace: '#sedes',
+      sec_texto: 'Agendar Cita',
+      sec_enlace: '#agendar'
     },
     diabetico: {
       titulo: '❤️ Campaña Preventiva de Pie Diabético',
       tipo: 'aviso_importante',
       mensaje: 'La salud de tus pasos es lo primero. Te invitamos a realizar tu valoración preventiva periódica de corte profiláctico y prueba de sensibilidad.',
       cta_texto: 'Agendar Valoración',
-      cta_enlace: '#agendar'
+      cta_enlace: '#agendar',
+      sec_texto: 'Conocer Método',
+      sec_enlace: '#metodo'
     }
   };
 
@@ -1444,6 +1470,8 @@ function configurarEventosAvisos() {
         if (textareaMensaje) textareaMensaje.value = tpl.mensaje;
         if (inputCtaTexto) inputCtaTexto.value = tpl.cta_texto;
         if (inputCtaEnlace) inputCtaEnlace.value = tpl.cta_enlace;
+        if (inputSecTexto) inputSecTexto.value = tpl.sec_texto || 'Ver Servicios';
+        if (inputSecEnlace) inputSecEnlace.value = tpl.sec_enlace || '#servicios';
         actualizarPreviewWeb();
       }
     });
@@ -1463,6 +1491,8 @@ function configurarEventosAvisos() {
     const mensaje = textareaMensaje?.value.trim();
     const cta_texto = inputCtaTexto?.value.trim() || '';
     const cta_enlace = inputCtaEnlace?.value.trim() || '#agendar';
+    const sec_texto = inputSecTexto?.value.trim() || '';
+    const sec_enlace = inputSecEnlace?.value.trim() || '#servicios';
     const activo = checkActivo ? checkActivo.checked : true;
 
     if (!titulo || !mensaje) {
@@ -1476,10 +1506,12 @@ function configurarEventosAvisos() {
         titulo,
         asunto: titulo,
         tipo,
-        ubicacion: 'banner_principal',
+        ubicacion: 'hero_banner',
         mensaje,
         cta_texto,
         cta_enlace,
+        sec_texto,
+        sec_enlace,
         activo
       })
     });

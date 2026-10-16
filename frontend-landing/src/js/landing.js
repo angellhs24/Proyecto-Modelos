@@ -63,10 +63,14 @@ let bookingState = {
   clinicaNombre: 'DIF Lomas de Tecámac',
   clinicaDireccion: 'Av. Constitución, Tecámac',
   clinicaTelefono: '5560229842',
-  especialista: 'Maribel Benita Santillan Velasco',
+  cedulaPodologo: 'B-24267',
+  especialista: 'Luis Angel Hernandez Santillan',
   fecha: obtenerFechaHoyLocal(),
   hora: '10:00 AM'
 };
+
+let catalogoPodologos = [];
+let horasOcupadasBD = [];
 
 const catalogoClinicas = [
   {
@@ -74,21 +78,21 @@ const catalogoClinicas = [
     nombre: 'DIF Lomas de Tecámac',
     direccion: 'Av. Constitución, Tecámac',
     telefono: '5560229842',
-    especialista: 'Maribel Benita Santillan Velasco'
+    especialista: 'Luis Angel Hernandez Santillan'
   },
   {
     id: 28,
     nombre: 'Casa Héroes Tecámac',
     direccion: 'Av. Felipe Villanueva, Tecámac',
     telefono: '5515311359',
-    especialista: 'Maribel Benita Santillan Velasco'
+    especialista: 'Luis Angel Hernandez Santillan'
   },
   {
     id: 35,
     nombre: 'Casa Adulto Mayor Flores',
     direccion: 'Av. Las Flores, Tecámac',
     telefono: '5559388260',
-    especialista: 'Maribel Benita Santillan Velasco'
+    especialista: 'Luis Angel Hernandez Santillan'
   }
 ];
 
@@ -105,11 +109,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 2. Vincular listeners reactivos a inputs del formulario
   configurarInputsReactivos();
 
-  // 3. Evaluar y sincronizar disponibilidad de horarios según la hora actual
-  actualizarDisponibilidadHorarios();
+  // 3. Cargar catálogo dinámico de podólogos desde la base de datos
+  await cargarCatalogoPodologos();
+
+  // 4. Evaluar y sincronizar disponibilidad de horarios según la hora y la BD
+  await consultarDisponibilidadHorariosBD();
   sincronizarAtajosFechaVisual(hoy);
 
-  // 4. Configurar listeners de navegación y modal
+  // 5. Configurar listeners de navegación y modal
   configurarNavegacion();
   configurarModalAgendar();
   configurarTestimonios();
@@ -118,10 +125,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   configurarScrollTop();
   configurarActiveNavScroll();
 
-  // 5. Inicializar carrusel de Historias Clínicas (Instagram Stories)
+  // 6. Inicializar carrusel de Historias Clínicas (Instagram Stories)
   inicializarHistoriasAnuncios();
 
-  // 6. Si la URL contiene #agendar, abrir modal automáticamente
+  // 7. Si la URL contiene #agendar, abrir modal automáticamente
   if (window.location.hash === '#agendar') {
     setTimeout(() => abrirModalAgendar(), 150);
   }
@@ -162,6 +169,7 @@ function configurarInputsReactivos() {
   const inputNombre = document.getElementById('booking-nombre');
   const inputTel = document.getElementById('booking-telefono');
   const inputFecha = document.getElementById('booking-fecha');
+  const inputFechaNac = document.getElementById('booking-fecha-nacimiento');
   const inputHoraCustom = document.getElementById('booking-hora-custom');
   const selectServicio = document.getElementById('booking-servicio');
   const checkDiab = document.getElementById('booking-check-diabetico');
@@ -180,9 +188,12 @@ function configurarInputsReactivos() {
   inputFecha?.addEventListener('change', (e) => {
     bookingState.fecha = e.target.value;
     sincronizarAtajosFechaVisual(e.target.value);
-    actualizarDisponibilidadHorarios();
     actualizarComprobante();
+    consultarDisponibilidadHorariosBD();
   });
+
+  inputFechaNac?.addEventListener('input', calcularEdadAlVuelo);
+  inputFechaNac?.addEventListener('change', calcularEdadAlVuelo);
 
   inputHoraCustom?.addEventListener('input', (e) => {
     const val = e.target.value;
@@ -256,7 +267,7 @@ function hora12ha24h(hora12) {
 }
 
 /**
- * Selección interactiva de Sede / Clínica (con preselección y cambio libre)
+ * Selección interactiva de Sede / Clínica
  */
 function seleccionarSedeClinica(clinicaId) {
   const idNum = parseInt(clinicaId, 10);
@@ -266,7 +277,6 @@ function seleccionarSedeClinica(clinicaId) {
   bookingState.clinicaNombre = encontrada.nombre;
   bookingState.clinicaDireccion = encontrada.direccion;
   bookingState.clinicaTelefono = encontrada.telefono;
-  bookingState.especialista = encontrada.especialista;
 
   const hiddenId = document.getElementById('booking-id-clinica');
   if (hiddenId) hiddenId.value = encontrada.id;
@@ -287,6 +297,130 @@ function seleccionarSedeClinica(clinicaId) {
   }
 
   actualizarComprobante();
+  consultarDisponibilidadHorariosBD();
+}
+
+/**
+ * Selección de Especialista Podólogo(a) desde la Base de Datos
+ */
+function seleccionarPodologo(cedula) {
+  if (!cedula) return;
+  const encontrado = catalogoPodologos.find((p) => (p.Cedula_podologo || p.cedula) === cedula);
+  if (!encontrado) return;
+
+  bookingState.cedulaPodologo = encontrado.Cedula_podologo || encontrado.cedula;
+  bookingState.especialista = encontrado.nombre_completo || `${encontrado.Nombre} ${encontrado.ape_paterno}`;
+
+  const hiddenCed = document.getElementById('booking-cedula-podologo');
+  if (hiddenCed) hiddenCed.value = bookingState.cedulaPodologo;
+
+  // Actualizar tarjetas de podólogos en la UI
+  document.querySelectorAll('.podologo-card-lux').forEach((card) => {
+    if (card.dataset.cedula === bookingState.cedulaPodologo) {
+      card.classList.add('active');
+    } else {
+      card.classList.remove('active');
+    }
+  });
+
+  // Actualizar etiqueta del especialista en el bloque de horarios
+  const labelPodologo = document.getElementById('label-podologo-horarios');
+  if (labelPodologo) {
+    labelPodologo.textContent = bookingState.especialista;
+  }
+
+  actualizarComprobante();
+  consultarDisponibilidadHorariosBD();
+}
+
+/**
+ * Carga el catálogo de Podólogos directamente desde la Base de Datos
+ */
+async function cargarCatalogoPodologos() {
+  const container = document.getElementById('podologos-container-lux');
+  if (!container) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/podologos`);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        catalogoPodologos = data;
+      }
+    }
+  } catch (err) {
+    console.warn('No se pudo consultar /api/podologos en BD, usando catálogo local:', err.message);
+  }
+
+  // Respaldo clínico en caso de fallo de red
+  if (!catalogoPodologos || catalogoPodologos.length === 0) {
+    catalogoPodologos = [
+      {
+        Cedula_podologo: 'B-24267',
+        cedula: 'B-24267',
+        Nombre: 'Luis Angel',
+        ape_paterno: 'Hernandez',
+        ape_materno: 'Santillan',
+        nombre_completo: 'Luis Angel Hernandez Santillan',
+        Telefono_pod: '5626225027'
+      },
+      {
+        Cedula_podologo: 'A-54906',
+        cedula: 'A-54906',
+        Nombre: 'Maribel Benita',
+        ape_paterno: 'Santillan',
+        ape_materno: 'Velasco',
+        nombre_completo: 'Maribel Benita Santillan Velasco',
+        Telefono_pod: '5515311359'
+      },
+      {
+        Cedula_podologo: 'C-12345',
+        cedula: 'C-12345',
+        Nombre: 'Kiara',
+        ape_paterno: 'Nava',
+        ape_materno: 'Velazquez',
+        nombre_completo: 'Kiara Nava Velazquez',
+        Telefono_pod: '5512345678'
+      }
+    ];
+  }
+
+  // Renderizar las tarjetas interactivas de podólogos
+  container.innerHTML = catalogoPodologos.map((p, idx) => {
+    const ced = p.Cedula_podologo || p.cedula || '';
+    const nom = p.nombre_completo || `${p.Nombre || ''} ${p.ape_paterno || ''}`.trim();
+    const esMujer = (p.Nombre && (p.Nombre.startsWith('Maribel') || p.Nombre.startsWith('Kiara') || p.Nombre.startsWith('Ana') || p.Nombre.startsWith('Maria')));
+    const prefijo = esMujer ? 'Dra.' : 'Dr.';
+    const icono = esMujer ? 'fa-user-nurse' : 'fa-user-doctor';
+    const isActiva = (bookingState.cedulaPodologo ? bookingState.cedulaPodologo === ced : idx === 0);
+
+    return `
+      <div class="podologo-card-lux ${isActiva ? 'active' : ''}" 
+           data-cedula="${ced}" 
+           onclick="seleccionarPodologo('${ced}')">
+        <div class="podologo-avatar-box">
+          <i class="fa-solid ${icono}"></i>
+        </div>
+        <div class="podologo-meta">
+          <h4>${prefijo} ${nom}</h4>
+          <small>Especialista Podológico(a)</small>
+          <span class="pod-badge-cedula">Céd. ${ced}</span>
+        </div>
+        <div class="podologo-check-pill"><i class="fa-solid fa-check"></i></div>
+      </div>
+    `;
+  }).join('');
+
+  // Sincronizar selección inicial
+  const podSeleccionado = catalogoPodologos.find((p) => (p.Cedula_podologo || p.cedula) === bookingState.cedulaPodologo) || catalogoPodologos[0];
+  if (podSeleccionado) {
+    bookingState.cedulaPodologo = podSeleccionado.Cedula_podologo || podSeleccionado.cedula;
+    bookingState.especialista = podSeleccionado.nombre_completo || `${podSeleccionado.Nombre} ${podSeleccionado.ape_paterno}`;
+    const hiddenCed = document.getElementById('booking-cedula-podologo');
+    if (hiddenCed) hiddenCed.value = bookingState.cedulaPodologo;
+    const labelPodologo = document.getElementById('label-podologo-horarios');
+    if (labelPodologo) labelPodologo.textContent = bookingState.especialista;
+  }
 }
 
 /**
@@ -314,7 +448,7 @@ function calcularEdadAlVuelo() {
   const badgeEdad = document.getElementById('booking-edad-badge');
   if (!inputFechaNac || !badgeEdad) return;
 
-  const fechaStr = inputFechaNac.value;
+  const fechaStr = (inputFechaNac.value || '').trim();
   bookingState.fechaNacimiento = fechaStr;
 
   if (!fechaStr) {
@@ -323,24 +457,37 @@ function calcularEdadAlVuelo() {
     return;
   }
 
-  const dNac = new Date(fechaStr);
-  if (isNaN(dNac.getTime())) {
+  // Parsear formato YYYY-MM-DD sin desfase por zona horaria UTC
+  const partes = fechaStr.split('-');
+  if (partes.length !== 3) {
     badgeEdad.textContent = 'Sin fecha';
+    bookingState.edadCalculada = null;
+    return;
+  }
+
+  const anioNac = parseInt(partes[0], 10);
+  const mesNac = parseInt(partes[1], 10) - 1; // 0-11
+  const diaNac = parseInt(partes[2], 10);
+
+  if (isNaN(anioNac) || isNaN(mesNac) || isNaN(diaNac)) {
+    badgeEdad.textContent = 'Sin fecha';
+    bookingState.edadCalculada = null;
     return;
   }
 
   const hoy = new Date();
-  let edad = hoy.getFullYear() - dNac.getFullYear();
-  const m = hoy.getMonth() - dNac.getMonth();
-  if (m < 0 || (m === 0 && hoy.getDate() < dNac.getDate())) {
+  let edad = hoy.getFullYear() - anioNac;
+  const m = hoy.getMonth() - mesNac;
+  if (m < 0 || (m === 0 && hoy.getDate() < diaNac)) {
     edad--;
   }
 
-  if (edad >= 0 && edad <= 120) {
+  if (edad >= 0 && edad <= 125) {
     badgeEdad.textContent = `${edad} años`;
     bookingState.edadCalculada = edad;
   } else {
     badgeEdad.textContent = 'Fecha inválida';
+    bookingState.edadCalculada = null;
   }
 }
 
@@ -375,9 +522,40 @@ function slotYaPaso(slot, fechaStr) {
 /**
  * Evalúa y actualiza la disponibilidad de cada bloque horario para la fecha seleccionada.
  * Si es hoy y la hora ya pasó, inhabilita el botón, muestra 'NO DISPONIBLE'
- * y ajusta la selección automática al siguiente horario válido.
+/**
+ * Consulta en la base de datos la disponibilidad de horarios en tiempo real
+ * para la clínica, el especialista y la fecha seleccionados
  */
-function actualizarDisponibilidadHorarios() {
+async function consultarDisponibilidadHorariosBD() {
+  const fecha = bookingState.fecha || obtenerFechaHoyLocal();
+  const clinicaId = bookingState.clinicaId || 14;
+  const cedula = bookingState.cedulaPodologo || '';
+
+  try {
+    const url = `${API_BASE}/citas/disponibilidad?clinica_id=${clinicaId}&cedula_podologo=${encodeURIComponent(cedula)}&fecha=${fecha}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      horasOcupadasBD = data.horas_ocupadas || [];
+    } else {
+      horasOcupadasBD = [];
+    }
+  } catch (err) {
+    console.warn('Error al consultar disponibilidad en BD:', err.message);
+    horasOcupadasBD = [];
+  }
+
+  actualizarDisponibilidadHorarios(horasOcupadasBD);
+}
+
+/**
+ * Evalúa y actualiza la disponibilidad de cada bloque horario para la fecha seleccionada.
+ * Comprueba:
+ * 1. Si ya pasó en el día de hoy -> NO DISPONIBLE
+ * 2. Si está reservado en la Base de Datos para esta sede o especialista -> OCUPADO
+ * 3. En caso contrario -> DISPONIBLE
+ */
+function actualizarDisponibilidadHorarios(horasOcupadas = horasOcupadasBD) {
   const fechaSeleccionada = bookingState.fecha || obtenerFechaHoyLocal();
   const hoyStr = obtenerFechaHoyLocal();
   const esHoy = (fechaSeleccionada === hoyStr);
@@ -389,10 +567,19 @@ function actualizarDisponibilidadHorarios() {
   CATALOGO_SLOTS.forEach((item) => {
     const btn = document.querySelector(`.slot-pill-lux[data-time="${item.time}"]`);
     const yaPaso = slotYaPaso(item, fechaSeleccionada);
+    
+    // Comprobar si coincide con alguna cita registrada en la base de datos
+    const estaOcupadoBD = Array.isArray(horasOcupadas) && horasOcupadas.some((h) => {
+      if (!h) return false;
+      const hNorm = h.trim().toUpperCase().replace(/\s+/g, '');
+      const itemNorm = item.time.trim().toUpperCase().replace(/\s+/g, '');
+      return hNorm === itemNorm;
+    });
 
     if (btn) {
       const badge = btn.querySelector('.slot-badge');
       if (yaPaso) {
+        btn.classList.remove('slot-ocupado');
         btn.classList.add('slot-pasado');
         btn.setAttribute('disabled', 'disabled');
         btn.setAttribute('title', 'Este horario ya transcurrió el día de hoy');
@@ -400,8 +587,17 @@ function actualizarDisponibilidadHorarios() {
           badge.className = 'slot-badge badge-pasado';
           badge.textContent = 'NO DISPONIBLE';
         }
-      } else {
+      } else if (estaOcupadoBD) {
         btn.classList.remove('slot-pasado');
+        btn.classList.add('slot-ocupado');
+        btn.setAttribute('disabled', 'disabled');
+        btn.setAttribute('title', `Horario ocupado en agenda con ${bookingState.especialista || 'el especialista'}`);
+        if (badge) {
+          badge.className = 'slot-badge badge-ocupado';
+          badge.textContent = 'OCUPADO';
+        }
+      } else {
+        btn.classList.remove('slot-pasado', 'slot-ocupado');
         btn.removeAttribute('disabled');
         btn.removeAttribute('title');
         if (badge) {
@@ -419,7 +615,7 @@ function actualizarDisponibilidadHorarios() {
     }
   });
 
-  // Gestionar el aviso visual si ya no quedan horarios hoy
+  // Gestionar el aviso visual si ya no quedan horarios hoy o en esta fecha
   const container = document.getElementById('time-slots-container');
   let avisoEl = document.getElementById('aviso-sin-horarios-container');
 
@@ -430,7 +626,7 @@ function actualizarDisponibilidadHorarios() {
       avisoEl.className = 'aviso-sin-horarios-hoy';
       avisoEl.innerHTML = `
         <i class="fa-solid fa-clock-rotate-left"></i>
-        <span>Los horarios de atención para hoy han concluido. Te sugerimos agendar para mañana.</span>
+        <span>Los horarios de atención para hoy con este especialista han concluido o están agotados. Te sugerimos agendar para mañana.</span>
         <button type="button" class="btn-cambiar-manana" onclick="setAtajoFecha(1)">
           <i class="fa-solid fa-calendar-plus"></i> Agendar para Mañana
         </button>
@@ -445,20 +641,18 @@ function actualizarDisponibilidadHorarios() {
     }
   }
 
-  // Si el horario seleccionado actualmente ya pasó o no está disponible, seleccionar el primero disponible
+  // Si el horario seleccionado actualmente ya pasó o está ocupado, seleccionar el primero disponible
   if (!slotActualEstaDisponible && primerSlotDisponible) {
     seleccionarHorarioSlot(primerSlotDisponible);
   } else if (!slotActualEstaDisponible && totalDisponibles === 0) {
-    // Si hoy ya no hay horarios disponibles, quitar la selección visual de los botones
     document.querySelectorAll('.slot-pill-lux').forEach((pill) => pill.classList.remove('selected'));
     const inputHoraFinal = document.getElementById('booking-hora-final');
-    if (inputHoraFinal) inputHoraFinal.value = 'Sin horarios disponibles hoy';
-    bookingState.hora = 'Sin horarios disponibles hoy';
+    if (inputHoraFinal) inputHoraFinal.value = 'Sin horarios disponibles';
+    bookingState.hora = 'Sin horarios disponibles';
     actualizarComprobante();
   } else if (slotActualEstaDisponible) {
-    // Mantener la selección visual del botón activo
     document.querySelectorAll('.slot-pill-lux').forEach((pill) => {
-      if (pill.dataset.time === bookingState.hora) {
+      if (pill.dataset.time === bookingState.hora && !pill.disabled && !pill.classList.contains('slot-ocupado') && !pill.classList.contains('slot-pasado')) {
         pill.classList.add('selected');
       } else {
         pill.classList.remove('selected');
@@ -476,7 +670,7 @@ function sincronizarAtajosFechaVisual(fechaStr) {
   const masDos = obtenerFechaOffsetLocal(2);
   const proxSemana = obtenerFechaOffsetLocal(7);
 
-  const botones = document.querySelectorAll('.date-shortcuts-lux .btn-shortcut-pill-lux');
+  const botones = document.querySelectorAll('.date-shortcuts-row-lux .btn-shortcut-pill-lux');
   if (botones.length >= 4) {
     botones.forEach((b) => b.classList.remove('active'));
     if (fechaStr === hoy) botones[0].classList.add('active');
@@ -505,8 +699,8 @@ function setAtajoFecha(dias, btnEl) {
     sincronizarAtajosFechaVisual(fechaIso);
   }
 
-  actualizarDisponibilidadHorarios();
   actualizarComprobante();
+  consultarDisponibilidadHorariosBD();
 }
 
 /**
@@ -516,7 +710,7 @@ function seleccionarHorarioSlot(horaStr, btnEl) {
   if (!btnEl) {
     btnEl = document.querySelector(`.slot-pill-lux[data-time="${horaStr}"]`);
   }
-  if (btnEl && (btnEl.disabled || btnEl.classList.contains('slot-pasado'))) {
+  if (btnEl && (btnEl.disabled || btnEl.classList.contains('slot-pasado') || btnEl.classList.contains('slot-ocupado'))) {
     return;
   }
 
@@ -559,7 +753,7 @@ function actualizarComprobante() {
 }
 
 /**
- * Búsqueda inteligente de paciente por Expediente o Teléfono
+ * Búsqueda inteligente de paciente por Número de Expediente Clínico Único
  */
 async function buscarExpedientePaciente() {
   const inputExp = document.getElementById('booking-input-expediente');
@@ -570,7 +764,13 @@ async function buscarExpedientePaciente() {
 
   const termino = inputExp?.value.trim();
   if (!termino) {
-    alert('Por favor ingresa un número de expediente o teléfono para buscar.');
+    alert('Por favor ingresa un número de expediente clínico para buscar.');
+    return;
+  }
+
+  // Validación estricta: sólo dígitos numéricos para el expediente clínico
+  if (!/^\d+$/.test(termino)) {
+    alert('La búsqueda es exclusivamente mediante el Número de Expediente Clínico (únicamente números). Recuerda que la búsqueda por teléfono se ha desactivado para evitar mezclar datos de familiares que comparten el mismo número.');
     return;
   }
 
@@ -578,6 +778,35 @@ async function buscarExpedientePaciente() {
     btnBuscar.disabled = true;
     btnBuscar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Buscando...</span>';
   }
+
+  // 1. Limpieza total previa para evitar arrastrar datos o bugs al cambiar de un expediente a otro
+  const inputNombre = document.getElementById('booking-nombre');
+  const inputTel = document.getElementById('booking-telefono');
+  const inputFechaNac = document.getElementById('booking-fecha-nacimiento');
+  const inputDir = document.getElementById('booking-direccion');
+  const inputMun = document.getElementById('booking-municipio');
+  const checkDiab = document.getElementById('booking-check-diabetico');
+  const checkHiper = document.getElementById('booking-check-hipertenso');
+  const badgeEdad = document.getElementById('booking-edad-badge');
+
+  if (inputNombre) inputNombre.value = '';
+  if (inputTel) inputTel.value = '';
+  if (inputFechaNac) inputFechaNac.value = '';
+  if (inputDir) inputDir.value = '';
+  if (inputMun) inputMun.value = 'Tecámac';
+  if (checkDiab) checkDiab.checked = false;
+  if (checkHiper) checkHiper.checked = false;
+  if (badgeEdad) badgeEdad.textContent = 'Sin fecha';
+  seleccionarSexo('Femenino');
+
+  bookingState.pacienteEncontrado = false;
+  bookingState.expediente = '';
+  bookingState.nombre = '';
+  bookingState.telefono = '';
+  bookingState.fechaNacimiento = '';
+  bookingState.edadCalculada = null;
+  bookingState.esDiabetico = false;
+  bookingState.esHipertenso = false;
 
   try {
     const res = await fetch(`${API_BASE}/pacientes/${encodeURIComponent(termino)}`);
@@ -588,14 +817,6 @@ async function buscarExpedientePaciente() {
 
       // Autocompletar datos del paciente
       const nomCompleto = p.nombre_completo || `${p.Nombres || ''} ${p.ape_paterno || ''} ${p.ape_materno || ''}`.trim();
-      const inputNombre = document.getElementById('booking-nombre');
-      const inputTel = document.getElementById('booking-telefono');
-      const inputFechaNac = document.getElementById('booking-fecha-nacimiento');
-      const inputDir = document.getElementById('booking-direccion');
-      const inputMun = document.getElementById('booking-municipio');
-      const checkDiab = document.getElementById('booking-check-diabetico');
-      const checkHiper = document.getElementById('booking-check-hipertenso');
-
       if (inputNombre) inputNombre.value = nomCompleto;
       if (inputTel) inputTel.value = p.telefono || '';
       if (inputDir) inputDir.value = p.Calle_direccion || p.direccion || '';
@@ -604,19 +825,47 @@ async function buscarExpedientePaciente() {
       bookingState.nombre = nomCompleto;
       bookingState.telefono = p.telefono || '';
 
+      // FECHA DE NACIMIENTO Y EDAD CALCULADA
       if (p.Fecha_nacimiento) {
-        const fechaNacFormatted = p.Fecha_nacimiento.split('T')[0];
-        if (inputFechaNac) inputFechaNac.value = fechaNacFormatted;
+        const fechaNacFormatted = String(p.Fecha_nacimiento).split('T')[0].trim();
+        if (inputFechaNac) {
+          inputFechaNac.value = fechaNacFormatted;
+        }
+        bookingState.fechaNacimiento = fechaNacFormatted;
         calcularEdadAlVuelo();
+        if (p.edad !== null && p.edad !== undefined && !isNaN(p.edad)) {
+          if (badgeEdad) badgeEdad.textContent = `${p.edad} años`;
+          bookingState.edadCalculada = p.edad;
+        }
+      } else {
+        if (inputFechaNac) inputFechaNac.value = '';
+        if (badgeEdad) badgeEdad.textContent = 'Sin fecha';
+        bookingState.fechaNacimiento = '';
+        bookingState.edadCalculada = null;
       }
 
+      // SEXO CLÍNICO
+      let sexoDetectado = 'Femenino';
       if (p.Sexo) {
-        const s = p.Sexo.toUpperCase().startsWith('M') ? 'Masculino' : (p.Sexo.toUpperCase().startsWith('F') ? 'Femenino' : 'Otro');
-        seleccionarSexo(s);
+        const sRaw = String(p.Sexo).trim().toUpperCase();
+        if (sRaw === 'M' || sRaw.startsWith('MASC') || sRaw === 'H' || sRaw.startsWith('HOMB')) {
+          sexoDetectado = 'Masculino';
+        } else if (sRaw === 'F' || sRaw.startsWith('FEM') || sRaw.startsWith('MUJ')) {
+          sexoDetectado = 'Femenino';
+        } else {
+          sexoDetectado = 'Otro';
+        }
       }
+      seleccionarSexo(sexoDetectado);
 
-      if (checkDiab) checkDiab.checked = Boolean(p.es_diabetico);
-      if (checkHiper) checkHiper.checked = Boolean(p.es_hipertenso);
+      // ALERTAS MÉDICAS (DIABÉTICO / HIPERTENSO)
+      const isDiab = Boolean(p.es_diabetico === 1 || p.es_diabetico === '1' || p.es_diabetico === true);
+      const isHiper = Boolean(p.es_hipertenso === 1 || p.es_hipertenso === '1' || p.es_hipertenso === true);
+
+      if (checkDiab) checkDiab.checked = isDiab;
+      if (checkHiper) checkHiper.checked = isHiper;
+      bookingState.esDiabetico = isDiab;
+      bookingState.esHipertenso = isHiper;
 
       if (badgeEncontrado) {
         badgeEncontrado.style.display = 'inline-flex';
@@ -629,13 +878,14 @@ async function buscarExpedientePaciente() {
       actualizarComprobante();
     } else {
       bookingState.pacienteEncontrado = false;
+      bookingState.expediente = '';
       if (badgeEncontrado) badgeEncontrado.style.display = 'none';
       if (btnReset) btnReset.style.display = 'none';
-      alert(`No se encontró un expediente registrado con "${termino}". Puedes llenar tus datos como paciente nuevo para apartar tu cita sin problema.`);
+      alert(`No se encontró ningún expediente clínico registrado con el número "${termino}". Recuerda ingresar el número de expediente único del paciente.`);
     }
   } catch (err) {
     console.warn('Error al buscar paciente en backend:', err.message);
-    alert('No fue posible consultar la base de expedientes en este momento. Puedes registrar directamente tus datos para agendar tu cita.');
+    alert('No fue posible consultar la base de expedientes en este momento.');
   } finally {
     if (btnBuscar) {
       btnBuscar.disabled = false;
@@ -652,12 +902,17 @@ function resetearFormularioPaciente() {
   bookingState.pacienteEncontrado = false;
   bookingState.nombre = '';
   bookingState.telefono = '';
+  bookingState.fechaNacimiento = '';
+  bookingState.edadCalculada = null;
+  bookingState.esDiabetico = false;
+  bookingState.esHipertenso = false;
 
   const inputExp = document.getElementById('booking-input-expediente');
   const inputNombre = document.getElementById('booking-nombre');
   const inputTel = document.getElementById('booking-telefono');
   const inputFechaNac = document.getElementById('booking-fecha-nacimiento');
   const inputDir = document.getElementById('booking-direccion');
+  const inputMun = document.getElementById('booking-municipio');
   const badgeEdad = document.getElementById('booking-edad-badge');
   const badgeEncontrado = document.getElementById('paciente-encontrado-badge');
   const btnReset = document.getElementById('btn-reset-expediente');
@@ -669,6 +924,7 @@ function resetearFormularioPaciente() {
   if (inputTel) inputTel.value = '';
   if (inputFechaNac) inputFechaNac.value = '';
   if (inputDir) inputDir.value = '';
+  if (inputMun) inputMun.value = 'Tecámac';
   if (badgeEdad) badgeEdad.textContent = 'Sin fecha';
   if (badgeEncontrado) badgeEncontrado.style.display = 'none';
   if (btnReset) btnReset.style.display = 'none';
@@ -757,8 +1013,13 @@ function abrirModalAgendar(opciones = {}) {
     }
   }
 
-  // Actualizar disponibilidad de bloques y atajos según la fecha y hora actual
-  actualizarDisponibilidadHorarios();
+  // Asegurar catálogo de podólogos cargado
+  if (!catalogoPodologos || catalogoPodologos.length === 0) {
+    cargarCatalogoPodologos();
+  }
+
+  // Actualizar disponibilidad de bloques y atajos según la fecha, podólogo y sede
+  consultarDisponibilidadHorariosBD();
   sincronizarAtajosFechaVisual(bookingState.fecha || hoy);
 
   // Abrir modal con soporte nativo o fallback
@@ -856,11 +1117,32 @@ async function procesarEnvioCita(event) {
   }
 
   const clinicaSeleccionada = catalogoClinicas.find((c) => c.id === clinicaId) || catalogoClinicas[0];
+  const cedulaPodologo = document.getElementById('booking-cedula-podologo')?.value || bookingState.cedulaPodologo || null;
+  const especialistaNombre = bookingState.especialista || clinicaSeleccionada.especialista;
+
+  // Validar si el horario seleccionado se encuentra ocupado en la base de datos
+  if (Array.isArray(horasOcupadasBD) && horasOcupadasBD.some((h) => {
+    if (!h) return false;
+    return h.trim().toUpperCase().replace(/\s+/g, '') === horaFinal.trim().toUpperCase().replace(/\s+/g, '');
+  })) {
+    alert(`El horario ${horaFinal} se encuentra ocupado con ${especialistaNombre} o en esta sede. Por favor elige otro horario disponible.`);
+    if (btnForm) {
+      btnForm.disabled = false;
+      btnForm.innerHTML = '<i class="fa-solid fa-calendar-check"></i> <span>Confirmar y Agendar Cita</span>';
+    }
+    if (btnVoucher) {
+      btnVoucher.disabled = false;
+      btnVoucher.innerHTML = '<i class="fa-solid fa-check"></i> <span>Guardar Cita</span>';
+    }
+    return;
+  }
 
   const payload = {
     clinica_id: clinicaId,
     fk_clinica_id: clinicaId,
     id_clinica: clinicaId,
+    fk_cedula_podologo: cedulaPodologo,
+    cedula_podologo: cedulaPodologo,
     fecha,
     hora: horaFinal,
     fecha_hora: `${fecha} ${hora12ha24h(horaFinal)}:00`,
@@ -901,8 +1183,13 @@ async function procesarEnvioCita(event) {
         fecha,
         hora: horaFinal,
         servicio,
-        especialista: clinicaSeleccionada.especialista
+        especialista: especialistaNombre
       });
+      consultarDisponibilidadHorariosBD();
+    } else if (res.status === 409) {
+      alert(data.error || 'El horario seleccionado ya no se encuentra disponible. Por favor elige otro horario.');
+      await consultarDisponibilidadHorariosBD();
+      return;
     } else {
       console.warn('Backend respondió error, activando respaldo local para el paciente:', data.error);
       mostrarConfirmacionExito({
@@ -914,7 +1201,7 @@ async function procesarEnvioCita(event) {
         fecha,
         hora: horaFinal,
         servicio,
-        especialista: clinicaSeleccionada.especialista
+        especialista: especialistaNombre
       });
     }
   } catch (err) {
@@ -928,7 +1215,7 @@ async function procesarEnvioCita(event) {
       fecha,
       hora: horaFinal,
       servicio,
-      especialista: clinicaSeleccionada.especialista
+      especialista: especialistaNombre
     });
   } finally {
     if (btnForm) {
@@ -1152,21 +1439,85 @@ function configurarActiveNavScroll() {
 }
 
 // =========================================================================
-// GESTOR DE ANUNCIOS EN VIVO — HISTORIAS DE INSTAGRAM (Auto-Rotativo)
+// GESTOR DE ANUNCIOS EN VIVO — HISTORIAS DE INSTAGRAM EN EL HERO (EN GRANDE)
+// Muestra historias visuales auto-rotativas con barras de progreso segmentadas
+// en el Hero Section con el titular grande, subtítulo y botones de acción.
 // =========================================================================
+
+const HISTORIA_HERO_PRINCIPAL = {
+  id: 'principal-arte-caminar',
+  tipo: 'general',
+  tipo_label: 'ATENCIÓN MÉDICA DE ALTA PRECISIÓN & BIENESTAR',
+  titulo: 'El arte de caminar <span class="gradient-text">con ligereza</span>',
+  subtitulo: 'Más que un tratamiento médico, una renovación total para el motor de tu cuerpo. Quiropodía elite, pie diabético, biomecánica y cirugía ungueal con tecnología de vanguardia.',
+  cta_texto: 'RESERVAR AHORA',
+  cta_enlace: '#agendar',
+  cta_icono: 'fa-regular fa-calendar-plus',
+  sec_texto: 'VER SERVICIOS',
+  sec_enlace: '#servicios',
+  sec_icono: 'fa-solid fa-arrow-down arrow-bounce'
+};
+
+const CATEGORIAS_HERO_CONFIG = {
+  promocion: {
+    label: 'PROMOCIÓN EXCLUSIVA',
+    icono: 'fa-solid fa-tag',
+    dotColor: '#f69251'
+  },
+  horario_especial: {
+    label: 'HORARIO ESPECIAL',
+    icono: 'fa-solid fa-clock',
+    dotColor: '#38bdf8'
+  },
+  aviso_importante: {
+    label: 'AVISO IMPORTANTE',
+    icono: 'fa-solid fa-bullhorn',
+    dotColor: '#fb7185'
+  },
+  novedad: {
+    label: 'NOVEDAD CLÍNICA',
+    icono: 'fa-solid fa-sparkles',
+    dotColor: '#a78bfa'
+  },
+  mantenimiento: {
+    label: 'AVISO DE SERVICIO',
+    icono: 'fa-solid fa-wrench',
+    dotColor: '#fbbf24'
+  },
+  general: {
+    label: 'ATENCIÓN MÉDICA DE ALTA PRECISIÓN & BIENESTAR',
+    icono: 'fa-solid fa-shield-halved',
+    dotColor: 'var(--gold-accent)'
+  }
+};
+
 let historiasState = {
   anuncios: [],
   currentIndex: 0,
-  duracionMs: 5000,
+  duracionMs: 6000,
   tiempoTranscurrido: 0,
   isPaused: false,
   timerId: null,
   lastTimestamp: null
 };
 
+function formatearTituloHero(rawTitulo) {
+  if (!rawTitulo) return 'Atención Podológica <span class="gradient-text">Especializada</span>';
+  if (rawTitulo.includes('<span') || rawTitulo.includes('<mark')) return rawTitulo;
+
+  const palabras = rawTitulo.trim().split(/\s+/);
+  if (palabras.length <= 2) {
+    return `<span class="gradient-text">${escapeHtml(rawTitulo)}</span>`;
+  }
+  const corte = Math.max(1, palabras.length - 2);
+  const base = palabras.slice(0, corte).join(' ');
+  const resalte = palabras.slice(corte).join(' ');
+  return `${escapeHtml(base)} <span class="gradient-text">${escapeHtml(resalte)}</span>`;
+}
+
 async function inicializarHistoriasAnuncios() {
-  const barEl = document.getElementById('stories-announcements-bar');
-  if (!barEl) return;
+  const heroContent = document.getElementById('hero-content');
+  if (!heroContent) return;
 
   try {
     let res = await fetch(`${API_BASE}/anuncios`);
@@ -1174,46 +1525,55 @@ async function inicializarHistoriasAnuncios() {
       res = await fetch(`${API_BASE}/admin/avisos`);
     }
 
-    if (!res.ok) {
-      barEl.style.display = 'none';
-      return;
+    let anunciosActivos = [];
+    if (res.ok) {
+      const data = await res.json();
+      anunciosActivos = Array.isArray(data) ? data.filter((a) => a.activo !== false) : [];
     }
 
-    const data = await res.json();
-    const anunciosActivos = Array.isArray(data) ? data.filter((a) => a.activo !== false) : [];
+    // Armamos la lista de historias: Historia Insignia primero, seguida de los anuncios activos
+    const todasLasHistorias = [HISTORIA_HERO_PRINCIPAL, ...anunciosActivos];
 
-    if (anunciosActivos.length === 0) {
-      barEl.style.display = 'none';
-      return;
-    }
-
-    historiasState.anuncios = anunciosActivos;
+    historiasState.anuncios = todasLasHistorias;
     historiasState.currentIndex = 0;
     historiasState.tiempoTranscurrido = 0;
     historiasState.isPaused = false;
 
-    renderizarBarrasProgresoHistorias();
-    mostrarHistoria(0, true);
-    iniciarLoopHistorias();
-    configurarEventosHistorias();
+    const progressContainer = document.getElementById('hero-stories-progress');
+    const btnPrev = document.getElementById('hero-btn-prev');
+    const btnNext = document.getElementById('hero-btn-next');
 
-    barEl.style.display = 'block';
+    if (todasLasHistorias.length > 1) {
+      if (progressContainer) progressContainer.style.display = 'block';
+      if (btnPrev) btnPrev.style.display = 'flex';
+      if (btnNext) btnNext.style.display = 'flex';
+
+      renderizarBarrasProgresoHistorias();
+      iniciarLoopHistorias();
+      configurarEventosHistorias();
+    } else {
+      if (progressContainer) progressContainer.style.display = 'none';
+      if (btnPrev) btnPrev.style.display = 'none';
+      if (btnNext) btnNext.style.display = 'none';
+    }
+
+    mostrarHistoria(0, true);
   } catch (error) {
-    console.warn('No se pudieron cargar los anuncios de la web:', error);
-    barEl.style.display = 'none';
+    console.warn('No se pudieron cargar los anuncios de la web para el Hero:', error);
+    mostrarHistoria(0, true);
   }
 }
 
 function renderizarBarrasProgresoHistorias() {
-  const row = document.getElementById('stories-progress-row');
+  const row = document.getElementById('hero-stories-progress-row');
   if (!row) return;
 
   const total = historiasState.anuncios.length;
   row.innerHTML = historiasState.anuncios
     .map(
       (a, idx) => `
-    <div class="story-progress-track" data-index="${idx}" title="Historia ${idx + 1} de ${total}: ${escapeHtml(a.titulo || 'Anuncio')}" onclick="saltarAHistoria(${idx})">
-      <div class="story-progress-fill" id="story-progress-fill-${idx}"></div>
+    <div class="hero-story-track" data-index="${idx}" title="Historia ${idx + 1} de ${total}: ${escapeHtml(a.titulo ? a.titulo.replace(/<[^>]*>/g, '') : 'Anuncio')}" onclick="saltarAHistoria(${idx})">
+      <div class="hero-story-fill" id="hero-story-fill-${idx}"></div>
     </div>
   `
     )
@@ -1229,49 +1589,151 @@ function mostrarHistoria(index, resetTimer = true) {
     historiasState.tiempoTranscurrido = 0;
   }
 
-  const anuncio = historiasState.anuncios[historiasState.currentIndex];
-  const stage = document.getElementById('stories-stage');
-  if (!stage || !anuncio) return;
+  const historia = historiasState.anuncios[historiasState.currentIndex];
+  if (!historia) return;
 
-  const categoriaIconos = {
-    promocion: 'fa-solid fa-tag',
-    horario_especial: 'fa-solid fa-clock',
-    aviso_importante: 'fa-solid fa-triangle-exclamation',
-    novedad: 'fa-solid fa-sparkles',
-    mantenimiento: 'fa-solid fa-wrench',
-    general: 'fa-solid fa-bullhorn'
-  };
+  const configCat = CATEGORIAS_HERO_CONFIG[historia.tipo] || CATEGORIAS_HERO_CONFIG.general;
 
-  const categoriaLabels = {
-    promocion: '🎉 Promoción Especial',
-    horario_especial: '⏰ Horario Especial',
-    aviso_importante: '📢 Aviso Importante',
-    novedad: '✨ Novedad Clínica',
-    mantenimiento: '🔧 Mantenimiento',
-    general: '📢 Anuncio'
-  };
+  // 1. Tagline Badge
+  const badgeTextEl = document.getElementById('hero-badge-text');
+  const pulseDotEl = document.getElementById('hero-pulse-dot');
+  if (badgeTextEl) {
+    const textoCategoria = historia.tipo_label || configCat.label;
+    badgeTextEl.innerHTML = `<i class="${configCat.icono}" style="margin-right: 4px;"></i> ${escapeHtml(textoCategoria)}`;
+  }
+  if (pulseDotEl) {
+    pulseDotEl.style.backgroundColor = configCat.dotColor;
+    pulseDotEl.style.boxShadow = `0 0 10px ${configCat.dotColor}`;
+  }
 
-  const iconoClase = categoriaIconos[anuncio.tipo] || 'fa-solid fa-bullhorn';
-  const labelCat = categoriaLabels[anuncio.tipo] || anuncio.tipo_label || 'Aviso';
-  const ctaTexto = anuncio.cta_texto || 'Agendar Cita';
-  const ctaEnlace = anuncio.cta_enlace || '#agendar';
+  // 2. Título Gigante del Hero
+  const titleEl = document.getElementById('hero-title');
+  if (titleEl) {
+    titleEl.innerHTML = formatearTituloHero(historia.titulo || historia.asunto);
+  }
 
-  stage.innerHTML = `
-    <div class="story-slide-item">
-      <span class="story-category-pill">
-        <i class="${iconoClase}"></i> ${escapeHtml(labelCat)}
-      </span>
-      <strong class="story-headline-title">
-        ${escapeHtml(anuncio.titulo || anuncio.asunto || 'Anuncio Clínico')}
-      </strong>
-      <span class="story-body-text">
-        ${escapeHtml(anuncio.mensaje || '')}
-      </span>
-      <button type="button" class="story-cta-action" onclick="ejecutarCtaHistoria('${escapeHtml(ctaEnlace)}')">
-        ${escapeHtml(ctaTexto)} <i class="fa-solid fa-arrow-right" style="font-size: 0.72rem;"></i>
-      </button>
-    </div>
-  `;
+  // 3. Subtítulo Explicativo
+  const subtitleEl = document.getElementById('hero-subtitle');
+  if (subtitleEl) {
+    subtitleEl.textContent = historia.subtitulo || historia.mensaje || '';
+  }
+
+  // 4. Botones de Acción
+  // 4. Botones de Acción Dinámicos del Hero
+  const btnPrimary = document.getElementById('hero-btn-primary');
+  const btnPrimaryText = document.getElementById('hero-btn-primary-text');
+  const btnPrimaryIcon = document.getElementById('hero-btn-primary-icon');
+
+  const btnSec = document.getElementById('hero-btn-secondary');
+  const btnSecText = document.getElementById('hero-btn-sec-text');
+  const btnSecIcon = document.getElementById('hero-btn-sec-icon');
+
+  // Botón Principal
+  const ctaTexto = historia.cta_texto !== undefined ? historia.cta_texto : 'RESERVAR AHORA';
+  const ctaEnlace = historia.cta_enlace || '#agendar';
+
+  if (!ctaTexto || ctaTexto.trim() === '') {
+    if (btnPrimary) btnPrimary.style.display = 'none';
+  } else {
+    if (btnPrimary) btnPrimary.style.display = 'inline-flex';
+    if (btnPrimaryText) btnPrimaryText.textContent = ctaTexto.toUpperCase();
+    if (btnPrimaryIcon) {
+      if (ctaEnlace.startsWith('http://') || ctaEnlace.startsWith('https://')) {
+        if (ctaEnlace.includes('instagram.com')) {
+          btnPrimaryIcon.className = 'fa-brands fa-instagram';
+        } else if (ctaEnlace.includes('facebook.com')) {
+          btnPrimaryIcon.className = 'fa-brands fa-facebook';
+        } else if (ctaEnlace.includes('wa.me') || ctaEnlace.includes('whatsapp.com')) {
+          btnPrimaryIcon.className = 'fa-brands fa-whatsapp';
+        } else {
+          btnPrimaryIcon.className = 'fa-solid fa-arrow-up-right-from-square';
+        }
+      } else if (ctaEnlace.includes('sedes')) {
+        btnPrimaryIcon.className = 'fa-solid fa-hospital-user';
+      } else if (ctaEnlace.includes('servicios')) {
+        btnPrimaryIcon.className = 'fa-solid fa-stethoscope';
+      } else {
+        btnPrimaryIcon.className = historia.cta_icono || 'fa-regular fa-calendar-plus';
+      }
+    }
+    if (btnPrimary) {
+      btnPrimary.onclick = () => ejecutarCtaHistoria(ctaEnlace);
+    }
+  }
+
+  // Botón Secundario (Configurable desde Admin con soporte para enlaces externos y redes)
+  const secTexto = historia.sec_texto !== undefined ? historia.sec_texto : 'VER SERVICIOS';
+  const secEnlace = historia.sec_enlace || '#servicios';
+
+  if (btnSec && btnSecText) {
+    if (!secTexto || secTexto.trim() === '') {
+      btnSec.style.display = 'none';
+    } else {
+      btnSec.style.display = 'inline-flex';
+      btnSecText.textContent = secTexto.toUpperCase();
+
+      btnSec.onclick = null;
+      btnSec.target = '_self';
+      btnSec.removeAttribute('rel');
+
+      // Enlaces externos (Instagram, Facebook, WhatsApp, URLs)
+      if (secEnlace.startsWith('http://') || secEnlace.startsWith('https://')) {
+        btnSec.target = '_blank';
+        btnSec.rel = 'noopener noreferrer';
+        if (secEnlace.includes('instagram.com')) {
+          if (btnSecIcon) btnSecIcon.className = 'fa-brands fa-instagram';
+        } else if (secEnlace.includes('facebook.com')) {
+          if (btnSecIcon) btnSecIcon.className = 'fa-brands fa-facebook';
+        } else if (secEnlace.includes('wa.me') || secEnlace.includes('whatsapp.com')) {
+          if (btnSecIcon) btnSecIcon.className = 'fa-brands fa-whatsapp';
+        } else {
+          if (btnSecIcon) btnSecIcon.className = 'fa-solid fa-arrow-up-right-from-square';
+        }
+      } else if (secEnlace === '#agendar' || secEnlace === 'agendar') {
+        if (btnSecIcon) btnSecIcon.className = 'fa-regular fa-calendar-plus';
+        btnSec.onclick = (e) => {
+          e.preventDefault();
+          abrirModalAgendar();
+        };
+      } else if (secEnlace.includes('sedes')) {
+        if (btnSecIcon) btnSecIcon.className = 'fa-solid fa-hospital-user';
+        btnSec.onclick = (e) => {
+          e.preventDefault();
+          ejecutarCtaHistoria(secEnlace);
+        };
+      } else if (secEnlace.includes('metodo') || secEnlace.includes('historia')) {
+        if (btnSecIcon) btnSecIcon.className = 'fa-solid fa-book-medical';
+        btnSec.onclick = (e) => {
+          e.preventDefault();
+          ejecutarCtaHistoria(secEnlace);
+        };
+      } else {
+        if (btnSecIcon) btnSecIcon.className = historia.sec_icono || 'fa-solid fa-arrow-down arrow-bounce';
+        btnSec.onclick = (e) => {
+          if (secEnlace.startsWith('#')) {
+            e.preventDefault();
+            ejecutarCtaHistoria(secEnlace);
+          }
+        };
+      }
+      btnSec.href = secEnlace;
+    }
+  }
+
+  // Animación de entrada suave en los textos del Hero
+  const animatedElements = [
+    document.getElementById('hero-tagline-badge'),
+    titleEl,
+    subtitleEl,
+    document.getElementById('hero-actions')
+  ];
+
+  animatedElements.forEach((el) => {
+    if (!el) return;
+    el.classList.remove('hero-story-fade');
+    void el.offsetWidth;
+    el.classList.add('hero-story-fade');
+  });
 
   actualizarEstadoBarrasProgreso();
 }
@@ -1281,7 +1743,7 @@ function actualizarEstadoBarrasProgreso() {
   const total = historiasState.anuncios.length;
 
   for (let i = 0; i < total; i++) {
-    const fillEl = document.getElementById(`story-progress-fill-${i}`);
+    const fillEl = document.getElementById(`hero-story-fill-${i}`);
     if (!fillEl) continue;
 
     if (i < current) {
@@ -1347,41 +1809,77 @@ function iniciarLoopHistorias() {
 }
 
 function configurarEventosHistorias() {
-  const barEl = document.getElementById('stories-announcements-bar');
-  const btnPrev = document.getElementById('stories-btn-prev');
-  const btnNext = document.getElementById('stories-btn-next');
-  const btnPause = document.getElementById('stories-btn-pause');
-  const iconPause = document.getElementById('stories-pause-icon');
+  const heroSection = document.getElementById('inicio');
+  const heroContent = document.getElementById('hero-content');
+  const btnPrev = document.getElementById('hero-btn-prev');
+  const btnNext = document.getElementById('hero-btn-next');
 
-  barEl?.addEventListener('mouseenter', () => {
+  // Pausar en hover del Hero Content para lectura cómoda
+  heroContent?.addEventListener('mouseenter', () => {
     historiasState.isPaused = true;
-    if (iconPause) iconPause.className = 'fa-solid fa-play';
   });
 
-  barEl?.addEventListener('mouseleave', () => {
+  heroContent?.addEventListener('mouseleave', () => {
     historiasState.isPaused = false;
-    if (iconPause) iconPause.className = 'fa-solid fa-pause';
   });
 
+  // Flecha anterior
   btnPrev?.addEventListener('click', (e) => {
     e.stopPropagation();
     const anterior = (historiasState.currentIndex - 1 + historiasState.anuncios.length) % historiasState.anuncios.length;
     mostrarHistoria(anterior, true);
   });
 
+  // Flecha siguiente
   btnNext?.addEventListener('click', (e) => {
     e.stopPropagation();
     const siguiente = (historiasState.currentIndex + 1) % historiasState.anuncios.length;
     mostrarHistoria(siguiente, true);
   });
 
-  btnPause?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    historiasState.isPaused = !historiasState.isPaused;
-    if (iconPause) {
-      iconPause.className = historiasState.isPaused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
+  // Soporte de navegación por teclado (flechas izq / der) cuando el Hero está visible
+  window.addEventListener('keydown', (e) => {
+    if (window.scrollY > 600) return;
+    if (e.key === 'ArrowLeft') {
+      const anterior = (historiasState.currentIndex - 1 + historiasState.anuncios.length) % historiasState.anuncios.length;
+      mostrarHistoria(anterior, true);
+    } else if (e.key === 'ArrowRight') {
+      const siguiente = (historiasState.currentIndex + 1) % historiasState.anuncios.length;
+      mostrarHistoria(siguiente, true);
     }
   });
+
+  // Soporte táctil / swipe para dispositivos móviles
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  heroSection?.addEventListener(
+    'touchstart',
+    (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+      historiasState.isPaused = true;
+    },
+    { passive: true }
+  );
+
+  heroSection?.addEventListener(
+    'touchend',
+    (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      historiasState.isPaused = false;
+      const diff = touchEndX - touchStartX;
+      if (Math.abs(diff) > 45) {
+        if (diff < 0) {
+          const siguiente = (historiasState.currentIndex + 1) % historiasState.anuncios.length;
+          mostrarHistoria(siguiente, true);
+        } else {
+          const anterior = (historiasState.currentIndex - 1 + historiasState.anuncios.length) % historiasState.anuncios.length;
+          mostrarHistoria(anterior, true);
+        }
+      }
+    },
+    { passive: true }
+  );
 }
 
 function escapeHtml(str) {
@@ -1415,4 +1913,7 @@ window.slotYaPaso = slotYaPaso;
 window.saltarAHistoria = saltarAHistoria;
 window.ejecutarCtaHistoria = ejecutarCtaHistoria;
 window.inicializarHistoriasAnuncios = inicializarHistoriasAnuncios;
+window.seleccionarPodologo = seleccionarPodologo;
+window.cargarCatalogoPodologos = cargarCatalogoPodologos;
+window.consultarDisponibilidadHorariosBD = consultarDisponibilidadHorariosBD;
 

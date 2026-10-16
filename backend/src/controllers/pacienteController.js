@@ -258,20 +258,8 @@ const buscarOCrearPaciente = async (req, res) => {
   } = req.body;
 
   try {
-    // 1. Buscar por expediente o teléfono
-    let queryConds = [];
-    let queryParams = [];
-
+    // 1. Buscar EXCLUSIVAMENTE por No_expediente (el teléfono no se usa para búsqueda para evitar mezclar familiares)
     if (No_expediente) {
-      queryConds.push('No_expediente = ?');
-      queryParams.push(No_expediente);
-    }
-    if (telefono) {
-      queryConds.push('telefono = ?');
-      queryParams.push(telefono);
-    }
-
-    if (queryConds.length > 0) {
       const existe = await db.query(
         `SELECT p.*,
                 TRIM(CONCAT(p.Nombres, ' ', p.ape_paterno, ' ', COALESCE(p.ape_materno, ''))) AS nombre_completo,
@@ -283,9 +271,9 @@ const buscarOCrearPaciente = async (req, res) => {
                   ELSE NULL 
                 END AS edad
          FROM Pacientes p 
-         WHERE ${queryConds.join(' OR ')}
+         WHERE p.No_expediente = ?
          LIMIT 1`,
-        queryParams
+        [No_expediente]
       );
 
       if (existe.rows.length > 0) {
@@ -296,7 +284,7 @@ const buscarOCrearPaciente = async (req, res) => {
       }
     }
 
-    // 2. Si no existe, crear uno nuevo
+    // 2. Si no existe, crear uno nuevo con su propio expediente único
     let nom = Nombres;
     let apeP = ape_paterno;
     let apeM = ape_materno;
@@ -310,21 +298,29 @@ const buscarOCrearPaciente = async (req, res) => {
 
     const expGenerado = No_expediente || (await generarNoExpediente(clinica_id || 14));
     const fechaRegistro = new Date().toISOString().split('T')[0];
-    const sexoChar = sexo ? sexo[0].toUpperCase() : 'F';
+    const rawSexo = sexo || req.body.Sexo || null;
+    const sexoChar = rawSexo ? (String(rawSexo).trim().toUpperCase().startsWith('M') ? 'M' : (String(rawSexo).trim().toUpperCase().startsWith('F') ? 'F' : 'O')) : 'F';
     const notasVal = Notas || notas_alergias || null;
+    const fechaNacVal = req.body.Fecha_nacimiento || req.body.fecha_nacimiento || null;
+    const calleVal = req.body.Calle_direccion || req.body.calle_direccion || null;
+    const munVal = req.body.Municipio || req.body.municipio || null;
 
     await db.query(
       `INSERT INTO Pacientes (
         No_expediente, Nombres, ape_paterno, ape_materno, telefono,
-        Sexo, es_diabetico, es_hipertenso, Notas, Fecha_registro
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        Fecha_nacimiento, Sexo, Calle_direccion, Municipio,
+        es_diabetico, es_hipertenso, Notas, Fecha_registro
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         expGenerado,
         nom || 'Paciente',
         apeP || 'Sin Apellido',
         apeM || null,
         telefono || null,
+        fechaNacVal,
         sexoChar,
+        calleVal,
+        munVal,
         es_diabetico ? 1 : 0,
         es_hipertenso ? 1 : 0,
         notasVal,
@@ -341,7 +337,10 @@ const buscarOCrearPaciente = async (req, res) => {
       ape_materno: apeM,
       nombre_completo: `${nom} ${apeP} ${apeM || ''}`.trim(),
       telefono,
+      Fecha_nacimiento: fechaNacVal,
       Sexo: sexoChar,
+      Calle_direccion: calleVal,
+      Municipio: munVal,
       es_diabetico: !!es_diabetico,
       es_hipertenso: !!es_hipertenso,
       Notas: notasVal,

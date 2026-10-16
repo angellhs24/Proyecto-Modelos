@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Elite Foot Care | Panel de Administración General (Rol ID: 1)</title>
-  
+
   <!-- Tipografía Google Fonts Outfit & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
   <!-- Font Awesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  
+
   <!-- Design System Base & Estilos de Administración -->
   <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/admin.css">
 </head>
+
 <body>
   <div class="app-container">
-    
+
     <!-- =========================================================================
          HEADER GLASSMORPHIC SUPERIOR
          ========================================================================= -->
@@ -37,9 +41,10 @@
       <div class="header-actions">
         <!-- Indicador de Usuario Administrador en Sesión -->
         <div class="user-chip" id="user-chip-container">
-          <div class="user-avatar" id="admin-avatar-initials" style="background: rgba(14, 165, 233, 0.25); color: #38bdf8;">RM</div>
+          <div class="user-avatar" id="admin-avatar-initials"
+            style="background: rgba(14, 165, 233, 0.25); color: #38bdf8;">RM</div>
           <div class="user-meta">
-            <span class="user-name" id="admin-display-name">Lic. Roberto Méndez</span>
+            <span class="user-name" id="admin-display-name">Lic. Angel Hernandez</span>
             <span class="user-role-badge role-badge-admin" id="admin-role-text">Rol ID: 1 • Administrador General</span>
           </div>
         </div>
@@ -57,11 +62,13 @@
           <i class="fa-solid fa-layer-group" style="color: #fbbf24;"></i>
           <span>Portal Integral</span>
         </a>
-        <a href="/frontend-landing/src/index.html" class="role-switch-btn" title="Ver Web de Pacientes / Landing Pública" target="_blank">
+        <a href="/frontend-landing/src/index.html" class="role-switch-btn"
+          title="Ver Web de Pacientes / Landing Pública" target="_blank">
           <i class="fa-solid fa-earth-americas" style="color: #38bdf8;"></i>
           <span>Web Pacientes</span>
         </a>
-        <button type="button" class="role-switch-btn btn-logout" onclick="AppAuth.logout()" title="Cerrar Sesión Segura" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5;">
+        <button type="button" class="role-switch-btn btn-logout" onclick="AppAuth.logout()" title="Cerrar Sesión Segura"
+          style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5;">
           <i class="fa-solid fa-arrow-right-from-bracket" style="color: #f87171;"></i>
           <span>Salir</span>
         </button>
@@ -156,9 +163,11 @@
 
         <!-- Barra de Acciones Rápidas del Administrador -->
         <div class="card" style="margin-top: 1.5rem;">
-          <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+          <div class="card-header"
+            style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
             <div>
-              <h3 class="card-title"><i class="fa-solid fa-bolt" style="color: #fbbf24;"></i> Acciones Operativas Rápidas</h3>
+              <h3 class="card-title"><i class="fa-solid fa-bolt" style="color: #fbbf24;"></i> Acciones Operativas
+                Rápidas</h3>
               <p class="card-subtitle">Administra los módulos clave con un solo clic</p>
             </div>
           </div>
@@ -169,7 +178,8 @@
             <button class="btn btn-success" onclick="abrirModalNuevaRecepcionista()">
               <i class="fa-solid fa-user-nurse"></i> Dar de Alta Recepcionista
             </button>
-            <button class="btn btn-secondary" onclick="abrirModalNuevaClinica()" style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">
+            <button class="btn btn-secondary" onclick="abrirModalNuevaClinica()"
+              style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">
               <i class="fa-solid fa-hospital-user"></i> Dar de Alta Clínica
             </button>
             <button class="btn btn-secondary" onclick="navegarAPestana('tab-avisos')">
@@ -186,7 +196,8 @@
           <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
               <h3 class="card-title"><i class="fa-solid fa-hospital" style="color: #fbbf24;"></i> Sedes Clínicas</h3>
-              <button class="btn btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.78rem;" onclick="navegarAPestana('tab-clinicas')">
+              <button class="btn btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.78rem;"
+                onclick="navegarAPestana('tab-clinicas')">
                 Ver Todas <i class="fa-solid fa-arrow-right"></i>
               </button>
             </div>
@@ -197,7 +208,8 @@
           </div>
 
           <div class="card">
-            <h3 class="card-title" style="margin-bottom: 1rem;"><i class="fa-solid fa-clock-rotate-left" style="color: #c084fc;"></i> Últimos Avisos a Pacientes</h3>
+            <h3 class="card-title" style="margin-bottom: 1rem;"><i class="fa-solid fa-clock-rotate-left"
+                style="color: #c084fc;"></i> Últimos Avisos a Pacientes</h3>
             <div id="resumen-ultimos-avisos" style="display: flex; flex-direction: column; gap: 0.75rem;">
               <div style="color: var(--text-muted); font-size: 0.9rem;">Cargando historial de avisos...</div>
             </div>
@@ -271,7 +283,8 @@
         <div class="admin-toolbar">
           <div class="search-input-group">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="filtro-clinicas-buscar" placeholder="Buscar por nombre de sede, municipio o teléfono...">
+            <input type="text" id="filtro-clinicas-buscar"
+              placeholder="Buscar por nombre de sede, municipio o teléfono...">
           </div>
 
           <div class="admin-toolbar-actions">
@@ -280,7 +293,8 @@
               <option value="activas">Solo Operativas / Activas</option>
               <option value="baja">Dadas de Baja / Inactivas</option>
             </select>
-            <button class="btn btn-primary" onclick="abrirModalNuevaClinica()" style="background: linear-gradient(135deg, #d97706, #fbbf24); border-color: #f59e0b;">
+            <button class="btn btn-primary" onclick="abrirModalNuevaClinica()"
+              style="background: linear-gradient(135deg, #d97706, #fbbf24); border-color: #f59e0b;">
               <i class="fa-solid fa-hospital-user"></i> Dar de Alta Clínica
             </button>
           </div>
@@ -300,7 +314,8 @@
         <div class="admin-toolbar">
           <div class="search-input-group" style="flex: 1; max-width: 480px;">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="filtro-pacientes-buscar" placeholder="Buscar por expediente, nombre, teléfono o notas...">
+            <input type="text" id="filtro-pacientes-buscar"
+              placeholder="Buscar por expediente, nombre, teléfono o notas...">
           </div>
 
           <div class="admin-toolbar-actions">
@@ -338,7 +353,7 @@
            ===================================================================== -->
       <section id="tab-avisos" class="tab-pane">
         <div class="notice-composer-grid">
-          
+
           <!-- LADO IZQUIERDO: REDACTAR Y MANDAR AVISO -->
           <div class="notice-box">
             <h3 class="card-title" style="margin-bottom: 0.35rem;">
@@ -386,15 +401,18 @@
               <div class="form-group" style="margin-bottom: 1rem;">
                 <label class="form-label">Canal de Notificación:</label>
                 <div style="display: flex; gap: 1rem;">
-                  <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #f8fafc; cursor: pointer;">
+                  <label
+                    style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #f8fafc; cursor: pointer;">
                     <input type="radio" name="aviso-canal" value="whatsapp" checked>
                     <i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> WhatsApp Directo
                   </label>
-                  <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #f8fafc; cursor: pointer;">
+                  <label
+                    style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #f8fafc; cursor: pointer;">
                     <input type="radio" name="aviso-canal" value="sms">
                     <i class="fa-solid fa-comment-sms" style="color: #38bdf8;"></i> SMS / Texto
                   </label>
-                  <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #f8fafc; cursor: pointer;">
+                  <label
+                    style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #f8fafc; cursor: pointer;">
                     <input type="radio" name="aviso-canal" value="sistema">
                     <i class="fa-solid fa-clipboard-check" style="color: #c084fc;"></i> Registro en Expediente
                   </label>
@@ -404,22 +422,26 @@
               <!-- Asunto -->
               <div class="form-group" style="margin-bottom: 1rem;">
                 <label class="form-label" for="aviso-asunto">Asunto / Motivo del Aviso</label>
-                <input type="text" class="form-input" id="aviso-asunto" placeholder="Ej. Recordatorio de Consulta Programada" required>
+                <input type="text" class="form-input" id="aviso-asunto"
+                  placeholder="Ej. Recordatorio de Consulta Programada" required>
               </div>
 
               <!-- Mensaje -->
               <div class="form-group" style="margin-bottom: 1.25rem;">
                 <label class="form-label" for="aviso-mensaje">Cuerpo del Mensaje *</label>
-                <textarea class="form-textarea" id="aviso-mensaje" rows="4" placeholder="Escribe el mensaje o selecciona una plantilla rápida..." required></textarea>
+                <textarea class="form-textarea" id="aviso-mensaje" rows="4"
+                  placeholder="Escribe el mensaje o selecciona una plantilla rápida..." required></textarea>
               </div>
 
               <!-- Vista Previa del Aviso -->
               <div class="notice-preview-card">
                 <div class="notice-preview-header">
                   <span><i class="fa-brands fa-whatsapp"></i> Previsualización para el Paciente</span>
-                  <span id="preview-destino-telefono" style="color: var(--text-muted); font-size: 0.8rem;">Sin destinatario</span>
+                  <span id="preview-destino-telefono" style="color: var(--text-muted); font-size: 0.8rem;">Sin
+                    destinatario</span>
                 </div>
-                <div id="preview-mensaje-render" style="font-size: 0.88rem; color: #f8fafc; line-height: 1.45; white-space: pre-wrap;">
+                <div id="preview-mensaje-render"
+                  style="font-size: 0.88rem; color: #f8fafc; line-height: 1.45; white-space: pre-wrap;">
                   El mensaje que redactes se visualizará aquí en tiempo real antes de ser enviado.
                 </div>
               </div>
@@ -503,7 +525,8 @@
           </div>
           <div class="form-group" id="grupo-podo-password">
             <label class="form-label" for="podo-password">Contraseña de Acceso</label>
-            <input type="password" class="form-input" id="podo-password" placeholder="Contraseña o inicial (ej. podo123)">
+            <input type="password" class="form-input" id="podo-password"
+              placeholder="Contraseña o inicial (ej. podo123)">
           </div>
         </div>
       </div>
@@ -585,14 +608,16 @@
       <h3 class="modal-title">
         <i class="fa-solid fa-pen-to-square" style="color: #38bdf8;"></i> Modificar Datos del Paciente
       </h3>
-      <button class="btn-close" onclick="cerrarModal('modal-editar-paciente')"><i class="fa-solid fa-xmark"></i></button>
+      <button class="btn-close" onclick="cerrarModal('modal-editar-paciente')"><i
+          class="fa-solid fa-xmark"></i></button>
     </div>
     <form id="form-editar-paciente">
       <div class="modal-body">
         <div class="admin-modal-grid">
           <div class="form-group">
             <label class="form-label" for="pac-edit-exp">No. Expediente (Identificador)</label>
-            <input type="text" class="form-input" id="pac-edit-exp" readonly style="opacity: 0.8; background: rgba(0,0,0,0.3);">
+            <input type="text" class="form-input" id="pac-edit-exp" readonly
+              style="opacity: 0.8; background: rgba(0,0,0,0.3);">
           </div>
           <div class="form-group">
             <label class="form-label" for="pac-edit-telefono">Teléfono *</label>
@@ -622,24 +647,27 @@
             <label class="form-label" for="pac-edit-municipio">Municipio</label>
             <input type="text" class="form-input" id="pac-edit-municipio" placeholder="Ej. Tecámac">
           </div>
-          
+
           <!-- Alertas Críticas de Salud -->
           <div class="form-risk-card">
-            <div style="font-weight: 700; font-size: 0.88rem; color: #f8fafc; display: flex; align-items: center; gap: 0.5rem;">
+            <div
+              style="font-weight: 700; font-size: 0.88rem; color: #f8fafc; display: flex; align-items: center; gap: 0.5rem;">
               <i class="fa-solid fa-heart-pulse" style="color: #ef4444;"></i> Alertas de Riesgo y Condiciones Crónicas:
             </div>
             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
               <label class="risk-checkbox-item">
                 <input type="checkbox" id="pac-edit-diabetico">
                 <div>
-                  <strong style="color: #fbbf24; font-size: 0.88rem;"><i class="fa-solid fa-droplet"></i> Diabético</strong>
+                  <strong style="color: #fbbf24; font-size: 0.88rem;"><i class="fa-solid fa-droplet"></i>
+                    Diabético</strong>
                   <div style="font-size: 0.75rem; color: var(--text-muted);">Protocolo preventivo de pie de riesgo</div>
                 </div>
               </label>
               <label class="risk-checkbox-item">
                 <input type="checkbox" id="pac-edit-hipertenso">
                 <div>
-                  <strong style="color: #f87171; font-size: 0.88rem;"><i class="fa-solid fa-heart-pulse"></i> Hipertenso</strong>
+                  <strong style="color: #f87171; font-size: 0.88rem;"><i class="fa-solid fa-heart-pulse"></i>
+                    Hipertenso</strong>
                   <div style="font-size: 0.75rem; color: var(--text-muted);">Seguimiento de presión y circulación</div>
                 </div>
               </label>
@@ -647,13 +675,17 @@
           </div>
 
           <div class="form-group" style="grid-column: span 2;">
-            <label class="form-label" for="pac-edit-antecedentes"><i class="fa-solid fa-notes-medical"></i> Antecedentes Patológicos</label>
-            <textarea class="form-textarea" id="pac-edit-antecedentes" rows="2" placeholder="Cirugías, neuropatía, alergias a anestésicos..."></textarea>
+            <label class="form-label" for="pac-edit-antecedentes"><i class="fa-solid fa-notes-medical"></i> Antecedentes
+              Patológicos</label>
+            <textarea class="form-textarea" id="pac-edit-antecedentes" rows="2"
+              placeholder="Cirugías, neuropatía, alergias a anestésicos..."></textarea>
           </div>
 
           <div class="form-group" style="grid-column: span 2;">
-            <label class="form-label" for="pac-edit-notas"><i class="fa-solid fa-clipboard"></i> Notas Administrativas y Clínicas</label>
-            <textarea class="form-textarea" id="pac-edit-notas" rows="2" placeholder="Observaciones especiales, preferencias del paciente, avisos..."></textarea>
+            <label class="form-label" for="pac-edit-notas"><i class="fa-solid fa-clipboard"></i> Notas Administrativas y
+              Clínicas</label>
+            <textarea class="form-textarea" id="pac-edit-notas" rows="2"
+              placeholder="Observaciones especiales, preferencias del paciente, avisos..."></textarea>
           </div>
         </div>
       </div>
@@ -681,26 +713,31 @@
         <input type="hidden" id="clinica-edit-id">
         <div class="admin-modal-grid">
           <div class="form-group" style="grid-column: span 2;">
-            <label class="form-label" for="clinica-nombre"><i class="fa-solid fa-hospital"></i> Nombre de la Clínica / Sede *</label>
+            <label class="form-label" for="clinica-nombre"><i class="fa-solid fa-hospital"></i> Nombre de la Clínica /
+              Sede *</label>
             <input type="text" class="form-input" id="clinica-nombre" placeholder="Ej. DIF Lomas de Tecámac" required>
           </div>
           <div class="form-group">
-            <label class="form-label" for="clinica-calle"><i class="fa-solid fa-location-dot"></i> Calle y Número</label>
+            <label class="form-label" for="clinica-calle"><i class="fa-solid fa-location-dot"></i> Calle y
+              Número</label>
             <input type="text" class="form-input" id="clinica-calle" placeholder="Ej. Av. Constitución 45">
           </div>
           <div class="form-group">
-            <label class="form-label" for="clinica-municipio"><i class="fa-solid fa-city"></i> Municipio / Ciudad</label>
+            <label class="form-label" for="clinica-municipio"><i class="fa-solid fa-city"></i> Municipio /
+              Ciudad</label>
             <input type="text" class="form-input" id="clinica-municipio" placeholder="Ej. Tecámac" value="Tecámac">
           </div>
           <div class="form-group" style="grid-column: span 2;">
-            <label class="form-label" for="clinica-telefono"><i class="fa-solid fa-phone"></i> Teléfono de Contacto</label>
+            <label class="form-label" for="clinica-telefono"><i class="fa-solid fa-phone"></i> Teléfono de
+              Contacto</label>
             <input type="tel" class="form-input" id="clinica-telefono" placeholder="Ej. 5560229842">
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-clinica')">Cancelar</button>
-        <button type="submit" class="btn btn-primary" id="btn-guardar-clinica" style="background: linear-gradient(135deg, #d97706, #fbbf24); border-color: #f59e0b;">
+        <button type="submit" class="btn btn-primary" id="btn-guardar-clinica"
+          style="background: linear-gradient(135deg, #d97706, #fbbf24); border-color: #f59e0b;">
           <i class="fa-solid fa-check"></i> Guardar Sede Clínica
         </button>
       </div>
@@ -715,15 +752,18 @@
       <h3 class="modal-title" id="modal-confirm-titulo">
         <i class="fa-solid fa-triangle-exclamation" style="color: #fbbf24;"></i> Confirmar Cambio de Estado
       </h3>
-      <button class="btn-close" onclick="cerrarModal('modal-confirmar-estado')"><i class="fa-solid fa-xmark"></i></button>
+      <button class="btn-close" onclick="cerrarModal('modal-confirmar-estado')"><i
+          class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body">
       <p id="modal-confirm-mensaje" style="font-size: 0.95rem; color: #f8fafc; line-height: 1.5; margin-bottom: 1rem;">
         ¿Estás seguro de que deseas cambiar el estado de este elemento?
       </p>
       <div class="form-group" id="grupo-motivo-baja">
-        <label class="form-label" for="confirm-motivo"><i class="fa-solid fa-comment-dots"></i> Motivo o Justificación (Opcional):</label>
-        <input type="text" class="form-input" id="confirm-motivo" placeholder="Ej. Mantenimiento de instalaciones, permiso médico, cambio de ciclo">
+        <label class="form-label" for="confirm-motivo"><i class="fa-solid fa-comment-dots"></i> Motivo o Justificación
+          (Opcional):</label>
+        <input type="text" class="form-input" id="confirm-motivo"
+          placeholder="Ej. Mantenimiento de instalaciones, permiso médico, cambio de ciclo">
       </div>
     </div>
     <div class="modal-footer">
@@ -741,4 +781,5 @@
   <script src="js/session.js"></script>
   <script src="js/admin.js"></script>
 </body>
+
 </html>
