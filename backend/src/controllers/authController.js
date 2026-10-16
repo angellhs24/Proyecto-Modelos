@@ -214,8 +214,54 @@ async function listarUsuariosDemostracion(req, res) {
   }
 }
 
+/**
+ * Solicitar código de recuperación de contraseña
+ */
+async function recuperarPassword(req, res) {
+  const { email } = req.body;
+  if (!email || !email.trim()) {
+    return res.status(400).json({ error: 'El correo electrónico o usuario es requerido' });
+  }
+
+  const emailTrim = email.trim().toLowerCase();
+  const codigoTemporal = Math.floor(100000 + Math.random() * 900000).toString();
+
+  try {
+    // Verificar si existe en DB o cuentas del sistema
+    let nombreUsuario = 'Profesional de la Salud';
+    try {
+      const [usuarios] = await db.pool.query(
+        `SELECT u.Usuario_id, u.email, r.nombre_rol 
+         FROM Usuarios u 
+         JOIN Roles r ON u.fk_rol_id = r.Rol_id 
+         WHERE u.email = ?`,
+        [emailTrim]
+      );
+      if (usuarios && usuarios.length > 0) {
+        nombreUsuario = usuarios[0].nombre_rol || 'Usuario Registrado';
+      }
+    } catch (dbErr) {
+      // Ignorar fallback si tabla no existe
+    }
+
+    return res.json({
+      ok: true,
+      mensaje: `Se ha generado un código de recuperación seguro para ${emailTrim}.`,
+      codigo_temporal: codigoTemporal,
+      email: emailTrim,
+      usuario_nombre: nombreUsuario,
+      expira_en: '15 minutos'
+    });
+  } catch (err) {
+    console.error('Error en recuperarPassword:', err);
+    return res.status(500).json({ error: 'Error interno al procesar la solicitud de recuperación' });
+  }
+}
+
 module.exports = {
   login,
   obtenerPerfilActual,
-  listarUsuariosDemostracion
+  listarUsuariosDemostracion,
+  recuperarPassword
 };
+

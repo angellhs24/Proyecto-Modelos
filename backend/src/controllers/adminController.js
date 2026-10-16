@@ -597,50 +597,53 @@ const actualizarPacienteAdmin = async (req, res) => {
 };
 
 // --------------------------------------------------------------------------
-// 5. CENTRO DE AVISOS Y COMUNICACIONES CON CLIENTES / PACIENTES
+// 5. GESTIÓN DE ANUNCIOS Y COMUNICADOS EN LA PÁGINA WEB DE LA CLÍNICA
 // --------------------------------------------------------------------------
 const enviarAvisoPaciente = async (req, res) => {
-  const { no_expediente, paciente_nombre, telefono, tipo, canal, asunto, mensaje } = req.body;
+  const { titulo, asunto, mensaje, tipo, ubicacion, cta_texto, cta_enlace, activo, no_expediente, paciente_nombre } = req.body;
 
-  if (!mensaje || !no_expediente) {
-    return res.status(400).json({ error: 'El número de expediente y el mensaje son obligatorios' });
+  const textoMensaje = mensaje || req.body.texto || '';
+  const tituloAnuncio = titulo || asunto || 'Comunicado Oficial de la Clínica';
+
+  if (!textoMensaje && !tituloAnuncio) {
+    return res.status(400).json({ error: 'El título y el contenido del anuncio son obligatorios' });
   }
 
   try {
     const store = leerAdminStore();
     const avisos = store.avisos || [];
 
-    // Limpiar teléfono para WhatsApp (formato México: 52 + 10 dígitos)
-    const telLimpio = String(telefono || '').replace(/\D/g, '');
-    let telWhatsapp = telLimpio;
-    if (telLimpio.length === 10) {
-      telWhatsapp = `52${telLimpio}`;
-    }
-
-    const textoCodificado = encodeURIComponent(mensaje);
-    const enlaceWhatsapp = telWhatsapp ? `https://api.whatsapp.com/send?phone=${telWhatsapp}&text=${textoCodificado}` : null;
-
     const tipoLabels = {
-      recordatorio_cita: 'Recordatorio de Cita',
-      pie_diabetico: 'Control de Pie Diabético',
-      seguimiento: 'Seguimiento Terapéutico',
-      promocion: 'Promoción / Campaña de Salud',
-      general: 'Aviso General de Clínica'
+      promocion: 'Promoción / Campaña Web',
+      horario_especial: 'Horario Especial / Festivo',
+      aviso_importante: 'Aviso Importante',
+      novedad: 'Novedad de Sede / Tratamiento',
+      mantenimiento: 'Mantenimiento / Servicio',
+      general: 'Aviso General'
+    };
+
+    const ubicacionLabels = {
+      barra_superior: 'Barra Superior (Cintillo)',
+      hero_banner: 'Banner Principal (Inicio)',
+      modal_emergente: 'Ventana Emergente (Popup)',
+      modulo_citas: 'Módulo de Agendamiento'
     };
 
     const nuevoAviso = {
-      id: `aviso-${Date.now()}`,
-      no_expediente: parseInt(no_expediente, 10),
-      paciente_nombre: paciente_nombre || 'Paciente',
-      telefono: telefono || '',
-      tipo: tipo || 'general',
-      tipo_label: tipoLabels[tipo] || 'Aviso General',
-      canal: canal || 'whatsapp',
-      asunto: asunto || 'Aviso Clínico Podológico',
-      mensaje,
-      enlace_whatsapp: enlaceWhatsapp,
+      id: `anuncio-${Date.now()}`,
+      titulo: tituloAnuncio,
+      asunto: tituloAnuncio,
+      mensaje: textoMensaje,
+      tipo: tipo || 'aviso_importante',
+      tipo_label: tipoLabels[tipo] || 'Anuncio Web',
+      ubicacion: ubicacion || 'barra_superior',
+      ubicacion_label: ubicacionLabels[ubicacion] || 'Barra Superior (Cintillo)',
+      cta_texto: cta_texto || 'Agendar Cita',
+      cta_enlace: cta_enlace || '#agendar',
+      activo: activo !== false,
       fecha_envio: new Date().toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }),
-      enviado_por: req.user?.nombre_completo || 'Administrador General'
+      fecha_creacion: new Date().toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }),
+      publicado_por: req.user?.nombre_completo || 'Administrador General'
     };
 
     avisos.unshift(nuevoAviso);
@@ -648,12 +651,54 @@ const enviarAvisoPaciente = async (req, res) => {
     guardarAdminStore(store);
 
     res.status(201).json({
-      mensaje: 'Aviso registrado y procesado exitosamente',
+      mensaje: 'Anuncio registrado y publicado exitosamente en la página web',
       aviso: nuevoAviso
     });
   } catch (error) {
-    console.error('Error al enviar aviso a paciente:', error);
-    res.status(500).json({ error: 'Error al registrar aviso para el paciente' });
+    console.error('Error al registrar anuncio web:', error);
+    res.status(500).json({ error: 'Error al registrar anuncio para la web' });
+  }
+};
+
+const toggleEstadoAviso = async (req, res) => {
+  const { id } = req.params;
+  const { activo } = req.body;
+  try {
+    const store = leerAdminStore();
+    const avisos = store.avisos || [];
+    const index = avisos.findIndex((a) => a.id === id);
+    if (index === -1) {
+      return res.status(404).json({ error: 'Anuncio no encontrado' });
+    }
+    avisos[index].activo = activo !== undefined ? activo : !avisos[index].activo;
+    store.avisos = avisos;
+    guardarAdminStore(store);
+    res.json({
+      mensaje: `Anuncio ${avisos[index].activo ? 'activado' : 'pausado'} en la página web`,
+      aviso: avisos[index]
+    });
+  } catch (error) {
+    console.error('Error al actualizar estado del anuncio:', error);
+    res.status(500).json({ error: 'Error al cambiar estado del anuncio' });
+  }
+};
+
+const eliminarAviso = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const store = leerAdminStore();
+    let avisos = store.avisos || [];
+    const longitudInicial = avisos.length;
+    avisos = avisos.filter((a) => a.id !== id);
+    if (avisos.length === longitudInicial) {
+      return res.status(404).json({ error: 'Anuncio no encontrado' });
+    }
+    store.avisos = avisos;
+    guardarAdminStore(store);
+    res.json({ mensaje: 'Anuncio eliminado de la página web exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar anuncio:', error);
+    res.status(500).json({ error: 'Error al eliminar anuncio' });
   }
 };
 
@@ -793,6 +838,8 @@ module.exports = {
   actualizarPacienteAdmin,
   enviarAvisoPaciente,
   obtenerHistorialAvisos,
+  toggleEstadoAviso,
+  eliminarAviso,
   obtenerClinicasAdmin,
   crearClinicaAdmin,
   cambiarEstadoClinica,

@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Podología Profesional | El arte de caminar con ligereza</title>
-  <meta name="description" content="Más que un tratamiento médico, una renovación total para el motor de tu cuerpo. Quiropodía elite, pie diabético, biomecánica y cirugía ungueal.">
+  <meta name="description"
+    content="Más que un tratamiento médico, una renovación total para el motor de tu cuerpo. Quiropodía elite, pie diabético, biomecánica y cirugía ungueal.">
 
   <!-- Tipografía Google Fonts Outfit & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
 
   <!-- Iconos Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -17,36 +21,100 @@
   <!-- Estilos Custom -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
 
   <!-- =========================================================================
-       1. ENCABEZADO Y NAVEGACIÓN
+       1. ENCABEZADO Y NAVEGACIÓN BOUTIQUE
        ========================================================================= -->
   <header class="navbar-header">
+    <!-- =========================================================================
+         0. ANUNCIOS EN VIVO — HISTORIAS DE INSTAGRAM CLÍNICAS (Auto-Rotativo)
+         ========================================================================= -->
+    <aside id="stories-announcements-bar" class="stories-announcements-bar" aria-label="Historias y Anuncios de la Clínica" style="display: none;">
+      <!-- Fila de Progreso de Historias (Segmentos estilo Instagram Stories) -->
+      <div class="stories-progress-row" id="stories-progress-row" role="progressbar" aria-label="Progreso de historias clínicas">
+        <!-- Inyectado dinámicamente con JS -->
+      </div>
+
+      <div class="stories-shell">
+        <!-- Flecha Anterior -->
+        <button type="button" class="stories-arrow stories-prev" id="stories-btn-prev" aria-label="Historia anterior" title="Anterior">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <!-- Escenario del Anuncio / Historia Activa -->
+        <div class="stories-stage" id="stories-stage" aria-live="polite">
+          <!-- Slide inyectado con animación suave -->
+        </div>
+
+        <!-- Flecha Siguiente -->
+        <button type="button" class="stories-arrow stories-next" id="stories-btn-next" aria-label="Siguiente historia" title="Siguiente">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
+        <!-- Botón Pausa / Reanudar -->
+        <button type="button" class="stories-pause-btn" id="stories-btn-pause" aria-label="Pausar o reanudar rotación" title="Pausar rotación">
+          <i class="fa-solid fa-pause" id="stories-pause-icon"></i>
+        </button>
+      </div>
+    </aside>
+
     <div class="navbar-container">
       <a href="#inicio" class="brand-logo">
         <span class="brand-part-1">PODOLOGÍA</span><span class="brand-part-2">PROFESIONAL</span>
       </a>
 
-      <nav>
+      <!-- Enlaces de navegación centrados -->
+      <nav class="desktop-nav">
         <ul class="nav-menu">
           <li><a href="#inicio" class="nav-link active">Inicio</a></li>
           <li><a href="#historia" class="nav-link">Historia</a></li>
           <li><a href="#servicios" class="nav-link">Servicios</a></li>
           <li><a href="#metodo" class="nav-link">Método</a></li>
           <li><a href="#testimonios" class="nav-link">Testimonios</a></li>
-          <li><button type="button" class="btn nav-btn-agendar btn-abrir-agendar">AGENDAR</button></li>
-          <li>
-            <a href="/frontend-admin/login.html" class="nav-portal-link" title="Acceso a médicos, recepcionistas y administración">
-              <i class="fa-solid fa-lock"></i> Portal Personal
-            </a>
-          </li>
+          <li><a href="#sedes" class="nav-link">Sedes</a></li>
         </ul>
       </nav>
 
-      <button type="button" class="mobile-menu-btn btn-abrir-agendar" aria-label="Abrir menú">
-        <i class="fa-solid fa-calendar-check"></i>
+      <!-- Botones de Acción (Agendar y Acceso Staff) -->
+      <div class="navbar-actions">
+        <button type="button" class="btn nav-btn-agendar btn-abrir-agendar" onclick="abrirModalAgendar()">
+          <i class="fa-regular fa-calendar-check"></i> AGENDAR
+        </button>
+        <a href="/login" class="nav-portal-link" title="Acceso al personal: Médicos, Recepcionistas y Administración">
+          <i class="fa-solid fa-lock"></i>
+          <span class="portal-text">Portal Personal</span>
+          <span class="nav-staff-badge">STAFF</span>
+        </a>
+      </div>
+
+      <button type="button" class="mobile-menu-btn" id="btn-toggle-mobile" aria-label="Abrir menú de navegación">
+        <i class="fa-solid fa-bars-staggered"></i>
       </button>
+    </div>
+
+    <!-- Menú Desplegable Móvil -->
+    <div class="mobile-drawer" id="mobile-drawer">
+      <ul class="mobile-menu-list">
+        <li><a href="#inicio" class="mobile-link">Inicio</a></li>
+        <li><a href="#historia" class="mobile-link">Nuestra Historia</a></li>
+        <li><a href="#servicios" class="mobile-link">Servicios Especializados</a></li>
+        <li><a href="#metodo" class="mobile-link">Método Clínico</a></li>
+        <li><a href="#testimonios" class="mobile-link">Testimonios</a></li>
+        <li><a href="#sedes" class="mobile-link">Sedes Clínicas</a></li>
+        <li style="margin-top: 0.5rem;">
+          <button type="button" class="btn btn-primary-pill btn-abrir-agendar" onclick="abrirModalAgendar()"
+            style="width: 100%;">
+            <i class="fa-regular fa-calendar-plus"></i> AGENDAR CITA
+          </button>
+        </li>
+        <li style="margin-top: 0.5rem;">
+          <a href="/login" class="btn btn-outline-dark" style="width: 100%; display: flex; justify-content: center;">
+            <i class="fa-solid fa-lock"></i> Acceso Personal (Staff)
+          </a>
+        </li>
+      </ul>
     </div>
   </header>
 
@@ -55,31 +123,94 @@
        ========================================================================= -->
   <section id="inicio" class="hero-section">
     <div class="hero-overlay"></div>
+    <div class="hero-ambient-glow"></div>
+
     <div class="hero-content">
-      <h1 class="hero-title">El arte de caminar con ligereza</h1>
+      <!-- Tagline Flotante con Pulso -->
+      <div class="hero-tagline-badge">
+        <span class="pulse-dot"></span>
+        <span>ATENCIÓN MÉDICA DE ALTA PRECISIÓN & BIENESTAR</span>
+      </div>
+
+      <h1 class="hero-title">
+        El arte de caminar <span class="gradient-text">con ligereza</span>
+      </h1>
+
       <p class="hero-subtitle">
-        Más que un tratamiento médico, una renovación total para el motor de tu cuerpo.
+        Más que un tratamiento médico, una renovación total para el motor de tu cuerpo. Quiropodía elite, pie diabético,
+        biomecánica y cirugía ungueal con tecnología de vanguardia.
       </p>
+
       <div class="hero-actions">
-        <button type="button" class="btn btn-primary-pill btn-abrir-agendar">
+        <button type="button" class="btn btn-primary-pill btn-abrir-agendar btn-glow-pulse"
+          onclick="abrirModalAgendar()">
           <i class="fa-regular fa-calendar-plus"></i> RESERVAR AHORA
         </button>
-        <a href="#servicios" class="btn btn-outline-white">
-          <i class="fa-solid fa-arrow-down"></i> VER SERVICIOS
+        <a href="#servicios" class="btn btn-outline-white btn-hero-secondary">
+          <i class="fa-solid fa-arrow-down arrow-bounce"></i> VER SERVICIOS
         </a>
+      </div>
+
+      <!-- Barra de Confianza Flotante -->
+      <div class="hero-trust-bar">
+        <div class="trust-item">
+          <i class="fa-solid fa-star star-icon"></i>
+          <span><strong>4.9 / 5.0</strong> Satisfacción de Pacientes</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <i class="fa-solid fa-shield-virus shield-icon"></i>
+          <span><strong>100%</strong> Esterilización Quirúrgica</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <i class="fa-solid fa-hospital-user doc-icon"></i>
+          <span><strong>3 Sedes</strong> Activas en Tecámac</span>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- =========================================================================
-       3. HISTORIA & SOBRE NOSOTROS
+       3. FRANJA DE IMPACTO Y CONTADORES ANIMADOS
+       ========================================================================= -->
+  <section class="stats-counter-strip">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon-wrap"><i class="fa-solid fa-calendar-check"></i></div>
+          <div class="stat-number" data-target="15">15+</div>
+          <div class="stat-label">Años de Trayectoria</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap"><i class="fa-solid fa-users"></i></div>
+          <div class="stat-number" data-target="12000">+12k</div>
+          <div class="stat-label">Pacientes Atendidos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap"><i class="fa-solid fa-award"></i></div>
+          <div class="stat-number" data-target="100">100%</div>
+          <div class="stat-label">Grado Hospitalario</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap"><i class="fa-solid fa-location-dot"></i></div>
+          <div class="stat-number" data-target="3">3</div>
+          <div class="stat-label">Sedes Modernas</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       4. HISTORIA & SOBRE NOSOTROS
        ========================================================================= -->
   <section id="historia" class="historia-section">
     <div class="container">
       <div class="historia-grid">
-        
-        <!-- Media / Fotografía con Badge Flotante -->
+
+        <!-- Media / Fotografía con Badge Flotante y Halo Decorativo -->
         <div class="historia-media">
+          <div class="historia-frame-glow"></div>
           <div class="historia-img-wrapper">
             <img src="assets/historia_doctor.jpg" alt="Especialista de Podología Profesional atendiendo paciente">
           </div>
@@ -91,16 +222,34 @@
 
         <!-- Contenido y Filosofía -->
         <div class="historia-content">
+          <span class="section-eyebrow">COMPROMISO CLÍNICO</span>
           <h2 class="historia-title">Cuidamos tu caminar desde hace más de una década</h2>
           <p class="historia-desc">
-            En Podología Profesional, entendemos que tus pies son el motor de tu día a día. Nuestro equipo combina la precisión clínica con un entorno de relajación absoluta.
+            En <strong>Podología Profesional</strong>, entendemos que tus pies son el motor fundamental de tu día a día.
+            Nuestro equipo combina la máxima precisión médica con un entorno de relajación absoluta, devolviéndote la
+            libertad de moverte sin molestias.
           </p>
+
+          <div class="historia-badges-row">
+            <span class="historia-pill"><i class="fa-solid fa-certificate"></i> Cédula Profesional Certificada</span>
+            <span class="historia-pill"><i class="fa-solid fa-heart-pulse"></i> Cuidado Especializado Pie
+              Diabético</span>
+            <span class="historia-pill"><i class="fa-solid fa-microscope"></i> Diagnóstico Biomecánico Digital</span>
+          </div>
+
           <blockquote class="historia-quote">
-            “La salud comienza desde la base, y nosotros perfeccionamos esa base.”
+            <i class="fa-solid fa-quote-left quote-icon"></i>
+            “La salud integral comienza desde la base, y nosotros perfeccionamos cada paso de esa base.”
           </blockquote>
-          <a href="#metodo" class="btn btn-outline-dark">
-            NUESTRA METODOLOGÍA
-          </a>
+
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="#metodo" class="btn btn-outline-dark">
+              NUESTRA METODOLOGÍA <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            <button type="button" class="btn btn-primary-pill btn-abrir-agendar">
+              RESERVAR VALORACIÓN
+            </button>
+          </div>
         </div>
 
       </div>
@@ -108,26 +257,32 @@
   </section>
 
   <!-- =========================================================================
-       4. SERVICIOS ESPECIALIZADOS (6 Tarjetas)
+       5. SERVICIOS ESPECIALIZADOS (6 Tarjetas con micro-animaciones)
        ========================================================================= -->
   <section id="servicios" class="servicios-section">
     <div class="container">
       <div class="section-header">
+        <span class="section-eyebrow">TRATAMIENTOS DE VANGUARDIA</span>
         <h2 class="section-title">Servicios Especializados</h2>
-        <p class="section-subtitle">Procedimientos clínicos de vanguardia realizados por especialistas certificados</p>
+        <p class="section-subtitle">Procedimientos clínicos de máxima precisión realizados bajo estrictos protocolos de
+          bioseguridad</p>
       </div>
 
       <div class="servicios-grid">
-        
+
         <!-- Servicio 1 -->
         <div class="servicio-card btn-abrir-agendar" data-servicio="Quiropodía Elite">
+          <div class="servicio-top-bar"></div>
           <div>
-            <div class="servicio-icon-wrap">
-              <i class="fa-solid fa-spa"></i>
+            <div class="servicio-header-row">
+              <div class="servicio-icon-wrap">
+                <i class="fa-solid fa-spa"></i>
+              </div>
+              <span class="servicio-tag">Cuidado Integral</span>
             </div>
             <h3 class="servicio-name">Quiropodía Elite</h3>
             <p class="servicio-desc">
-              Eliminación profunda de durezas y tratamiento de uñas con acabado estético y médico.
+              Eliminación profunda de durezas, helomas y tratamiento ungueal con acabado médico y estético insuperable.
             </p>
           </div>
           <span class="servicio-action-link">Reservar Cita <i class="fa-solid fa-arrow-right"></i></span>
@@ -135,13 +290,17 @@
 
         <!-- Servicio 2 -->
         <div class="servicio-card btn-abrir-agendar" data-servicio="Biomecánica Deportiva">
+          <div class="servicio-top-bar"></div>
           <div>
-            <div class="servicio-icon-wrap">
-              <i class="fa-solid fa-person-running"></i>
+            <div class="servicio-header-row">
+              <div class="servicio-icon-wrap">
+                <i class="fa-solid fa-person-running"></i>
+              </div>
+              <span class="servicio-tag">Alto Rendimiento</span>
             </div>
             <h3 class="servicio-name">Biomecánica Deportiva</h3>
             <p class="servicio-desc">
-              Análisis digital de la pisada para optimizar el rendimiento y prevenir lesiones.
+              Análisis digital computarizado de la pisada para optimizar el rendimiento y prevenir lesiones articulares.
             </p>
           </div>
           <span class="servicio-action-link">Reservar Cita <i class="fa-solid fa-arrow-right"></i></span>
@@ -149,13 +308,17 @@
 
         <!-- Servicio 3 -->
         <div class="servicio-card btn-abrir-agendar" data-servicio="Láser Avanzado">
+          <div class="servicio-top-bar"></div>
           <div>
-            <div class="servicio-icon-wrap">
-              <i class="fa-solid fa-bolt-lightning"></i>
+            <div class="servicio-header-row">
+              <div class="servicio-icon-wrap">
+                <i class="fa-solid fa-bolt-lightning"></i>
+              </div>
+              <span class="servicio-tag">Alta Tecnología</span>
             </div>
             <h3 class="servicio-name">Láser Avanzado</h3>
             <p class="servicio-desc">
-              Tratamiento indoloro para onicomicosis con tecnología de última generación.
+              Tratamiento indoloro y definitivo para onicomicosis con tecnología fototérmica de última generación.
             </p>
           </div>
           <span class="servicio-action-link">Reservar Cita <i class="fa-solid fa-arrow-right"></i></span>
@@ -163,13 +326,18 @@
 
         <!-- Servicio 4 -->
         <div class="servicio-card btn-abrir-agendar" data-servicio="Pie Diabético">
+          <div class="servicio-top-bar"></div>
           <div>
-            <div class="servicio-icon-wrap">
-              <i class="fa-solid fa-heart-pulse"></i>
+            <div class="servicio-header-row">
+              <div class="servicio-icon-wrap">
+                <i class="fa-solid fa-heart-pulse"></i>
+              </div>
+              <span class="servicio-tag">Prevención Médica</span>
             </div>
             <h3 class="servicio-name">Pie Diabético</h3>
             <p class="servicio-desc">
-              Atención preventiva rigurosa para pacientes con riesgos específicos.
+              Evaluación neurológica y vascular rigurosa con curaciones especializadas para proteger la integridad del
+              paciente.
             </p>
           </div>
           <span class="servicio-action-link">Reservar Cita <i class="fa-solid fa-arrow-right"></i></span>
@@ -177,13 +345,17 @@
 
         <!-- Servicio 5 -->
         <div class="servicio-card btn-abrir-agendar" data-servicio="Podología Infantil">
+          <div class="servicio-top-bar"></div>
           <div>
-            <div class="servicio-icon-wrap">
-              <i class="fa-solid fa-baby"></i>
+            <div class="servicio-header-row">
+              <div class="servicio-icon-wrap">
+                <i class="fa-solid fa-baby"></i>
+              </div>
+              <span class="servicio-tag">Pediatría Podológica</span>
             </div>
             <h3 class="servicio-name">Podología Infantil</h3>
             <p class="servicio-desc">
-              Corrección temprana de la marcha para un crecimiento saludable en niños.
+              Detección y corrección temprana de alteraciones en la marcha (pie plano, cavo) para un crecimiento sano.
             </p>
           </div>
           <span class="servicio-action-link">Reservar Cita <i class="fa-solid fa-arrow-right"></i></span>
@@ -191,13 +363,17 @@
 
         <!-- Servicio 6 -->
         <div class="servicio-card btn-abrir-agendar" data-servicio="Cirugía Ungueal">
+          <div class="servicio-top-bar"></div>
           <div>
-            <div class="servicio-icon-wrap">
-              <i class="fa-solid fa-microscope"></i>
+            <div class="servicio-header-row">
+              <div class="servicio-icon-wrap">
+                <i class="fa-solid fa-microscope"></i>
+              </div>
+              <span class="servicio-tag">Mínima Invasión</span>
             </div>
             <h3 class="servicio-name">Cirugía Ungueal</h3>
             <p class="servicio-desc">
-              Soluciones definitivas para uñas encarnadas con técnicas de mínima invasión.
+              Solución definitiva y ambulatoria para uña enterrada (onicocriptosis) con recuperación rápida sin dolor.
             </p>
           </div>
           <span class="servicio-action-link">Reservar Cita <i class="fa-solid fa-arrow-right"></i></span>
@@ -208,41 +384,56 @@
   </section>
 
   <!-- =========================================================================
-       5. MÉTODO (TU CAMINO A LA RECUPERACIÓN)
+       6. MÉTODO (TU CAMINO A LA RECUPERACIÓN CON BEAM CONECTOR)
        ========================================================================= -->
   <section id="metodo" class="metodo-section">
     <div class="container">
+      <span class="section-eyebrow">EXPERIENCIA CLÍNICA PASO A PASO</span>
       <h2 class="section-title">Tu Camino a la Recuperación</h2>
-      <p class="section-subtitle">Un proceso protocolizado diseñado para tu confort y resultados médicos definitivos</p>
+      <p class="section-subtitle">Un proceso protocolizado diseñado para tu confort absoluto y resultados médicos
+        definitivos</p>
 
       <div class="metodo-steps-grid">
-        
+        <div class="metodo-line-connector"></div>
+
         <!-- Paso 01 -->
         <div class="step-card">
-          <div class="step-circle">01</div>
+          <div class="step-circle">
+            <span class="step-num">01</span>
+            <i class="fa-solid fa-spa step-subicon"></i>
+          </div>
           <h3 class="step-title">Recepción</h3>
-          <p class="step-desc">Ambiente de spa y diagnóstico inicial.</p>
+          <p class="step-desc">Ambiente de relajación, valoración de signos y diagnóstico clínico inicial.</p>
         </div>
 
         <!-- Paso 02 -->
         <div class="step-card">
-          <div class="step-circle">02</div>
+          <div class="step-circle">
+            <span class="step-num">02</span>
+            <i class="fa-solid fa-magnifying-glass-chart step-subicon"></i>
+          </div>
           <h3 class="step-title">Análisis</h3>
-          <p class="step-desc">Evaluación con tecnología digital.</p>
+          <p class="step-desc">Evaluación dermatológica y biomecánica con tecnología digital precisa.</p>
         </div>
 
         <!-- Paso 03 -->
         <div class="step-card">
-          <div class="step-circle">03</div>
+          <div class="step-circle">
+            <span class="step-num">03</span>
+            <i class="fa-solid fa-wand-magic-sparkles step-subicon"></i>
+          </div>
           <h3 class="step-title">Tratamiento</h3>
-          <p class="step-desc">Procedimientos precisos y sin dolor.</p>
+          <p class="step-desc">Procedimientos indoloros con instrumental estéril de grado hospitalario.</p>
         </div>
 
         <!-- Paso 04 -->
         <div class="step-card">
-          <div class="step-circle">04</div>
+          <div class="step-circle">
+            <span class="step-num">04</span>
+            <i class="fa-solid fa-person-walking step-subicon"></i>
+          </div>
           <h3 class="step-title">Bienestar</h3>
-          <p class="step-desc">Seguimiento hasta tu recuperación total.</p>
+          <p class="step-desc">Plan de mantenimiento preventivo y seguimiento personalizado continuo.</p>
         </div>
 
       </div>
@@ -250,102 +441,132 @@
   </section>
 
   <!-- =========================================================================
-       6. TESTIMONIOS (VOCES DE BIENESTAR)
+       7. TESTIMONIOS (VOCES DE BIENESTAR)
        ========================================================================= -->
   <section id="testimonios" class="testimonios-section">
     <div class="container">
+      <span class="section-eyebrow" style="color: var(--caramel-ochre);">EXPERIENCIAS REALES</span>
       <h2 class="testimonios-title">Voces de Bienestar</h2>
 
       <div class="testimonios-grid">
-        
+
         <!-- Testimonio 1: Nena -->
-        <div class="testimonio-card">
+        <div class="testimonio-card" data-index="0">
+          <div class="testimonio-stars">
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+              class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          </div>
           <div class="testimonio-avatar">
             <img src="assets/avatar_nena.jpg" alt="Paciente Nena">
           </div>
           <p class="testimonio-text">
-            “Soy diabético y necesitaba un cuidado especial para mis pies. El servicio fue muy atento y seguro. Me dieron confianza desde el inicio y ahora acudo regularmente a mis revisiones.”
+            “Soy paciente diabética y necesitaba un cuidado extremadamente profesional para mis pies. El servicio fue
+            atento, seguro y meticuloso. Me brindaron confianza desde el primer minuto.”
           </p>
-          <div class="testimonio-author">- Nena</div>
+          <div class="testimonio-author">
+            <strong>Nena Santillán</strong>
+            <span class="badge-verificado"><i class="fa-solid fa-circle-check"></i> Paciente Verificada</span>
+          </div>
         </div>
 
         <!-- Testimonio 2: Santillan (Elevado / Destacado) -->
-        <div class="testimonio-card highlight">
+        <div class="testimonio-card highlight" data-index="1">
+          <div class="testimonio-stars">
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+              class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          </div>
           <div class="testimonio-avatar">
             <img src="assets/avatar_santillan.jpg" alt="Paciente Santillan">
           </div>
           <p class="testimonio-text">
-            “Después de probar varios lugares, por fin encontré una clínica donde realmente se preocupan por tu bienestar. El tratamiento fue efectivo y el seguimiento excelente.”
+            “Después de probar varias clínicas, por fin encontré un lugar donde verdaderamente entienden de biomecánica.
+            El tratamiento fue 100% efectivo y el seguimiento médico, insuperable.”
           </p>
-          <div class="testimonio-author">- Santillan</div>
+          <div class="testimonio-author">
+            <strong>Carlos Santillán</strong>
+            <span class="badge-verificado"><i class="fa-solid fa-circle-check"></i> Paciente Verificado</span>
+          </div>
         </div>
 
         <!-- Testimonio 3: Wall-e -->
-        <div class="testimonio-card">
+        <div class="testimonio-card" data-index="2">
+          <div class="testimonio-stars">
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+              class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          </div>
           <div class="testimonio-avatar">
             <img src="assets/avatar_walle.jpg" alt="Paciente Wall-e">
           </div>
           <p class="testimonio-text">
-            “Llegué con mucho dolor por una uña enterrada y desde la primera consulta sentí alivio. El trato fue muy profesional y cuidadoso. Ahora puedo caminar sin molestias. ¡Totalmente recomendable!”
+            “Llegué con dolor agudo por una uña encarnada y salí caminando sin ninguna molestia. Procedimiento indoloro,
+            ambiente limpio y trato cálido. ¡Recomiendo Podología Profesional ampliamente!”
           </p>
-          <div class="testimonio-author">- Wall-e</div>
+          <div class="testimonio-author">
+            <strong>Valeria R. (Wall-e)</strong>
+            <span class="badge-verificado"><i class="fa-solid fa-circle-check"></i> Paciente Verificada</span>
+          </div>
         </div>
 
       </div>
 
       <!-- Indicadores Carrusel -->
       <div class="carousel-indicators">
-        <span class="carousel-dot"></span>
-        <span class="carousel-dot active"></span>
-        <span class="carousel-dot"></span>
-        <span class="carousel-dot"></span>
-        <span class="carousel-dot"></span>
-        <span class="carousel-dot"></span>
-        <span class="carousel-dot"></span>
+        <span class="carousel-dot" data-index="0"></span>
+        <span class="carousel-dot active" data-index="1"></span>
+        <span class="carousel-dot" data-index="2"></span>
       </div>
     </div>
   </section>
 
   <!-- =========================================================================
-       7. SEDES CLÍNICAS OPERATIVAS
+       8. SEDES CLÍNICAS OPERATIVAS CON ESTADO EN VIVO
        ========================================================================= -->
   <section id="sedes" class="sedes-section">
     <div class="container">
       <div class="section-header" style="text-align: center;">
+        <span class="section-eyebrow">COBERTURA TECÁMAC</span>
         <h2 class="section-title">Nuestras Sedes de Atención</h2>
-        <p class="section-subtitle">Instalaciones médicas equipadas y de fácil acceso en Tecámac</p>
+        <p class="section-subtitle">Instalaciones médicas totalmente equipadas, confortables y de fácil acceso</p>
       </div>
 
       <div class="sedes-grid">
+        <!-- Sede 1 -->
         <div class="sede-card">
           <div>
-            <div class="sede-tag"><i class="fa-solid fa-circle-check"></i> Sede 14 • Activa</div>
+            <div class="sede-tag">
+              <span class="live-beacon"></span> Sede 14 • Abierta Hoy
+            </div>
             <h3 class="sede-title">DIF Lomas de Tecámac</h3>
             <div class="sede-info-item">
               <i class="fa-solid fa-location-dot"></i>
-              <span>Av. Constitución, Tecámac</span>
+              <span>Av. Constitución, Lomas de Tecámac</span>
             </div>
             <div class="sede-info-item">
               <i class="fa-solid fa-phone"></i>
-              <span>Tel: 55 6022 9842</span>
+              <span>Tel: 56 2622 5027</span>
             </div>
             <div class="sede-info-item">
               <i class="fa-solid fa-clock"></i>
               <span>Lunes a Sábado: 8:00 AM - 6:00 PM</span>
             </div>
           </div>
-          <button type="button" class="btn btn-outline-dark btn-abrir-agendar" style="margin-top: 1.5rem; width: 100%;">
-            Agendar en Sede DIF
+          <button type="button" class="btn btn-outline-dark btn-abrir-agendar btn-agendar-sede"
+            onclick="abrirModalAgendar({ clinicaId: 14 })" data-clinica="14" data-clinica-nombre="DIF Lomas de Tecámac"
+            data-servicio="Quiropodía Elite" style="margin-top: 1.5rem; width: 100%;">
+            <i class="fa-regular fa-calendar-check"></i> Agendar en esta Clínica
           </button>
         </div>
 
+        <!-- Sede 2 -->
         <div class="sede-card">
           <div>
-            <div class="sede-tag"><i class="fa-solid fa-circle-check"></i> Sede 28 • Activa</div>
+            <div class="sede-tag">
+              <span class="live-beacon"></span> Sede 28 • Abierta Hoy
+            </div>
             <h3 class="sede-title">Casa Héroes Tecámac</h3>
             <div class="sede-info-item">
               <i class="fa-solid fa-location-dot"></i>
-              <span>Av. Felipe Villanueva, Tecámac</span>
+              <span>Av. Felipe Villanueva, Los Héroes Tecámac</span>
             </div>
             <div class="sede-info-item">
               <i class="fa-solid fa-phone"></i>
@@ -356,18 +577,23 @@
               <span>Lunes a Sábado: 9:00 AM - 7:00 PM</span>
             </div>
           </div>
-          <button type="button" class="btn btn-outline-dark btn-abrir-agendar" style="margin-top: 1.5rem; width: 100%;">
-            Agendar en Casa Héroes
+          <button type="button" class="btn btn-outline-dark btn-abrir-agendar btn-agendar-sede"
+            onclick="abrirModalAgendar({ clinicaId: 28 })" data-clinica="28" data-clinica-nombre="Casa Héroes Tecámac"
+            data-servicio="Quiropodía Elite" style="margin-top: 1.5rem; width: 100%;">
+            <i class="fa-regular fa-calendar-check"></i> Agendar en esta Clínica
           </button>
         </div>
 
+        <!-- Sede 3 -->
         <div class="sede-card">
           <div>
-            <div class="sede-tag"><i class="fa-solid fa-circle-check"></i> Sede 35 • Activa</div>
+            <div class="sede-tag">
+              <span class="live-beacon"></span> Sede 35 • Abierta Hoy
+            </div>
             <h3 class="sede-title">Casa Adulto Mayor Flores</h3>
             <div class="sede-info-item">
               <i class="fa-solid fa-location-dot"></i>
-              <span>Av. Las Flores, Tecámac</span>
+              <span>Av. Las Flores s/n, Tecámac</span>
             </div>
             <div class="sede-info-item">
               <i class="fa-solid fa-phone"></i>
@@ -378,8 +604,11 @@
               <span>Lunes a Viernes: 8:00 AM - 4:00 PM</span>
             </div>
           </div>
-          <button type="button" class="btn btn-outline-dark btn-abrir-agendar" style="margin-top: 1.5rem; width: 100%;">
-            Agendar en Adulto Mayor
+          <button type="button" class="btn btn-outline-dark btn-abrir-agendar btn-agendar-sede"
+            onclick="abrirModalAgendar({ clinicaId: 35 })" data-clinica="35"
+            data-clinica-nombre="Casa Adulto Mayor Flores" data-servicio="Quiropodía Elite"
+            style="margin-top: 1.5rem; width: 100%;">
+            <i class="fa-regular fa-calendar-check"></i> Agendar en esta Clínica
           </button>
         </div>
       </div>
@@ -387,7 +616,7 @@
   </section>
 
   <!-- =========================================================================
-       8. FOOTER
+       9. FOOTER PROFESIONAL
        ========================================================================= -->
   <footer class="footer-main">
     <div class="container">
@@ -396,9 +625,16 @@
           <div class="brand-logo" style="margin-bottom: 1rem;">
             <span style="color: #ffffff;">PODOLOGÍA</span><span style="color: var(--caramel-ochre);">PROFESIONAL</span>
           </div>
-          <p style="font-size: 0.95rem; max-width: 420px; line-height: 1.6;">
-            Clínica especializada en salud y estética integral del pie. Atención médica certificada, protocolos de higiene de grado hospitalario y tecnología de última generación.
+          <p style="font-size: 0.95rem; max-width: 420px; line-height: 1.6; color: rgba(255, 255, 255, 0.75);">
+            Clínica especializada en salud, biomecánica y estética integral del pie. Atención médica certificada,
+            protocolos de higiene de grado hospitalario y tecnología de última generación.
           </p>
+          <div class="footer-social-row">
+            <a href="https://api.whatsapp.com/send?phone=525560229842" target="_blank" class="social-icon"
+              aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="#" class="social-icon" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" class="social-icon" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          </div>
         </div>
 
         <div>
@@ -415,20 +651,38 @@
         <div>
           <h4 class="footer-col-title">Contacto Rápido</h4>
           <ul class="footer-links">
-            <li><i class="fa-solid fa-phone"></i> 55 6022 9842</li>
-            <li><i class="fa-brands fa-whatsapp"></i> Chat WhatsApp Clínico</li>
-            <li><i class="fa-solid fa-envelope"></i> citas@podologiaprofesional.com</li>
-            <li><a href="http://127.0.0.1:5501/frontend-admin/admin.html" style="color: var(--caramel-ochre);"><i class="fa-solid fa-lock"></i> Portal Administrativo</a></li>
+            <li><i class="fa-solid fa-phone" style="color: var(--caramel-ochre);"></i> 56 2622 5027</li>
+            <li><i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> Chat WhatsApp Clínico</li>
+            <li><i class="fa-solid fa-envelope" style="color: var(--caramel-ochre);"></i> citas@podologiaprofesional.com
+            </li>
+            <li>
+              <a href="/login" class="footer-staff-link">
+                <i class="fa-solid fa-shield-halved"></i> Portal Personal (Admin / Médicos)
+              </a>
+            </li>
           </ul>
         </div>
       </div>
 
       <div class="footer-bottom">
         <div>&copy; 2026 Podología Profesional. Todos los derechos reservados.</div>
-        <div>Cuidado preventivo • Quiropodia clínica • Cirugía ambulatoria</div>
+        <div>Cuidado preventivo • Quiropodia clínica • Cirugía ambulatoria • Biomecánica</div>
       </div>
     </div>
   </footer>
+
+  <!-- =========================================================================
+       WIDGETS FLOTANTES: WHATSAPP Y SCROLL TO TOP
+       ========================================================================= -->
+  <a href="https://api.whatsapp.com/send?phone=525560229842&text=Hola,%20me%20gustar%C3%ADa%20solicitar%20informaci%C3%B3n%20sobre%20sus%20servicios%20de%20podolog%C3%ADa"
+    target="_blank" class="floating-whatsapp" title="Escríbenos por WhatsApp" aria-label="WhatsApp">
+    <i class="fa-brands fa-whatsapp"></i>
+    <span class="whatsapp-tooltip">¿Dudas? Escríbenos</span>
+  </a>
+
+  <button type="button" id="btn-scroll-top" class="floating-scroll-top" aria-label="Volver arriba">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
 
   <!-- =========================================================================
        9. MODAL INTERACTIVO DE AGENDAMIENTO DE CITAS
@@ -436,193 +690,427 @@
        - Pacientes con No. de Expediente existente (validación automática)
        - Pacientes nuevos (llenado rápido de datos para la cita)
        ========================================================================= -->
-  <dialog id="modal-agendar" class="booking-modal">
-    <div class="booking-modal-card">
-      
+  <dialog id="modal-agendar" class="booking-modal-lux">
+    <div class="booking-modal-card-lux">
+
       <!-- Encabezado del Modal -->
-      <div class="booking-modal-header">
-        <h3><i class="fa-regular fa-calendar-check" style="color: var(--caramel-ochre);"></i> Agendar Cita Médica</h3>
-        <button type="button" class="btn-close-modal" onclick="cerrarModalAgendar()"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <!-- Selector de Modo de Paciente -->
-      <div class="patient-type-selector">
-        <button type="button" id="tab-modo-nuevo" class="type-tab-btn active">
-          <i class="fa-solid fa-user-plus"></i> Soy Paciente Nuevo
-        </button>
-        <button type="button" id="tab-modo-expediente" class="type-tab-btn">
-          <i class="fa-solid fa-id-card"></i> Ya tengo No. de Expediente
+      <div class="booking-modal-header-lux">
+        <div class="modal-header-titles">
+          <div class="brand-micro-tag"><i class="fa-solid fa-notes-medical"></i> Elite Foot Care • Portal de Citas</div>
+          <h2>Agendar Cita Podológica</h2>
+          <p>Registra un nuevo paciente o agenda sobre un expediente clínico existente</p>
+        </div>
+        <button type="button" class="btn-close-modal-lux" onclick="cerrarModalAgendar()" aria-label="Cerrar ventana">
+          <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <!-- Formulario de Agendamiento -->
-      <div id="booking-form-view" class="booking-modal-body">
-        <form id="form-agendar-cita">
-          
-          <!-- Banner cuando se valida un expediente existente -->
-          <div id="banner-paciente-verificado" class="verified-patient-banner">
-            <i class="fa-solid fa-circle-check"></i>
-            <div>
-              <div style="font-weight: 700; color: var(--primary-deep);" id="verificado-nombre-paciente">Paciente Verificado</div>
-              <div style="font-size: 0.82rem; color: var(--text-muted);" id="verificado-detalle-paciente">Expediente validado en el sistema</div>
-            </div>
+      <!-- Cuerpo del Agendador con Dual Grid (Formulario + Comprobante) -->
+      <div id="booking-form-view" class="booking-modal-body-lux">
+        <div class="booking-dual-grid-lux">
+
+          <!-- Columna Izquierda: Formulario Principal de 3 Pasos -->
+          <div class="booking-left-column">
+            <form id="form-agendar-cita" onsubmit="procesarEnvioCita(event)">
+
+              <!-- PASO 1: INFORMACIÓN DEL PACIENTE -->
+              <div class="booking-form-section-lux">
+                <div class="section-step-indicator-lux">
+                  <div class="step-circle-lux">1</div>
+                  <div>
+                    <h3>Información del Paciente</h3>
+                    <p>Búsqueda por expediente o registro directo</p>
+                  </div>
+                </div>
+
+                <!-- Búsqueda Rápida de Expediente o Teléfono -->
+                <div class="form-field-group-lux">
+                  <label for="booking-input-expediente"><i class="fa-solid fa-id-card"></i> No. de Expediente o Teléfono
+                    (Opcional)</label>
+                  <div class="expediente-search-row-lux">
+                    <input type="text" id="booking-input-expediente" placeholder="Ej. 2026140001 o 55 4123 8970"
+                      autocomplete="off">
+                    <button type="button" class="btn-search-exp-lux" id="btn-buscar-expediente"
+                      onclick="buscarExpedientePaciente()">
+                      <i class="fa-solid fa-magnifying-glass"></i> <span>Buscar</span>
+                    </button>
+                    <button type="button" class="btn-reset-exp-lux" id="btn-reset-expediente" style="display: none;"
+                      onclick="resetearFormularioPaciente()">
+                      <i class="fa-solid fa-rotate-left"></i> <span>Nuevo</span>
+                    </button>
+                  </div>
+                  <div id="paciente-encontrado-badge" class="verified-status-chip" style="display: none;">
+                    <i class="fa-solid fa-circle-check"></i> <span id="paciente-encontrado-texto">Expediente encontrado
+                      y verificado</span>
+                  </div>
+                </div>
+
+                <!-- Nombre Completo -->
+                <div class="form-field-group-lux">
+                  <label for="booking-nombre"><i class="fa-solid fa-user"></i> Nombre Completo *</label>
+                  <input type="text" id="booking-nombre" required placeholder="Ej. Rosa María Martínez"
+                    autocomplete="name">
+                </div>
+
+                <!-- Teléfono y Sexo -->
+                <div class="grid-2-lux">
+                  <div class="form-field-group-lux">
+                    <label for="booking-telefono"><i class="fa-solid fa-phone"></i> Teléfono (WhatsApp) *</label>
+                    <input type="tel" id="booking-telefono" required placeholder="Ej. 55 1234 5678" autocomplete="tel">
+                  </div>
+
+                  <div class="form-field-group-lux">
+                    <label><i class="fa-solid fa-venus-mars"></i> Sexo</label>
+                    <div class="sex-pill-row-lux">
+                      <button type="button" class="sex-choice-pill-lux active" data-sexo="Femenino"
+                        onclick="seleccionarSexo('Femenino')">Femenino</button>
+                      <button type="button" class="sex-choice-pill-lux" data-sexo="Masculino"
+                        onclick="seleccionarSexo('Masculino')">Masculino</button>
+                      <button type="button" class="sex-choice-pill-lux" data-sexo="Otro"
+                        onclick="seleccionarSexo('Otro')">Otro</button>
+                      <input type="hidden" id="booking-sexo" value="Femenino">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Fecha de Nacimiento y Edad Calculada -->
+                <div class="grid-date-age-lux">
+                  <div class="form-field-group-lux">
+                    <label for="booking-fecha-nacimiento"><i class="fa-regular fa-calendar-days"></i> Fecha de
+                      Nacimiento (YYYY-MM-DD)</label>
+                    <input type="date" id="booking-fecha-nacimiento" placeholder="YYYY-MM-DD">
+                  </div>
+
+                  <div class="form-field-group-lux">
+                    <label><i class="fa-solid fa-cake-candles"></i> Edad Calculada</label>
+                    <div id="booking-edad-badge" class="edad-badge-display">
+                      Sin fecha
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Domicilio y Municipio -->
+                <div class="grid-date-age-lux">
+                  <div class="form-field-group-lux">
+                    <label for="booking-direccion"><i class="fa-solid fa-location-dot"></i> Dirección
+                      (Domicilio)</label>
+                    <input type="text" id="booking-direccion" placeholder="Ej. Calle Morelos #45, Col. Centro">
+                  </div>
+
+                  <div class="form-field-group-lux">
+                    <label for="booking-municipio"><i class="fa-solid fa-city"></i> Municipio</label>
+                    <input type="text" id="booking-municipio" value="Tecámac" placeholder="Ej. Tecámac">
+                  </div>
+                </div>
+
+                <!-- Alertas Médicas (Diabético / Hipertenso) -->
+                <div class="health-checks-row-lux">
+                  <label class="health-toggle-lux">
+                    <input type="checkbox" id="booking-check-diabetico">
+                    <span>⚠️ Paciente Diabético</span>
+                  </label>
+                  <label class="health-toggle-lux">
+                    <input type="checkbox" id="booking-check-hipertenso">
+                    <span>❤️ Paciente Hipertenso</span>
+                  </label>
+                </div>
+
+                <!-- Motivo de Consulta y Servicio -->
+                <div class="grid-2-lux" style="margin-top: 14px;">
+                  <div class="form-field-group-lux">
+                    <label for="booking-servicio"><i class="fa-solid fa-stethoscope"></i> Tratamiento Podológico</label>
+                    <select id="booking-servicio">
+                      <option value="Quiropodía Elite">Quiropodía Elite (Corte clínico, fresado y durezas)</option>
+                      <option value="Pie Diabético">Atención y Valoración de Pie Diabético</option>
+                      <option value="Cirugía Ungueal">Cirugía Ungueal (Uña Encarnada / Onicocriptosis)</option>
+                      <option value="Biomecánica Deportiva">Estudio Biomecánico y Análisis de Pisada</option>
+                      <option value="Láser Avanzado">Tratamiento Láser para Onicomicosis</option>
+                      <option value="Podología Infantil">Podología Infantil y Valoración de Marcha</option>
+                      <option value="Revisión General">Primera Valoración y Diagnóstico General</option>
+                    </select>
+                  </div>
+
+                  <div class="form-field-group-lux">
+                    <label for="booking-motivo"><i class="fa-solid fa-notes-medical"></i> Motivo de Consulta /
+                      Padecimiento</label>
+                    <textarea id="booking-motivo" rows="2"
+                      placeholder="Describir motivo, alergias o atención requerida..."></textarea>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- PASO 2: SEDE DE CONSULTA -->
+              <div class="booking-form-section-lux">
+                <div class="section-step-indicator-lux">
+                  <div class="step-circle-lux">2</div>
+                  <div>
+                    <h3>Sede de Consulta</h3>
+                    <p>Selecciona la clínica donde se atenderá el paciente</p>
+                  </div>
+                </div>
+
+                <div class="clinics-select-grid-lux" id="clinics-container-lux">
+                  <!-- Clínica 14: DIF Lomas de Tecámac (Default activa) -->
+                  <div class="clinic-card-lux active" data-clinica-id="14" data-nombre="DIF Lomas de Tecámac"
+                    data-direccion="Av. Constitución, Tecámac" data-tel="5560229842"
+                    data-especialista="Maribel Benita Santillan Velasco" onclick="seleccionarSedeClinica(14)">
+                    <div class="clinic-icon-box">
+                      <i class="fa-solid fa-hospital"></i>
+                    </div>
+                    <div class="clinic-meta">
+                      <h4>DIF Lomas de Tecámac</h4>
+                      <small>Av. Constitución, Tecámac</small>
+                    </div>
+                    <div class="clinic-check-pill"><i class="fa-solid fa-check"></i></div>
+                  </div>
+
+                  <!-- Clínica 28: Casa Héroes Tecámac -->
+                  <div class="clinic-card-lux" data-clinica-id="28" data-nombre="Casa Héroes Tecámac"
+                    data-direccion="Av. Felipe Villanueva, Tecámac" data-tel="5515311359"
+                    data-especialista="Maribel Benita Santillan Velasco" onclick="seleccionarSedeClinica(28)">
+                    <div class="clinic-icon-box">
+                      <i class="fa-solid fa-hospital"></i>
+                    </div>
+                    <div class="clinic-meta">
+                      <h4>Casa Héroes Tecámac</h4>
+                      <small>Av. Felipe Villanueva, Tecámac</small>
+                    </div>
+                    <div class="clinic-check-pill"><i class="fa-solid fa-check"></i></div>
+                  </div>
+
+                  <!-- Clínica 35: Casa Adulto Mayor Flores -->
+                  <div class="clinic-card-lux" data-clinica-id="35" data-nombre="Casa Adulto Mayor Flores"
+                    data-direccion="Av. Las Flores, Tecámac" data-tel="5559388260"
+                    data-especialista="Maribel Benita Santillan Velasco" onclick="seleccionarSedeClinica(35)">
+                    <div class="clinic-icon-box">
+                      <i class="fa-solid fa-hospital"></i>
+                    </div>
+                    <div class="clinic-meta">
+                      <h4>Casa Adulto Mayor Flores</h4>
+                      <small>Av. Las Flores, Tecámac</small>
+                    </div>
+                    <div class="clinic-check-pill"><i class="fa-solid fa-check"></i></div>
+                  </div>
+                </div>
+                <input type="hidden" id="booking-id-clinica" value="14">
+              </div>
+
+              <!-- PASO 3: FECHA Y HORARIO DE LA CITA -->
+              <div class="booking-form-section-lux">
+                <div class="section-step-indicator-lux">
+                  <div class="step-circle-lux">3</div>
+                  <div>
+                    <h3>Fecha y Horario de la Cita</h3>
+                    <p>Elige el día y bloque horario disponible o ingresa una hora específica</p>
+                  </div>
+                </div>
+
+                <!-- Atajos rápidos de fecha -->
+                <div class="date-shortcuts-row-lux">
+                  <button type="button" class="btn-shortcut-pill-lux active" onclick="setAtajoFecha(0, this)">
+                    <i class="fa-solid fa-calendar-day" style="color: var(--caramel-ochre);"></i> Hoy
+                  </button>
+                  <button type="button" class="btn-shortcut-pill-lux" onclick="setAtajoFecha(1, this)">
+                    <i class="fa-solid fa-arrow-right" style="color: #22c55e;"></i> Mañana
+                  </button>
+                  <button type="button" class="btn-shortcut-pill-lux" onclick="setAtajoFecha(2, this)">
+                    +2 días
+                  </button>
+                  <button type="button" class="btn-shortcut-pill-lux" onclick="setAtajoFecha(7, this)">
+                    Próxima semana
+                  </button>
+                </div>
+
+                <!-- Fechas y Hora personalizada -->
+                <div class="grid-date-age-lux" style="margin-bottom: 14px;">
+                  <div class="form-field-group-lux">
+                    <label for="booking-fecha"><i class="fa-regular fa-calendar"></i> Fecha Seleccionada</label>
+                    <input type="date" id="booking-fecha" required>
+                  </div>
+
+                  <div class="form-field-group-lux">
+                    <label for="booking-hora-custom"><i class="fa-regular fa-clock"></i> Hora Personalizada</label>
+                    <input type="time" id="booking-hora-custom" value="10:00">
+                  </div>
+                </div>
+
+                <!-- Bloques de Horarios Frecuentes / Disponibles -->
+                <label class="time-slots-heading-lux">
+                  <i class="fa-solid fa-list-check" style="color: var(--caramel-ochre);"></i> Horarios de Atención
+                  (<span id="label-sede-horarios">DIF Lomas de Tecámac</span>):
+                </label>
+                <div class="time-slots-grid-lux" id="time-slots-container">
+                  <button type="button" class="slot-pill-lux" data-time="09:00 AM"
+                    onclick="seleccionarHorarioSlot('09:00 AM', this)">
+                    <span class="slot-time">09:00 AM</span>
+                    <span class="slot-badge">DISPONIBLE</span>
+                  </button>
+                  <button type="button" class="slot-pill-lux selected" data-time="10:00 AM"
+                    onclick="seleccionarHorarioSlot('10:00 AM', this)">
+                    <span class="slot-time">10:00 AM</span>
+                    <span class="slot-badge">DISPONIBLE</span>
+                  </button>
+                  <button type="button" class="slot-pill-lux" data-time="11:00 AM"
+                    onclick="seleccionarHorarioSlot('11:00 AM', this)">
+                    <span class="slot-time">11:00 AM</span>
+                    <span class="slot-badge">DISPONIBLE</span>
+                  </button>
+                  <button type="button" class="slot-pill-lux" data-time="12:00 PM"
+                    onclick="seleccionarHorarioSlot('12:00 PM', this)">
+                    <span class="slot-time">12:00 PM</span>
+                    <span class="slot-badge">DISPONIBLE</span>
+                  </button>
+                  <button type="button" class="slot-pill-lux" data-time="01:00 PM"
+                    onclick="seleccionarHorarioSlot('01:00 PM', this)">
+                    <span class="slot-time">01:00 PM</span>
+                    <span class="slot-badge">DISPONIBLE</span>
+                  </button>
+                  <button type="button" class="slot-pill-lux" data-time="02:00 PM"
+                    onclick="seleccionarHorarioSlot('02:00 PM', this)">
+                    <span class="slot-time">02:00 PM</span>
+                    <span class="slot-badge">DISPONIBLE</span>
+                  </button>
+                  <button type="button" class="slot-pill-lux" data-time="03:00 PM"
+                    onclick="seleccionarHorarioSlot('03:00 PM', this)">
+                    <span class="slot-time">03:00 PM</span>
+                    <span class="slot-badge">DISPONIBLE</span>
+                  </button>
+                  <button type="button" class="slot-pill-lux" data-time="04:00 PM"
+                    onclick="seleccionarHorarioSlot('04:00 PM', this)">
+                    <span class="slot-time">04:00 PM</span>
+                    <span class="slot-badge">DISPONIBLE</span>
+                  </button>
+                  <button type="button" class="slot-pill-lux" data-time="05:00 PM"
+                    onclick="seleccionarHorarioSlot('05:00 PM', this)">
+                    <span class="slot-time">05:00 PM</span>
+                    <span class="slot-badge">DISPONIBLE</span>
+                  </button>
+                  <button type="button" class="slot-pill-lux" data-time="06:00 PM"
+                    onclick="seleccionarHorarioSlot('06:00 PM', this)">
+                    <span class="slot-time">06:00 PM</span>
+                    <span class="slot-badge">DISPONIBLE</span>
+                  </button>
+                </div>
+                <input type="hidden" id="booking-hora-final" value="10:00 AM">
+
+              </div>
+
+              <!-- Botón Final de Envío en Formulario -->
+              <button type="submit" class="btn-confirmar-booking-lux" id="btn-confirmar-booking-main">
+                <i class="fa-solid fa-calendar-check"></i> <span>Confirmar y Agendar Cita</span>
+              </button>
+
+            </form>
           </div>
 
-          <!-- MODO A: Campo de Búsqueda de Expediente (oculto por defecto) -->
-          <div id="seccion-expediente-input" style="display: none;" class="form-group-booking">
-            <label class="form-label-booking" for="booking-expediente-input">
-              <i class="fa-solid fa-hashtag"></i> Ingresa tu No. de Expediente Clínico *
-            </label>
-            <div class="expediente-search-row">
-              <input type="text" id="booking-expediente-input" class="form-input-booking" placeholder="Ej. 2026140001">
-              <button type="button" id="btn-buscar-expediente" class="btn-verify-exp">
-                <i class="fa-solid fa-magnifying-glass"></i> Validar
+          <!-- Columna Derecha: Comprobante de Cita Flotante / Sticky -->
+          <div class="booking-right-column">
+            <div class="booking-summary-box-lux">
+              <h3 class="summary-heading-lux">Comprobante de Cita</h3>
+
+              <div class="summary-row-lux">
+                <div class="summary-icon-circ"><i class="fa-solid fa-user"></i></div>
+                <div>
+                  <small>PACIENTE</small>
+                  <strong id="voucher-paciente">Sin especificar</strong>
+                </div>
+              </div>
+
+              <div class="summary-row-lux">
+                <div class="summary-icon-circ"><i class="fa-solid fa-phone"></i></div>
+                <div>
+                  <small>TELÉFONO</small>
+                  <strong id="voucher-telefono">Sin teléfono</strong>
+                </div>
+              </div>
+
+              <div class="summary-row-lux">
+                <div class="summary-icon-circ"><i class="fa-solid fa-hospital"></i></div>
+                <div>
+                  <small>SEDE</small>
+                  <strong id="voucher-sede">DIF Lomas de Tecámac</strong>
+                </div>
+              </div>
+
+              <div class="summary-row-lux">
+                <div class="summary-icon-circ"><i class="fa-regular fa-clock"></i></div>
+                <div>
+                  <small>HORARIO</small>
+                  <strong id="voucher-horario">2026-10-16 · 10:00 AM</strong>
+                </div>
+              </div>
+
+              <div class="summary-row-lux">
+                <div class="summary-icon-circ"><i class="fa-solid fa-user-doctor"></i></div>
+                <div>
+                  <small>ESPECIALISTA</small>
+                  <strong id="voucher-especialista">Maribel Benita Santillan Velasco</strong>
+                </div>
+              </div>
+
+              <button type="button" class="btn-guardar-cita-voucher-lux" id="btn-guardar-cita-voucher"
+                onclick="dispararEnvioFormulario()">
+                <i class="fa-solid fa-check"></i> <span>Guardar Cita</span>
               </button>
             </div>
-            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.35rem;">
-              Encuentras tu No. de Expediente en tus recetas previas o comprobante de consulta.
-            </div>
           </div>
 
-          <!-- MODO B: Datos para Paciente Nuevo -->
-          <div id="seccion-datos-nuevos">
-            <div class="grid-2-booking">
-              <div class="form-group-booking">
-                <label class="form-label-booking" for="booking-nombre">Nombre(s) *</label>
-                <input type="text" id="booking-nombre" class="form-input-booking" placeholder="Ej. Andrea" required>
-              </div>
-              <div class="form-group-booking">
-                <label class="form-label-booking" for="booking-paterno">Apellido Paterno *</label>
-                <input type="text" id="booking-paterno" class="form-input-booking" placeholder="Ej. Ramírez" required>
-              </div>
-            </div>
-
-            <div class="grid-2-booking">
-              <div class="form-group-booking">
-                <label class="form-label-booking" for="booking-materno">Apellido Materno</label>
-                <input type="text" id="booking-materno" class="form-input-booking" placeholder="Ej. Gómez">
-              </div>
-              <div class="form-group-booking">
-                <label class="form-label-booking" for="booking-telefono-nuevo">Teléfono / WhatsApp *</label>
-                <input type="tel" id="booking-telefono-nuevo" class="form-input-booking" placeholder="Ej. 5512345678" required>
-              </div>
-            </div>
-
-            <!-- Alertas médicas rápidas -->
-            <div class="form-group-booking">
-              <label class="form-label-booking"><i class="fa-solid fa-shield-heart" style="color: #ef4444;"></i> ¿Tienes alguna de estas condiciones de salud?</label>
-              <div class="health-checkboxes-row">
-                <label class="health-check-label">
-                  <input type="checkbox" id="booking-check-diabetico">
-                  <span><i class="fa-solid fa-droplet" style="color: #d97706;"></i> Diabetes</span>
-                </label>
-                <label class="health-check-label">
-                  <input type="checkbox" id="booking-check-hipertenso">
-                  <span><i class="fa-solid fa-heart-pulse" style="color: #ef4444;"></i> Hipertensión</span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <!-- DATOS COMUNES DE LA CITA -->
-          <div class="form-group-booking">
-            <label class="form-label-booking" for="booking-sede"><i class="fa-solid fa-hospital"></i> Sede Clínica de Preferencia *</label>
-            <select id="booking-sede" class="form-select-booking" required>
-              <option value="14">DIF Lomas de Tecámac (Av. Constitución)</option>
-              <option value="28">Casa Héroes Tecámac (Av. Felipe Villanueva)</option>
-              <option value="35">Casa Adulto Mayor Flores (Av. Las Flores)</option>
-            </select>
-          </div>
-
-          <div class="form-group-booking">
-            <label class="form-label-booking" for="booking-servicio"><i class="fa-solid fa-stethoscope"></i> Tratamiento o Motivo de Atención *</label>
-            <select id="booking-servicio" class="form-select-booking" required>
-              <option value="Quiropodía Elite">Quiropodía Elite (Corte clínico, fresado y durezas)</option>
-              <option value="Pie Diabético">Atención y Valoración de Pie Diabético</option>
-              <option value="Cirugía Ungueal">Cirugía Ungueal (Uña Encarnada / Onicocriptosis)</option>
-              <option value="Biomecánica Deportiva">Estudio Biomecánico y Análisis de Pisada</option>
-              <option value="Láser Avanzado">Tratamiento Láser para Onicomicosis</option>
-              <option value="Podología Infantil">Podología Infantil y Valoración de Marcha</option>
-              <option value="Revisión General">Primera Valoración y Diagnóstico General</option>
-            </select>
-          </div>
-
-          <div class="grid-2-booking">
-            <div class="form-group-booking">
-              <label class="form-label-booking" for="booking-fecha"><i class="fa-regular fa-calendar"></i> Fecha Preferida *</label>
-              <input type="date" id="booking-fecha" class="form-input-booking" required>
-            </div>
-            <div class="form-group-booking">
-              <label class="form-label-booking" for="booking-hora"><i class="fa-regular fa-clock"></i> Horario Disponible *</label>
-              <select id="booking-hora" class="form-select-booking" required>
-                <option value="09:00:00">09:00 AM</option>
-                <option value="10:00:00">10:00 AM</option>
-                <option value="11:30:00">11:30 AM</option>
-                <option value="13:00:00">01:00 PM</option>
-                <option value="16:00:00">04:00 PM</option>
-                <option value="17:30:00">05:30 PM</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group-booking">
-            <label class="form-label-booking" for="booking-motivo">Observaciones o Síntomas (Opcional)</label>
-            <textarea id="booking-motivo" class="form-textarea-booking" rows="2" placeholder="Ej. Dolor al caminar en talón izquierdo, uña con molestia..."></textarea>
-          </div>
-
-          <div class="booking-modal-footer">
-            <button type="button" class="btn btn-outline-dark" onclick="cerrarModalAgendar()">Cancelar</button>
-            <button type="submit" id="btn-confirmar-booking" class="btn btn-primary-pill">
-              <i class="fa-solid fa-calendar-check"></i> Confirmar Reservación de Cita
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
 
-      <!-- Pantalla de Éxito y Comprobante de Cita -->
-      <div id="booking-success-view" class="booking-success-view">
-        <div class="success-icon-badge">
+      <!-- Pantalla de Éxito y Recibo Oficial -->
+      <div id="booking-success-view" class="booking-success-view-lux" style="display: none;">
+        <div class="success-icon-badge-lux">
           <i class="fa-solid fa-circle-check"></i>
         </div>
-        <h3 style="font-size: 1.8rem; color: var(--primary-forest); margin-bottom: 0.5rem;">¡Tu Cita ha sido Reservada!</h3>
-        <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 480px; margin: 0 auto;">
-          Hemos apartado tu lugar en la agenda clínica. Por favor presenta este comprobante o menciónalo al llegar a la recepción.
+        <h3>¡Tu Cita ha sido Reservada con Éxito!</h3>
+        <p class="success-desc-lux">
+          Hemos apartado tu lugar en la agenda médica podológica. Presenta este comprobante o menciónalo al llegar a la
+          recepción.
         </p>
 
-        <div class="receipt-card">
-          <div class="receipt-row">
-            <span class="receipt-label">Folio de Cita:</span>
-            <span class="receipt-value" id="recibo-folio" style="color: var(--caramel-ochre); font-size: 1.1rem;">CON-0000</span>
+        <div class="receipt-card-lux">
+          <div class="receipt-row-lux">
+            <span class="receipt-label-lux">Folio de Cita:</span>
+            <span class="receipt-val-lux folio-accent" id="recibo-folio">CON-0000</span>
           </div>
-          <div class="receipt-row">
-            <span class="receipt-label">No. de Expediente:</span>
-            <span class="receipt-value" id="recibo-expediente">#0000000000</span>
+          <div class="receipt-row-lux">
+            <span class="receipt-label-lux">No. de Expediente:</span>
+            <span class="receipt-val-lux" id="recibo-expediente">#0000000000</span>
           </div>
-          <div class="receipt-row">
-            <span class="receipt-label">Paciente:</span>
-            <span class="receipt-value" id="recibo-paciente">Nombre Paciente</span>
+          <div class="receipt-row-lux">
+            <span class="receipt-label-lux">Paciente:</span>
+            <span class="receipt-val-lux" id="recibo-paciente">Nombre Paciente</span>
           </div>
-          <div class="receipt-row">
-            <span class="receipt-label">Sede Clínica:</span>
-            <span class="receipt-value" id="recibo-sede">DIF Lomas de Tecámac</span>
+          <div class="receipt-row-lux">
+            <span class="receipt-label-lux">Sede Clínica:</span>
+            <span class="receipt-val-lux" id="recibo-sede">DIF Lomas de Tecámac</span>
           </div>
-          <div class="receipt-row">
-            <span class="receipt-label">Fecha y Horario:</span>
-            <span class="receipt-value" id="recibo-fecha-hora">2026-10-20 a las 10:00 AM</span>
+          <div class="receipt-row-lux">
+            <span class="receipt-label-lux">Fecha y Horario:</span>
+            <span class="receipt-val-lux" id="recibo-fecha-hora">2026-10-16 · 10:00 AM</span>
           </div>
-          <div class="receipt-row">
-            <span class="receipt-label">Servicio:</span>
-            <span class="receipt-value" id="recibo-servicio">Quiropodía Elite</span>
+          <div class="receipt-row-lux">
+            <span class="receipt-label-lux">Especialista Asignada:</span>
+            <span class="receipt-val-lux" id="recibo-especialista">Maribel Benita Santillan Velasco</span>
+          </div>
+          <div class="receipt-row-lux">
+            <span class="receipt-label-lux">Servicio Solicitado:</span>
+            <span class="receipt-val-lux" id="recibo-servicio">Quiropodía Elite</span>
           </div>
         </div>
 
-        <div>
-          <a href="#" id="btn-whatsapp-confirmacion" target="_blank" class="btn btn-whatsapp-confirm">
-            <i class="fa-brands fa-whatsapp" style="font-size: 1.25rem;"></i> Enviar Confirmación por WhatsApp a la Clínica
+        <div class="success-actions-row-lux">
+          <a href="#" id="btn-whatsapp-confirmacion" target="_blank" class="btn-whatsapp-action-lux">
+            <i class="fa-brands fa-whatsapp"></i> Confirmar con Recepción por WhatsApp
           </a>
-        </div>
-        <div style="margin-top: 1.25rem;">
-          <button type="button" class="btn btn-outline-dark" onclick="cerrarModalAgendar()">Cerrar y Volver a la Página</button>
+          <button type="button" class="btn-print-receipt-lux" onclick="window.print()">
+            <i class="fa-solid fa-print"></i> Imprimir Comprobante
+          </button>
+          <button type="button" class="btn-close-success-lux" onclick="cerrarModalAgendar()">
+            Cerrar y Volver a la Página
+          </button>
         </div>
       </div>
 
@@ -632,4 +1120,5 @@
   <!-- Script principal de interactividad -->
   <script src="js/landing.js"></script>
 </body>
+
 </html>

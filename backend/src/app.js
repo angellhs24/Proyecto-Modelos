@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 require('dotenv').config();
 
 // Importar Conexión a BD
@@ -39,22 +40,27 @@ app.use(cors());
 app.use(express.json());
 app.use(auditoriaAutomaticaMiddleware);
 
-// Servir frontend estático (soporte directo en desarrollo)
+// Rutas de carpetas estáticas del frontend
 const adminPath = path.join(__dirname, '../../frontend-admin');
-const landingSrcPath = path.join(__dirname, '../../frontend-landing/src');
-const landingPublicPath = path.join(__dirname, '../../frontend-landing/public');
+const landingBasePath = path.join(__dirname, '../../frontend-landing');
+const landingSrcPath = path.join(landingBasePath, 'src');
+const landingPublicPath = path.join(landingBasePath, 'public');
 
-app.use(express.static(adminPath));
-app.use('/landing', express.static(landingSrcPath));
-app.use('/public', express.static(landingPublicPath));
+// ============================================================================
+// Rutas de navegación directa a vistas HTML
+// ============================================================================
 
-// Rutas de navegación directa a las vistas HTML
-app.get(['/', '/login', '/login.html'], (req, res) => {
+// 1. Página principal de la Clínica (Landing pública / Portal de Pacientes)
+app.get(['/', '/clinica', '/inicio'], (req, res) => {
+  res.sendFile(path.join(landingSrcPath, 'index.html'));
+});
+
+// 2. Portal de acceso / Login del personal (Admin, Podólogo, Recepcionista)
+app.get(['/login', '/login.html'], (req, res) => {
   res.sendFile(path.join(adminPath, 'login.html'));
 });
-app.get(['/login-dev', '/login-dev.html'], (req, res) => {
-  res.sendFile(path.join(adminPath, 'login-dev.html'));
-});
+
+// 3. Paneles del personal clínico y administrativo
 app.get(['/admin', '/admin.html'], (req, res) => {
   res.sendFile(path.join(adminPath, 'admin.html'));
 });
@@ -70,6 +76,19 @@ app.get(['/inventario', '/inventario.html'], (req, res) => {
 app.get(['/caja', '/caja.html', '/cobros', '/cobros.html'], (req, res) => {
   res.sendFile(path.join(adminPath, 'caja.html'));
 });
+app.get(['/login-dev', '/login-dev.html'], (req, res) => {
+  res.sendFile(path.join(adminPath, 'login-dev.html'));
+});
+
+// ============================================================================
+// Servir archivos estáticos (CSS, JS, imágenes)
+// ============================================================================
+app.use(express.static(landingSrcPath));
+app.use(express.static(adminPath, { index: false }));
+app.use('/landing', express.static(landingSrcPath));
+app.use('/public', express.static(landingPublicPath));
+app.use('/frontend-admin', express.static(adminPath));
+app.use('/frontend-landing', express.static(landingBasePath));
 
 // Rutas RBAC y Panel de Administración
 app.use('/api/auth', authRoutes);
@@ -77,6 +96,24 @@ app.use('/api/dev', devRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/recepcion', recepcionistaRoutes);
 app.use('/api/medico', medicoRoutes);
+
+// Endpoint público de anuncios activos para el carrusel de Historias en la landing page
+app.get('/api/anuncios', (req, res) => {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const storePath = path.resolve(__dirname, 'data/admin_store.json');
+    if (fs.existsSync(storePath)) {
+      const store = JSON.parse(fs.readFileSync(storePath, 'utf8'));
+      const activos = (store.avisos || []).filter((a) => a.activo !== false);
+      return res.json(activos);
+    }
+    return res.json([]);
+  } catch (error) {
+    console.error('Error al consultar anuncios públicos:', error);
+    res.status(500).json({ error: 'Error al consultar anuncios' });
+  }
+});
 
 // Registro de endpoints de la API REST generales
 app.use('/api/clinicas', clinicaRoutes);
@@ -104,10 +141,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Si se ejecuta directamente, iniciar el servidor
-if (require.main === module) {
-  app.listen(PORT, async () => {
-    console.log(`🚀 Servidor de Podología corriendo en el puerto ${PORT}`);
+// Función para iniciar el servidor
+function startServer(port = PORT) {
+  return app.listen(port, async () => {
+    console.log(`\n======================================================`);
+    console.log(`🚀 SERVIDOR DE PODOLOGÍA INICIADO CORRECTAMENTE`);
+    console.log(`📡 Puerto: ${port}`);
+    console.log(`🏥 Página de la Clínica (Pública): http://localhost:${port}/`);
+    console.log(`🔐 Acceso al Personal (Login):     http://localhost:${port}/login`);
+    console.log(`======================================================\n`);
     try {
       const res = await db.query('SELECT NOW() AS hora_actual');
       console.log('✅ Conexión exitosa a MySQL (Clinica_Podologia):', res.rows[0].hora_actual);
@@ -117,4 +159,10 @@ if (require.main === module) {
   });
 }
 
+// Si se ejecuta directamente este archivo
+if (require.main === module) {
+  startServer();
+}
+
 module.exports = app;
+module.exports.startServer = startServer;

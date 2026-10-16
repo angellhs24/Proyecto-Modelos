@@ -133,13 +133,17 @@ async function cargarMetricas() {
     pacSubEl.textContent = `${data.pacientes?.diabeticos || 0} Diabéticos • ${data.pacientes?.hipertensos || 0} Hipertensos`;
   }
 
-  // KPI Avisos
+  // KPI Avisos Web
   const avisosTotalEl = document.getElementById('kpi-avisos-total');
   const avisosSubEl = document.getElementById('kpi-avisos-sub');
   if (avisosTotalEl) avisosTotalEl.textContent = data.avisos?.total || 0;
-  if (avisosSubEl) avisosSubEl.textContent = `Registrados en el sistema`;
+  if (avisosSubEl) {
+    const totalAvisos = data.avisos?.total || 0;
+    const activos = (data.avisos?.ultimos || []).filter((a) => a.activo !== false).length;
+    avisosSubEl.textContent = `${activos} activos en portal web`;
+  }
 
-  // Render resumen de avisos
+  // Render resumen de anuncios web
   renderResumenUltimosAvisos(data.avisos?.ultimos || []);
 }
 
@@ -148,7 +152,7 @@ function renderResumenUltimosAvisos(avisos) {
   if (!container) return;
 
   if (avisos.length === 0) {
-    container.innerHTML = `<div style="color: var(--text-muted); font-size: 0.88rem;">No hay avisos recientes emitidos.</div>`;
+    container.innerHTML = `<div style="color: var(--color-stone); font-size: 0.88rem;">No hay anuncios web registrados actualmente.</div>`;
     return;
   }
 
@@ -156,12 +160,20 @@ function renderResumenUltimosAvisos(avisos) {
     .slice(0, 3)
     .map(
       (a) => `
-      <div style="padding: 0.85rem; background: rgba(2, 6, 23, 0.5); border-radius: 10px; border: 1px solid var(--border-color);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-          <strong style="color: #38bdf8; font-size: 0.9rem;">${escapeHtml(a.paciente_nombre)}</strong>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">${escapeHtml(a.fecha_envio)}</span>
+      <div style="padding: 12px 14px; background: var(--color-fog); border-radius: var(--radius-cardinner); border: 1px solid var(--color-ash-border);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <strong style="color: var(--color-midnight-ink); font-size: 0.86rem;">${escapeHtml(a.titulo || a.asunto || 'Anuncio Web')}</strong>
+          <span class="badge ${a.activo !== false ? 'badge-active' : 'badge-inactive'}" style="font-size: 0.7rem; padding: 2px 8px;">
+            ${a.activo !== false ? 'Activo en Web' : 'Pausado'}
+          </span>
         </div>
-        <div style="font-size: 0.82rem; color: #f8fafc; line-height: 1.35;">${escapeHtml(a.mensaje)}</div>
+        <div style="font-size: 0.80rem; color: var(--color-stone); line-height: 1.4; margin-bottom: 4px;">
+          ${escapeHtml(a.mensaje)}
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--color-silver-subtle);">
+          <span><i class="fa-solid fa-layer-group"></i> ${escapeHtml(a.ubicacion_label || 'Barra Web')}</span>
+          <span>${escapeHtml(a.fecha_envio || a.fecha_creacion || '')}</span>
+        </div>
       </div>
     `
     )
@@ -846,13 +858,13 @@ function renderResumenClinicas(clinicas) {
     .map((c) => {
       const estaActiva = c.Activa === 1 || c.Activa === true || c.Activa === null;
       return `
-      <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 1rem; border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); gap: 0.75rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: var(--radius-cardinner); background: var(--color-fog); border: 1px solid var(--color-ash-border); gap: 0.75rem;">
         <div style="flex: 1; min-width: 0;">
-          <div style="font-weight: 700; color: #f8fafc; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            ${escapeHtml(c.Nombre)} <span style="font-size: 0.78rem; opacity: 0.7;">(Sede ${c.Clinica_id})</span>
+          <div style="font-weight: 700; color: var(--color-midnight-ink); font-size: 0.94rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            ${escapeHtml(c.Nombre)} <span style="font-size: 0.78rem; opacity: 0.8; color: var(--color-stone); font-weight: 500;">(Sede ${c.Clinica_id})</span>
           </div>
-          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            <i class="fa-solid fa-location-dot"></i> ${escapeHtml(c.Calle_clinica || '')}, ${escapeHtml(c.Municipio_clinica || 'Tecámac')} • Tel: ${escapeHtml(c.Telefono || 'N/A')}
+          <div style="font-size: 0.82rem; color: var(--color-graphite); margin-top: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <i class="fa-solid fa-location-dot" style="color: var(--color-stone); margin-right: 4px;"></i> ${escapeHtml(c.Calle_clinica || '')}, ${escapeHtml(c.Municipio_clinica || 'Tecámac')} • Tel: <strong style="color: var(--color-midnight-ink);">${escapeHtml(c.Telefono || 'N/A')}</strong>
           </div>
         </div>
         <div style="flex-shrink: 0;">
@@ -1094,8 +1106,8 @@ function renderPacientesTabla(pacientes) {
           </span>
         </td>
         <td>
-          <div style="font-weight: 700; color: #f8fafc;">${escapeHtml(p.nombre_completo || `${p.Nombres} ${p.ape_paterno}`)}</div>
-          <div style="font-size: 0.78rem; color: var(--text-muted);">${escapeHtml(p.Municipio || 'Tecámac')}</div>
+          <div style="font-weight: 700; color: var(--color-midnight-ink);">${escapeHtml(p.nombre_completo || `${p.Nombres} ${p.ape_paterno}`)}</div>
+          <div style="font-size: 0.78rem; color: var(--color-graphite);">${escapeHtml(p.Municipio || 'Tecámac')}</div>
         </td>
         <td>${escapeHtml(edadTexto)} <small style="color: var(--text-muted);">(${escapeHtml(sexoTexto)})</small></td>
         <td>
@@ -1116,9 +1128,15 @@ function renderPacientesTabla(pacientes) {
             <button class="btn btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.82rem;" title="Modificar datos del paciente" onclick="abrirModalEditarPaciente('${escapeHtml(String(exp))}')">
               <i class="fa-solid fa-pen-to-square"></i> Modificar
             </button>
-            <button class="btn btn-primary" style="padding: 0.35rem 0.65rem; font-size: 0.82rem; background: #059669;" title="Mandar aviso por WhatsApp" onclick="prepararAvisoParaPaciente('${escapeHtml(String(exp))}')">
-              <i class="fa-brands fa-whatsapp"></i> Avisar
-            </button>
+            ${
+              p.telefono
+                ? `
+            <a class="btn btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.82rem; color: #16a34a; text-decoration: none;" title="Abrir WhatsApp con el paciente" href="https://api.whatsapp.com/send?phone=52${escapeHtml(String(p.telefono).replace(/\D/g, ''))}" target="_blank">
+              <i class="fa-brands fa-whatsapp"></i> WhatsApp
+            </a>
+            `
+                : ''
+            }
           </div>
         </td>
       </tr>
@@ -1203,36 +1221,14 @@ function abrirModalEditarPaciente(expediente) {
 }
 
 // =========================================================================
-// 5. CENTRO DE AVISOS Y COMUNICACIONES CON CLIENTES / PACIENTES
+// 5. GESTIÓN DE ANUNCIOS Y COMUNICADOS EN LA PÁGINA WEB DE LA CLÍNICA
 // =========================================================================
 function poblarSelectPacientesAvisos(pacientes) {
-  const select = document.getElementById('aviso-select-paciente');
-  if (!select) return;
-
-  const actual = select.value;
-  select.innerHTML = '<option value="">-- Elige un paciente de la lista --</option>';
-
-  pacientes.forEach((p) => {
-    const exp = p.No_expediente || p.expediente;
-    const opt = document.createElement('option');
-    opt.value = exp;
-    opt.textContent = `#${exp} - ${p.nombre_completo || `${p.Nombres} ${p.ape_paterno}`} (${p.telefono || 'Sin tel'})`;
-    opt.dataset.nombre = p.nombre_completo || `${p.Nombres} ${p.ape_paterno}`;
-    opt.dataset.telefono = p.telefono || '';
-    opt.dataset.diabetico = p.es_diabetico ? '1' : '0';
-    select.appendChild(opt);
-  });
-
-  if (actual) select.value = actual;
+  // Ya no se requiere selección de pacientes para anuncios públicos en la web
 }
 
 function prepararAvisoParaPaciente(expediente) {
-  navegarAPestana('tab-avisos');
-  const select = document.getElementById('aviso-select-paciente');
-  if (select) {
-    select.value = expediente;
-    select.dispatchEvent(new Event('change'));
-  }
+  // Redirección directa o no-op para anuncios en la web
 }
 
 async function cargarHistorialAvisos() {
@@ -1249,99 +1245,190 @@ function renderHistorialAvisos(avisos) {
 
   if (avisos.length === 0) {
     container.innerHTML = `
-      <div style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
-        <i class="fa-solid fa-inbox" style="font-size: 2rem; opacity: 0.4; margin-bottom: 0.5rem;"></i>
-        <div>Aún no se han enviado avisos a pacientes.</div>
+      <div style="text-align: center; padding: 2.5rem; color: var(--color-stone);">
+        <i class="fa-solid fa-bullhorn" style="font-size: 2rem; opacity: 0.3; margin-bottom: 0.5rem;"></i>
+        <div>No hay anuncios registrados para la página web pública.</div>
       </div>
     `;
     return;
   }
 
-  const canalIconos = {
-    whatsapp: 'fa-brands fa-whatsapp text-success',
-    sms: 'fa-solid fa-comment-sms text-info',
-    sistema: 'fa-solid fa-clipboard-check text-purple'
+  const categoriaIconos = {
+    promocion: 'fa-solid fa-tag text-success',
+    horario_especial: 'fa-solid fa-clock text-warning',
+    aviso_importante: 'fa-solid fa-triangle-exclamation text-info',
+    novedad: 'fa-solid fa-sparkles text-purple',
+    mantenimiento: 'fa-solid fa-wrench text-stone',
+    general: 'fa-solid fa-bullhorn'
   };
 
   container.innerHTML = avisos
-    .map(
-      (a) => `
-      <div class="notice-history-item">
-        <div class="notice-meta-line">
+    .map((a) => {
+      const estaActivo = a.activo !== false;
+      const iconoClase = categoriaIconos[a.tipo] || 'fa-solid fa-bullhorn';
+      return `
+      <div class="notice-history-item" style="border: 1px solid var(--color-ash-border); border-radius: var(--radius-cardinner); padding: 16px; background: ${estaActivo ? '#ffffff' : '#fafafa'}; opacity: ${estaActivo ? '1' : '0.85'};">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px;">
           <div>
-            <i class="${canalIconos[a.canal] || 'fa-solid fa-envelope'}" style="margin-right: 0.4rem; color: #25d366;"></i>
-            <strong>${escapeHtml(a.paciente_nombre)}</strong> (Exp. #${a.no_expediente})
+            <span class="badge ${estaActivo ? 'badge-active' : 'badge-inactive'}" style="font-size: 0.72rem; margin-right: 6px;">
+              ${estaActivo ? '● En Vivo en Historias Web' : '○ Pausada'}
+            </span>
+            <span class="badge badge-primary" style="font-size: 0.72rem; background: var(--color-fog); color: var(--color-carbon); border: 1px solid var(--color-ash-border);">
+              <i class="${iconoClase}"></i> ${escapeHtml(a.tipo_label || 'Anuncio Web')}
+            </span>
           </div>
-          <span>${escapeHtml(a.fecha_envio || '')}</span>
+          <span style="font-size: 0.74rem; color: var(--color-stone); white-space: nowrap;">
+            ${escapeHtml(a.fecha_envio || a.fecha_creacion || '')}
+          </span>
         </div>
-        <div style="font-size: 0.8rem; color: #38bdf8; font-weight: 600; margin-bottom: 0.35rem;">
-          ${escapeHtml(a.asunto || 'Aviso Clínico')} • <small style="color: var(--text-muted);">${escapeHtml(a.tipo_label || '')}</small>
+
+        <h4 style="font-size: 0.95rem; font-weight: 600; color: var(--color-midnight-ink); margin: 0 0 6px 0;">
+          ${escapeHtml(a.titulo || a.asunto || 'Anuncio Web')}
+        </h4>
+
+        <div style="font-size: 0.85rem; color: var(--color-carbon); line-height: 1.45; margin-bottom: 12px;">
+          ${escapeHtml(a.mensaje)}
         </div>
-        <div class="notice-text-content">${escapeHtml(a.mensaje)}</div>
-        <div style="margin-top: 0.65rem; display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 0.75rem; color: var(--text-muted);">Tel: ${escapeHtml(a.telefono || '')}</span>
-          ${
-            a.enlace_whatsapp
-              ? `
-            <a href="${a.enlace_whatsapp}" target="_blank" class="btn btn-secondary" style="padding: 0.25rem 0.55rem; font-size: 0.75rem; color: #25d366;" title="Reenviar o abrir chat">
-              <i class="fa-brands fa-whatsapp"></i> Chat WhatsApp
-            </a>
-          `
-              : ''
-          }
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--color-ash-border); padding-top: 10px; flex-wrap: wrap; gap: 8px;">
+          <div style="font-size: 0.76rem; color: var(--color-stone);">
+            ${
+              a.cta_texto
+                ? `<span>Botón: <strong style="color: var(--color-midnight-ink);">${escapeHtml(a.cta_texto)}</strong> &rarr; <code style="font-size: 0.72rem;">${escapeHtml(a.cta_enlace || '#')}</code></span>`
+                : '<span>Sin botón CTA</span>'
+            }
+          </div>
+          <div style="display: inline-flex; gap: 6px;">
+            <button 
+              type="button" 
+              class="btn btn-secondary" 
+              style="padding: 5px 12px; font-size: 0.78rem;" 
+              onclick="toggleEstadoAvisoWeb('${escapeHtml(a.id)}', ${estaActivo})"
+              title="${estaActivo ? 'Pausar historia en web' : 'Activar historia en web'}">
+              <i class="fa-solid ${estaActivo ? 'fa-pause' : 'fa-play'}"></i> ${estaActivo ? 'Pausar' : 'Activar'}
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-secondary" 
+              style="padding: 5px 10px; font-size: 0.78rem; color: #dc2626;" 
+              onclick="eliminarAvisoWeb('${escapeHtml(a.id)}')"
+              title="Eliminar este anuncio de la web">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
         </div>
       </div>
-    `
-    )
+    `;
+    })
     .join('');
 }
 
-function configurarEventosAvisos() {
-  const selectPaciente = document.getElementById('aviso-select-paciente');
-  const inputTelefono = document.getElementById('aviso-telefono');
-  const inputAsunto = document.getElementById('aviso-asunto');
-  const textareaMensaje = document.getElementById('aviso-mensaje');
-  const previewTelefono = document.getElementById('preview-destino-telefono');
-  const previewMensaje = document.getElementById('preview-mensaje-render');
-  const btnAbrirWhatsapp = document.getElementById('btn-abrir-whatsapp');
-  const templateChips = document.querySelectorAll('.template-chip');
-
-  // Al seleccionar paciente
-  selectPaciente?.addEventListener('change', () => {
-    const selected = selectPaciente.selectedOptions[0];
-    if (selected && selected.value) {
-      const tel = selected.dataset.telefono || '';
-      const nombre = selected.dataset.nombre || 'Paciente';
-      inputTelefono.value = tel;
-      previewTelefono.textContent = `${nombre} • Tel: ${tel || 'Sin teléfono'}`;
-      actualizarPreviewWhatsApp();
+async function toggleEstadoAvisoWeb(id, estadoActual) {
+  try {
+    const res = await AppAuth.fetchApi(`/api/admin/avisos/${id}/estado`, {
+      method: 'PUT',
+      body: JSON.stringify({ activo: !estadoActual })
+    });
+    if (res.ok) {
+      AppAuth.showToast(`Anuncio ${!estadoActual ? 'activado' : 'pausado'} en la página web`, 'success');
+      await cargarHistorialAvisos();
+      await cargarMetricas();
     } else {
-      inputTelefono.value = '';
-      previewTelefono.textContent = 'Sin destinatario';
-      actualizarPreviewWhatsApp();
+      AppAuth.showToast('No se pudo modificar el estado del anuncio', 'error');
     }
-  });
+  } catch (e) {
+    console.error('Error al cambiar estado del anuncio:', e);
+    AppAuth.showToast('Error de red al actualizar estado', 'error');
+  }
+}
 
-  inputTelefono?.addEventListener('input', actualizarPreviewWhatsApp);
+async function eliminarAvisoWeb(id) {
+  if (!confirm('¿Estás seguro de que deseas retirar y eliminar este anuncio de la página web de la clínica?')) {
+    return;
+  }
+  try {
+    const res = await AppAuth.fetchApi(`/api/admin/avisos/${id}`, {
+      method: 'DELETE'
+    });
+    if (res.ok) {
+      AppAuth.showToast('Anuncio eliminado de la página web exitosamente', 'success');
+      await cargarHistorialAvisos();
+      await cargarMetricas();
+    } else {
+      AppAuth.showToast('No se pudo eliminar el anuncio', 'error');
+    }
+  } catch (e) {
+    console.error('Error al eliminar anuncio:', e);
+    AppAuth.showToast('Error de red al eliminar anuncio', 'error');
+  }
+}
 
-  // Plantillas rápidas
+function configurarEventosAvisos() {
+  const inputAsunto = document.getElementById('aviso-asunto');
+  const selectTipo = document.getElementById('aviso-tipo');
+  const textareaMensaje = document.getElementById('aviso-mensaje');
+  const inputCtaTexto = document.getElementById('aviso-cta-texto');
+  const inputCtaEnlace = document.getElementById('aviso-cta-enlace');
+  const checkActivo = document.getElementById('aviso-activo-check');
+
+  const previewTitulo = document.getElementById('preview-titulo-render');
+  const previewMensaje = document.getElementById('preview-mensaje-render');
+  const previewCategoria = document.getElementById('preview-categoria-badge');
+  const previewCta = document.getElementById('preview-cta-render');
+
+  const templateChips = document.querySelectorAll('.template-chip');
+  const btnLimpiar = document.getElementById('btn-limpiar-aviso');
+
+  function actualizarPreviewWeb() {
+    const titulo = inputAsunto?.value.trim() || 'Título de tu anuncio web';
+    const msg = textareaMensaje?.value.trim() || 'El contenido redactado aparecerá aquí tal como lo verán los pacientes en la página de la clínica.';
+    const categoriaText = selectTipo?.selectedOptions[0]?.textContent?.trim() || '📢 Aviso Importante';
+    const ctaText = inputCtaTexto?.value.trim() || 'Agendar Cita';
+
+    if (previewTitulo) previewTitulo.textContent = titulo;
+    if (previewMensaje) previewMensaje.textContent = msg;
+    if (previewCategoria) previewCategoria.textContent = categoriaText;
+    if (previewCta) {
+      previewCta.textContent = ctaText;
+      previewCta.style.display = inputCtaTexto?.value.trim() ? 'inline-block' : 'none';
+    }
+  }
+
+  inputAsunto?.addEventListener('input', actualizarPreviewWeb);
+  textareaMensaje?.addEventListener('input', actualizarPreviewWeb);
+  selectTipo?.addEventListener('change', actualizarPreviewWeb);
+  inputCtaTexto?.addEventListener('input', actualizarPreviewWeb);
+
+  // Plantillas rápidas para la web de la clínica
   const plantillas = {
-    recordatorio: (nombre) => ({
-      asunto: 'Recordatorio de Consulta Podológica',
-      mensaje: `Estimado(a) ${nombre}, le recordamos su próxima cita de atención podológica clínica en Elite Foot Care. Por favor recuerde llegar 5 minutos antes. ¡Cuidamos la salud de cada paso!`
-    }),
-    diabetico: (nombre) => ({
-      asunto: 'Cuidado Preventivo de Pie Diabético',
-      mensaje: `Hola ${nombre}, por su bienestar y de acuerdo con el protocolo médico para pacientes con Diabetes, le sugerimos agendar su revisión trimestral preventiva de corte clínico e inspección de sensibilidad.`
-    }),
-    seguimiento: (nombre) => ({
-      asunto: 'Seguimiento Terapéutico Podológico',
-      mensaje: `Estimado(a) ${nombre}, nos comunicamos desde la clínica Elite Foot Care para saber cómo continúa tras su último tratamiento podológico. Quedamos a su disposición si nota alguna molestia.`
-    }),
-    promocion: (nombre) => ({
-      asunto: 'Campaña de Salud y Quiropodia Integral',
-      mensaje: `Aviso especial para ${nombre}: En Elite Foot Care contamos con jornadas de valoración de pisada y profilaxis podológica. Escríbanos para reservar su horario preferente.`
-    })
+    promocion: {
+      titulo: '🎉 Descuento de Temporada: 15% OFF en Quiropodia',
+      tipo: 'promocion',
+      mensaje: 'Cuida de tus pies con el respaldo de nuestros especialistas. Disfruta de un 15% de descuento en tu consulta integral al agendar a través del portal web.',
+      cta_texto: 'Aprovechar Descuento',
+      cta_enlace: '#agendar'
+    },
+    festivo: {
+      titulo: '⏰ Horario Especial en Días Festivos',
+      tipo: 'horario_especial',
+      mensaje: 'Informamos a nuestros estimados pacientes que el próximo lunes festivo laboraremos en horario especial matutino de 9:00 AM a 2:00 PM con previa cita.',
+      cta_texto: 'Agendar Cita',
+      cta_enlace: '#agendar'
+    },
+    novedad: {
+      titulo: '✨ ¡Nueva Área de Biomecánica y Láser Podológico!',
+      tipo: 'novedad',
+      mensaje: 'Estrenamos tecnología avanzada para estudio computarizado de la pisada y tratamientos indoloros en la Sede Lomas de Tecámac.',
+      cta_texto: 'Conocer Sedes',
+      cta_enlace: '#sedes'
+    },
+    diabetico: {
+      titulo: '❤️ Campaña Preventiva de Pie Diabético',
+      tipo: 'aviso_importante',
+      mensaje: 'La salud de tus pasos es lo primero. Te invitamos a realizar tu valoración preventiva periódica de corte profiláctico y prueba de sensibilidad.',
+      cta_texto: 'Agendar Valoración',
+      cta_enlace: '#agendar'
+    }
   };
 
   templateChips.forEach((chip) => {
@@ -1350,80 +1437,67 @@ function configurarEventosAvisos() {
       chip.classList.add('selected');
 
       const tipo = chip.dataset.template;
-      const selected = selectPaciente.selectedOptions[0];
-      const nombre = selected && selected.value ? selected.dataset.nombre : 'Paciente';
-
-      const generador = plantillas[tipo];
-      if (generador) {
-        const { asunto, mensaje } = generador(nombre);
-        inputAsunto.value = asunto;
-        textareaMensaje.value = mensaje;
-        actualizarPreviewWhatsApp();
+      const tpl = plantillas[tipo];
+      if (tpl) {
+        if (inputAsunto) inputAsunto.value = tpl.titulo;
+        if (selectTipo) selectTipo.value = tpl.tipo;
+        if (textareaMensaje) textareaMensaje.value = tpl.mensaje;
+        if (inputCtaTexto) inputCtaTexto.value = tpl.cta_texto;
+        if (inputCtaEnlace) inputCtaEnlace.value = tpl.cta_enlace;
+        actualizarPreviewWeb();
       }
     });
   });
 
-  textareaMensaje?.addEventListener('input', actualizarPreviewWhatsApp);
+  btnLimpiar?.addEventListener('click', () => {
+    setTimeout(actualizarPreviewWeb, 50);
+  });
 
-  function actualizarPreviewWhatsApp() {
-    const msg = textareaMensaje?.value.trim() || 'El mensaje que redactes se visualizará aquí en tiempo real antes de ser enviado.';
-    const tel = inputTelefono?.value.replace(/\D/g, '') || '';
-
-    if (previewMensaje) previewMensaje.textContent = msg;
-
-    if (tel.length >= 10 && textareaMensaje?.value.trim()) {
-      const telMex = tel.length === 10 ? `52${tel}` : tel;
-      const url = `https://api.whatsapp.com/send?phone=${telMex}&text=${encodeURIComponent(textareaMensaje.value.trim())}`;
-      btnAbrirWhatsapp.href = url;
-      btnAbrirWhatsapp.style.display = 'inline-flex';
-    } else {
-      btnAbrirWhatsapp.style.display = 'none';
-    }
-  }
-
-  // Formulario de envío
+  // Formulario de publicación en web
   const form = document.getElementById('form-enviar-aviso');
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const exp = selectPaciente.value;
-    const selected = selectPaciente.selectedOptions[0];
-    const nombre = selected?.dataset.nombre || 'Paciente';
-    const tel = inputTelefono.value.trim();
-    const canal = document.querySelector('input[name="aviso-canal"]:checked')?.value || 'whatsapp';
-    const asunto = inputAsunto.value.trim();
-    const mensaje = textareaMensaje.value.trim();
+    const titulo = inputAsunto?.value.trim();
+    const tipo = selectTipo?.value || 'aviso_importante';
+    const mensaje = textareaMensaje?.value.trim();
+    const cta_texto = inputCtaTexto?.value.trim() || '';
+    const cta_enlace = inputCtaEnlace?.value.trim() || '#agendar';
+    const activo = checkActivo ? checkActivo.checked : true;
 
-    if (!exp) {
-      AppAuth.showToast('Por favor selecciona un paciente destinatario', 'warning');
+    if (!titulo || !mensaje) {
+      AppAuth.showToast('El título y contenido del anuncio son obligatorios', 'warning');
       return;
     }
 
     const res = await AppAuth.fetchApi('/api/admin/avisos', {
       method: 'POST',
       body: JSON.stringify({
-        no_expediente: exp,
-        paciente_nombre: nombre,
-        telefono: tel,
-        canal,
-        asunto,
-        mensaje
+        titulo,
+        asunto: titulo,
+        tipo,
+        ubicacion: 'banner_principal',
+        mensaje,
+        cta_texto,
+        cta_enlace,
+        activo
       })
     });
 
     if (res.ok) {
-      AppAuth.showToast('¡Aviso registrado con éxito!', 'success');
+      AppAuth.showToast('¡Anuncio publicado en la página web con éxito!', 'success');
+      form.reset();
+      if (checkActivo) checkActivo.checked = true;
+      actualizarPreviewWeb();
       await cargarHistorialAvisos();
       await cargarMetricas();
-
-      // Si es WhatsApp, dar feedback para abrirlo
-      if (canal === 'whatsapp' && res.data?.aviso?.enlace_whatsapp) {
-        window.open(res.data.aviso.enlace_whatsapp, '_blank');
-      }
     } else {
-      AppAuth.showToast('Error al registrar aviso', 'error');
+      AppAuth.showToast('Error al publicar anuncio en la página web', 'error');
     }
   });
+
+  // Preview inicial
+  actualizarPreviewWeb();
 }
 
 // =========================================================================
@@ -1465,5 +1539,8 @@ window.editarClinica = editarClinica;
 window.confirmarCambioEstadoClinica = confirmarCambioEstadoClinica;
 window.abrirModalEditarPaciente = abrirModalEditarPaciente;
 window.prepararAvisoParaPaciente = prepararAvisoParaPaciente;
+window.toggleEstadoAvisoWeb = toggleEstadoAvisoWeb;
+window.eliminarAvisoWeb = eliminarAvisoWeb;
+window.cargarHistorialAvisos = cargarHistorialAvisos;
 window.navegarAPestana = navegarAPestana;
 window.cerrarModal = cerrarModal;

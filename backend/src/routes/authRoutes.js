@@ -6,6 +6,9 @@ const { verificarAutenticacion } = require('../middlewares/authMiddleware');
 // Login de usuario
 router.post('/login', authController.login);
 
+// Recuperar contraseña
+router.post('/recuperar-password', authController.recuperarPassword);
+
 // Información del usuario autenticado
 router.get('/me', verificarAutenticacion, authController.obtenerPerfilActual);
 
@@ -13,3 +16,4 @@ router.get('/me', verificarAutenticacion, authController.obtenerPerfilActual);
 router.get('/demo-usuarios', authController.listarUsuariosDemostracion);
 
 module.exports = router;
+

@@ -3,77 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Elite Foot Care | Panel de Administración General (Rol ID: 1)</title>
+  <title>Elite Foot Care | Consola de Dirección Clínica (Rol ID: 1)</title>
   
-  <!-- Tipografía Google Fonts Outfit & Plus Jakarta Sans -->
+  <!-- Tipografía Dialog: PP Radio Grotesk Light (DM Sans 300/400) & Inter (300/400/500/600) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   
   <!-- Font Awesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   
-  <!-- Design System Base & Estilos de Administración -->
-  <link rel="stylesheet" href="css/design-system.css">
+  <!-- Estilos del Sistema de Diseño Dialog -->
   <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
   <div class="app-container">
     
     <!-- =========================================================================
-         HEADER GLASSMORPHIC SUPERIOR
+         HEADER FLOATING PILL BAR (Dialog Showroom Design)
          ========================================================================= -->
     <header class="app-header">
       <div class="brand-section">
-        <div class="brand-logo-icon admin">
+        <div class="brand-logo-icon admin" aria-hidden="true">
           <i class="fa-solid fa-shield-halved"></i>
         </div>
         <div>
           <div class="brand-title">Elite Foot Care</div>
-          <div class="brand-subtitle" style="color: #38bdf8;">Panel de Control & Administración General</div>
+          <div class="brand-subtitle">Consola de Dirección & Administración General</div>
         </div>
       </div>
 
       <div class="header-actions">
         <!-- Indicador de Usuario Administrador en Sesión -->
         <div class="user-chip" id="user-chip-container">
-          <div class="user-avatar" id="admin-avatar-initials" style="background: rgba(14, 165, 233, 0.25); color: #38bdf8;">RM</div>
+          <div class="user-avatar" id="admin-avatar-initials">RM</div>
           <div class="user-meta">
             <span class="user-name" id="admin-display-name">Lic. Roberto Méndez</span>
-            <span class="user-role-badge role-badge-admin" id="admin-role-text">Rol ID: 1 • Administrador General</span>
+            <span class="user-role-badge role-badge-admin" id="admin-role-text">Rol ID: 1 · Administrador General</span>
           </div>
         </div>
 
-        <!-- Accesos directos a los otros roles del ecosistema -->
-        <a href="/consultorio.html" class="role-switch-btn" title="Ir al Consultorio del Podólogo">
-          <i class="fa-solid fa-user-doctor" style="color: #c084fc;"></i>
-          <span>Consultorio</span>
-        </a>
-        <a href="/recepcion.html" class="role-switch-btn" title="Ir a la Recepción Clínica">
-          <i class="fa-solid fa-cash-register" style="color: #34d399;"></i>
-          <span>Recepción</span>
-        </a>
+        <!-- Accesos directos / Ghost Pills del ecosistema -->
         <a href="/index.html" class="role-switch-btn" title="Ir a la Plataforma Modular Integral">
-          <i class="fa-solid fa-layer-group" style="color: #fbbf24;"></i>
+          <i class="fa-solid fa-layer-group"></i>
           <span>Portal Integral</span>
         </a>
-        <a href="/frontend-landing/src/index.html" class="role-switch-btn" title="Ver Web de Pacientes / Landing Pública" target="_blank">
-          <i class="fa-solid fa-earth-americas" style="color: #38bdf8;"></i>
-          <span>Web Pacientes</span>
-        </a>
-        <button type="button" class="role-switch-btn btn-logout" onclick="AppAuth.logout()" title="Cerrar Sesión Segura" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5;">
-          <i class="fa-solid fa-arrow-right-from-bracket" style="color: #f87171;"></i>
+        <button type="button" class="role-switch-btn btn-logout" onclick="AppAuth.logout()" title="Cerrar Sesión Segura">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
           <span>Salir</span>
         </button>
       </div>
     </header>
 
     <!-- =========================================================================
-         SISTEMA DE NAVEGACIÓN POR PESTAÑAS MATERIAL 3
+         SISTEMA DE NAVEGACIÓN POR PESTAÑAS (Floating Pill Tab Container)
          ========================================================================= -->
     <nav class="nav-tabs-container" aria-label="Navegación del Administrador">
       <button class="nav-tab-btn active" data-tab="tab-resumen" id="tab-btn-resumen">
-        <i class="fa-solid fa-gauge-high"></i>
+        <i class="fa-solid fa-chart-line"></i>
         <span>Resumen & KPIs</span>
       </button>
       <button class="nav-tab-btn" data-tab="tab-podologos" id="tab-btn-podologos">
@@ -90,16 +77,16 @@
       </button>
       <button class="nav-tab-btn" data-tab="tab-pacientes" id="tab-btn-pacientes">
         <i class="fa-solid fa-hospital-user"></i>
-        <span>Pacientes & Clientes</span>
+        <span>Directorio de Pacientes</span>
       </button>
       <button class="nav-tab-btn" data-tab="tab-avisos" id="tab-btn-avisos">
-        <i class="fa-solid fa-paper-plane"></i>
-        <span>Centro de Avisos</span>
+        <i class="fa-solid fa-bullhorn"></i>
+        <span>Anuncios en Página Web</span>
       </button>
     </nav>
 
     <!-- =========================================================================
-         CONTENIDO PRINCIPAL POR PESTAÑAS
+         CONTENIDO PRINCIPAL POR PESTAÑAS (Dialog Near-White Space)
          ========================================================================= -->
     <main class="main-content">
 
@@ -107,12 +94,21 @@
            PESTAÑA 1: RESUMEN EJECUTIVO & KPIS
            ===================================================================== -->
       <section id="tab-resumen" class="tab-pane active">
-        <!-- 4 Tarjetas KPI Principales -->
+        
+        <!-- Showroom Hero Heading (PP Radio Grotesk Light) -->
+        <div class="admin-showroom-header">
+          <h1 class="admin-showroom-title">Panel de Operaciones & Dirección Clínica</h1>
+          <p class="admin-showroom-sub">
+            Supervisión integral de especialistas, recepción, sedes clínicas y anuncios en la página web.
+          </p>
+        </div>
+
+        <!-- 4 Tarjetas KPI Principales (Pure Snow 24px Surfaces) -->
         <div class="grid-cols-4">
           <div class="kpi-card">
             <div class="kpi-header">
               <span class="kpi-title">Podólogos en Servicio</span>
-              <div class="kpi-icon-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">
+              <div class="kpi-icon-badge">
                 <i class="fa-solid fa-stethoscope"></i>
               </div>
             </div>
@@ -123,7 +119,7 @@
           <div class="kpi-card">
             <div class="kpi-header">
               <span class="kpi-title">Recepcionistas</span>
-              <div class="kpi-icon-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+              <div class="kpi-icon-badge">
                 <i class="fa-solid fa-address-book"></i>
               </div>
             </div>
@@ -134,7 +130,7 @@
           <div class="kpi-card">
             <div class="kpi-header">
               <span class="kpi-title">Pacientes Registrados</span>
-              <div class="kpi-icon-badge" style="background: rgba(2, 132, 199, 0.15); color: #38bdf8;">
+              <div class="kpi-icon-badge">
                 <i class="fa-solid fa-hospital-user"></i>
               </div>
             </div>
@@ -144,36 +140,38 @@
 
           <div class="kpi-card">
             <div class="kpi-header">
-              <span class="kpi-title">Avisos Enviados</span>
-              <div class="kpi-icon-badge" style="background: rgba(37, 211, 102, 0.15); color: #25d366;">
-                <i class="fa-brands fa-whatsapp"></i>
+              <span class="kpi-title">Anuncios en Página Web</span>
+              <div class="kpi-icon-badge">
+                <i class="fa-solid fa-bullhorn"></i>
               </div>
             </div>
             <div class="kpi-value" id="kpi-avisos-total">--</div>
-            <div class="kpi-trend" id="kpi-avisos-sub">WhatsApp y comunicaciones</div>
+            <div class="kpi-trend" id="kpi-avisos-sub">Banners y comunicados web</div>
           </div>
         </div>
 
-        <!-- Barra de Acciones Rápidas del Administrador -->
-        <div class="card" style="margin-top: 1.5rem;">
-          <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+        <!-- Barra de Acciones Rápidas (The Tangerine CTA + Ghost Pills) -->
+        <div class="card">
+          <div class="card-header">
             <div>
-              <h3 class="card-title"><i class="fa-solid fa-bolt" style="color: #fbbf24;"></i> Acciones Operativas Rápidas</h3>
+              <h3 class="card-title"><i class="fa-solid fa-bolt"></i> Acciones Operativas Rápidas</h3>
               <p class="card-subtitle">Administra los módulos clave con un solo clic</p>
             </div>
           </div>
-          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <!-- Primary Tangerine CTA Pill -->
             <button class="btn btn-primary" onclick="abrirModalNuevoPodologo()">
               <i class="fa-solid fa-user-plus"></i> Dar de Alta Podólogo
             </button>
-            <button class="btn btn-success" onclick="abrirModalNuevaRecepcionista()">
+            <!-- Ghost Secondary Pills -->
+            <button class="btn btn-secondary" onclick="abrirModalNuevaRecepcionista()">
               <i class="fa-solid fa-user-nurse"></i> Dar de Alta Recepcionista
             </button>
-            <button class="btn btn-secondary" onclick="abrirModalNuevaClinica()" style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">
+            <button class="btn btn-secondary" onclick="abrirModalNuevaClinica()">
               <i class="fa-solid fa-hospital-user"></i> Dar de Alta Clínica
             </button>
             <button class="btn btn-secondary" onclick="navegarAPestana('tab-avisos')">
-              <i class="fa-solid fa-bullhorn"></i> Redactar Aviso a Paciente
+              <i class="fa-solid fa-bullhorn"></i> Publicar Anuncio Web
             </button>
             <button class="btn btn-secondary" onclick="navegarAPestana('tab-pacientes')">
               <i class="fa-solid fa-magnifying-glass"></i> Modificar Pacientes
@@ -182,24 +180,29 @@
         </div>
 
         <!-- Sedes Clínicas y Actividad Reciente -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
           <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-              <h3 class="card-title"><i class="fa-solid fa-hospital" style="color: #fbbf24;"></i> Sedes Clínicas</h3>
-              <button class="btn btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.78rem;" onclick="navegarAPestana('tab-clinicas')">
+              <h3 class="card-title"><i class="fa-solid fa-hospital"></i> Sedes Clínicas</h3>
+              <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.78rem;" onclick="navegarAPestana('tab-clinicas')">
                 Ver Todas <i class="fa-solid fa-arrow-right"></i>
               </button>
             </div>
-            <div id="resumen-clinicas-lista" style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <div id="resumen-clinicas-lista" style="display: flex; flex-direction: column; gap: 10px;">
               <!-- Se llena dinámicamente con JS -->
-              <div style="color: var(--text-muted); font-size: 0.88rem;">Cargando sedes clínicas...</div>
+              <div style="color: var(--color-stone); font-size: 0.88rem;">Cargando sedes clínicas...</div>
             </div>
           </div>
 
           <div class="card">
-            <h3 class="card-title" style="margin-bottom: 1rem;"><i class="fa-solid fa-clock-rotate-left" style="color: #c084fc;"></i> Últimos Avisos a Pacientes</h3>
-            <div id="resumen-ultimos-avisos" style="display: flex; flex-direction: column; gap: 0.75rem;">
-              <div style="color: var(--text-muted); font-size: 0.9rem;">Cargando historial de avisos...</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 class="card-title"><i class="fa-solid fa-bullhorn"></i> Anuncios Web Publicados</h3>
+              <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.78rem;" onclick="navegarAPestana('tab-avisos')">
+                Administrar <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+            <div id="resumen-ultimos-avisos" style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="color: var(--color-stone); font-size: 0.88rem;">Cargando anuncios de la web...</div>
             </div>
           </div>
         </div>
@@ -216,7 +219,7 @@
             <input type="text" id="filtro-podologos-buscar" placeholder="Buscar por nombre, cédula o email...">
           </div>
 
-          <div class="admin-toolbar-actions">
+          <div class="admin-toolbar-actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <select class="form-select" id="filtro-podologos-estado" style="width: auto;">
               <option value="todos">Todos los Estados</option>
               <option value="activos">Solo Activos</option>
@@ -245,13 +248,13 @@
             <input type="text" id="filtro-recep-buscar" placeholder="Buscar por nombre, clínica o email...">
           </div>
 
-          <div class="admin-toolbar-actions">
+          <div class="admin-toolbar-actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <select class="form-select" id="filtro-recep-estado" style="width: auto;">
               <option value="todos">Todos los Estados</option>
               <option value="activos">Solo Activas</option>
               <option value="baja">Dadas de Baja</option>
             </select>
-            <button class="btn btn-success" onclick="abrirModalNuevaRecepcionista()">
+            <button class="btn btn-primary" onclick="abrirModalNuevaRecepcionista()">
               <i class="fa-solid fa-user-plus"></i> Nueva Recepcionista
             </button>
           </div>
@@ -264,7 +267,7 @@
       </section>
 
       <!-- =====================================================================
-           PESTAÑA: GESTIÓN DE SEDES CLÍNICAS (ALTA, BAJA Y EDICIÓN)
+           PESTAÑA: GESTIÓN DE SEDES CLÍNICAS
            ===================================================================== -->
       <section id="tab-clinicas" class="tab-pane">
         <!-- Toolbar con búsqueda y filtros -->
@@ -274,13 +277,13 @@
             <input type="text" id="filtro-clinicas-buscar" placeholder="Buscar por nombre de sede, municipio o teléfono...">
           </div>
 
-          <div class="admin-toolbar-actions">
+          <div class="admin-toolbar-actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <select class="form-select" id="filtro-clinicas-estado" style="width: auto;">
               <option value="todos">Todas las Sedes</option>
               <option value="activas">Solo Operativas / Activas</option>
               <option value="baja">Dadas de Baja / Inactivas</option>
             </select>
-            <button class="btn btn-primary" onclick="abrirModalNuevaClinica()" style="background: linear-gradient(135deg, #d97706, #fbbf24); border-color: #f59e0b;">
+            <button class="btn btn-primary" onclick="abrirModalNuevaClinica()">
               <i class="fa-solid fa-hospital-user"></i> Dar de Alta Clínica
             </button>
           </div>
@@ -303,7 +306,7 @@
             <input type="text" id="filtro-pacientes-buscar" placeholder="Buscar por expediente, nombre, teléfono o notas...">
           </div>
 
-          <div class="admin-toolbar-actions">
+          <div class="admin-toolbar-actions" style="display: flex; gap: 10px; align-items: center;">
             <select class="form-select" id="filtro-pacientes-condicion" style="width: auto;">
               <option value="todos">Todos los Pacientes</option>
               <option value="diabetico">Con Diabetes Mellitus</option>
@@ -334,118 +337,146 @@
       </section>
 
       <!-- =====================================================================
-           PESTAÑA 5: CENTRO DE AVISOS Y COMUNICACIONES
+           PESTAÑA 5: GESTIÓN DE ANUNCIOS EN LA PÁGINA WEB DE LA CLÍNICA
            ===================================================================== -->
       <section id="tab-avisos" class="tab-pane">
         <div class="notice-composer-grid">
           
-          <!-- LADO IZQUIERDO: REDACTAR Y MANDAR AVISO -->
+          <!-- LADO IZQUIERDO: REDACTAR Y PUBLICAR ANUNCIO WEB -->
           <div class="notice-box">
-            <h3 class="card-title" style="margin-bottom: 0.35rem;">
-              <i class="fa-solid fa-paper-plane" style="color: #38bdf8;"></i> Redactar Aviso al Paciente
-            </h3>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+              <h3 class="card-title">
+                <i class="fa-solid fa-bullhorn"></i> Publicar Anuncio en la Página Web
+              </h3>
+              <span class="badge badge-active" style="font-size: 0.75rem;">Web Pública</span>
+            </div>
             <p class="card-subtitle" style="margin-bottom: 1.25rem;">
-              Envía recordatorios, recomendaciones o avisos clínicos directamente a su WhatsApp o teléfono.
+              Crea avisos, promociones de temporada, avisos de horario festivo o novedades visibles para todos los visitantes del portal web de la clínica.
             </p>
 
             <form id="form-enviar-aviso">
-              <!-- Paciente Destinatario -->
-              <div class="form-group" style="margin-bottom: 1rem;">
-                <label class="form-label" for="aviso-select-paciente">Seleccionar Paciente Destinatario *</label>
-                <select class="form-select" id="aviso-select-paciente" required>
-                  <option value="">-- Elige un paciente de la lista --</option>
+              <!-- Título del Anuncio -->
+              <div class="form-group">
+                <label class="form-label" for="aviso-asunto">Título / Titular del Anuncio *</label>
+                <input type="text" class="form-input" id="aviso-asunto" placeholder="Ej. ¡Nueva jornada de atención podológica con 20% de descuento!" required>
+              </div>
+
+              <!-- Categoría de Anuncio -->
+              <div class="form-group">
+                <label class="form-label" for="aviso-tipo">Categoría de Anuncio (Para el Carrusel de Historias en la Web)</label>
+                <select class="form-select" id="aviso-tipo">
+                  <option value="promocion">🎉 Promoción / Campaña Especial</option>
+                  <option value="horario_especial">⏰ Horario Especial / Días Festivos</option>
+                  <option value="aviso_importante" selected>📢 Aviso Importante a la Comunidad</option>
+                  <option value="novedad">✨ Novedad de Sede / Servicios</option>
+                  <option value="mantenimiento">🔧 Mantenimiento / Servicio</option>
                 </select>
               </div>
 
-              <!-- Teléfono Detectado -->
-              <div class="form-group" style="margin-bottom: 1rem;">
-                <label class="form-label" for="aviso-telefono">Teléfono de Contacto (10 dígitos)</label>
-                <input type="tel" class="form-input" id="aviso-telefono" placeholder="Ej. 5541238970" required>
-              </div>
-
-              <!-- Plantillas Rápidas -->
-              <div class="form-group" style="margin-bottom: 1rem;">
-                <label class="form-label">Plantillas Rápidas de Mensaje:</label>
+              <!-- Plantillas Rápidas para la Web -->
+              <div class="form-group">
+                <label class="form-label">Plantillas Rápidas para la Web:</label>
                 <div class="notice-templates-bar">
-                  <span class="template-chip" data-template="recordatorio">
-                    <i class="fa-solid fa-calendar-check"></i> Recordatorio de Cita
+                  <span class="template-chip" data-template="promocion">
+                    <i class="fa-solid fa-tag"></i> Descuento Quiropodia
+                  </span>
+                  <span class="template-chip" data-template="festivo">
+                    <i class="fa-solid fa-calendar-days"></i> Horario Días Festivos
+                  </span>
+                  <span class="template-chip" data-template="novedad">
+                    <i class="fa-solid fa-sparkles"></i> Apertura de Nueva Sede
                   </span>
                   <span class="template-chip" data-template="diabetico">
-                    <i class="fa-solid fa-stethoscope"></i> Control Pie Diabético
-                  </span>
-                  <span class="template-chip" data-template="seguimiento">
-                    <i class="fa-solid fa-notes-medical"></i> Seguimiento Clínico
-                  </span>
-                  <span class="template-chip" data-template="promocion">
-                    <i class="fa-solid fa-bullhorn"></i> Campaña de Prevención
+                    <i class="fa-solid fa-heart-pulse"></i> Campaña Pie Diabético
                   </span>
                 </div>
               </div>
 
-              <!-- Canal de Envío -->
-              <div class="form-group" style="margin-bottom: 1rem;">
-                <label class="form-label">Canal de Notificación:</label>
-                <div style="display: flex; gap: 1rem;">
-                  <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #f8fafc; cursor: pointer;">
-                    <input type="radio" name="aviso-canal" value="whatsapp" checked>
-                    <i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> WhatsApp Directo
-                  </label>
-                  <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #f8fafc; cursor: pointer;">
-                    <input type="radio" name="aviso-canal" value="sms">
-                    <i class="fa-solid fa-comment-sms" style="color: #38bdf8;"></i> SMS / Texto
-                  </label>
-                  <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #f8fafc; cursor: pointer;">
-                    <input type="radio" name="aviso-canal" value="sistema">
-                    <i class="fa-solid fa-clipboard-check" style="color: #c084fc;"></i> Registro en Expediente
-                  </label>
+              <!-- Mensaje / Cuerpo del Anuncio -->
+              <div class="form-group">
+                <label class="form-label" for="aviso-mensaje">Mensaje / Contenido del Anuncio *</label>
+                <textarea class="form-textarea" id="aviso-mensaje" rows="4" placeholder="Redacta el texto explicativo que leerán los visitantes de la página web..." required></textarea>
+              </div>
+
+              <!-- Botón de Llamado a la Acción (CTA) opcional -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                  <label class="form-label" for="aviso-cta-texto">Texto del Botón (CTA Opcional)</label>
+                  <input type="text" class="form-input" id="aviso-cta-texto" placeholder="Ej. Agendar Cita Ahora" value="Agendar Cita">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="aviso-cta-enlace">Enlace de Destino</label>
+                  <input type="text" class="form-input" id="aviso-cta-enlace" placeholder="Ej. #agendar, /citas o URL" value="#agendar">
                 </div>
               </div>
 
-              <!-- Asunto -->
-              <div class="form-group" style="margin-bottom: 1rem;">
-                <label class="form-label" for="aviso-asunto">Asunto / Motivo del Aviso</label>
-                <input type="text" class="form-input" id="aviso-asunto" placeholder="Ej. Recordatorio de Consulta Programada" required>
+              <!-- Estado Inicial -->
+              <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+                <input type="checkbox" id="aviso-activo-check" checked style="width: 18px; height: 18px; accent-color: var(--color-tangerine-tag); cursor: pointer;">
+                <label for="aviso-activo-check" style="font-size: 0.88rem; color: var(--color-midnight-ink); font-weight: 500; cursor: pointer;">
+                  Publicar y activar de inmediato en la página web pública
+                </label>
               </div>
 
-              <!-- Mensaje -->
-              <div class="form-group" style="margin-bottom: 1.25rem;">
-                <label class="form-label" for="aviso-mensaje">Cuerpo del Mensaje *</label>
-                <textarea class="form-textarea" id="aviso-mensaje" rows="4" placeholder="Escribe el mensaje o selecciona una plantilla rápida..." required></textarea>
-              </div>
-
-              <!-- Vista Previa del Aviso -->
-              <div class="notice-preview-card">
-                <div class="notice-preview-header">
-                  <span><i class="fa-brands fa-whatsapp"></i> Previsualización para el Paciente</span>
-                  <span id="preview-destino-telefono" style="color: var(--text-muted); font-size: 0.8rem;">Sin destinatario</span>
+              <!-- Previsualización en Vivo de la Web (Instagram Stories Style) -->
+              <div class="notice-preview-card" style="background: linear-gradient(135deg, #0b221a 0%, #13392c 50%, #0d261e 100%); border-radius: 16px; padding: 18px; color: #ffffff; box-shadow: 0 10px 25px rgba(11, 34, 26, 0.25);">
+                <!-- Instagram Story progress bar simulation -->
+                <div style="display: flex; gap: 6px; margin-bottom: 12px;">
+                  <div style="height: 3px; flex: 1; background: #ffffff; border-radius: 99px;"></div>
+                  <div style="height: 3px; flex: 1; background: rgba(255,255,255,0.3); border-radius: 99px;"></div>
+                  <div style="height: 3px; flex: 1; background: rgba(255,255,255,0.3); border-radius: 99px;"></div>
                 </div>
-                <div id="preview-mensaje-render" style="font-size: 0.88rem; color: #f8fafc; line-height: 1.45; white-space: pre-wrap;">
-                  El mensaje que redactes se visualizará aquí en tiempo real antes de ser enviado.
+                <div class="notice-preview-header" style="border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 8px; margin-bottom: 10px; color: rgba(255,255,255,0.75);">
+                  <span style="font-weight: 600; color: #ffffff; display: flex; align-items: center; gap: 6px; font-size: 0.8rem;">
+                    <i class="fa-solid fa-bolt" style="color: #f69251;"></i>
+                    Previsualización Historia en Página Web
+                  </span>
+                  <span id="preview-categoria-badge" style="font-size: 0.72rem; background: rgba(255,255,255,0.18); border-radius: 100px; padding: 2px 10px; color: #fad7c1; font-weight: 600;">
+                    📢 Aviso Importante
+                  </span>
+                </div>
+                <div>
+                  <div id="preview-titulo-render" style="font-weight: 700; font-size: 0.98rem; color: #ffffff; margin-bottom: 6px;">
+                    Título de tu anuncio web
+                  </div>
+                  <div id="preview-mensaje-render" style="font-size: 0.85rem; color: rgba(255,255,255,0.88); line-height: 1.45; margin-bottom: 12px;">
+                    El contenido redactado aparecerá aquí tal como lo verán los pacientes en la página de la clínica.
+                  </div>
+                  <div style="display: flex; justify-content: flex-end;">
+                    <span id="preview-cta-render" style="padding: 6px 14px; font-size: 0.78rem; background: #f69251; color: #ffffff; border-radius: 20px; font-weight: 600; pointer-events: none; box-shadow: 0 4px 12px rgba(246, 146, 81, 0.35);">
+                      Agendar Cita
+                    </span>
+                  </div>
                 </div>
               </div>
 
               <!-- Botones de Acción -->
-              <div style="display: flex; gap: 1rem; margin-top: 1.25rem; flex-wrap: wrap;">
+              <div style="display: flex; gap: 12px; margin-top: 1.25rem; flex-wrap: wrap;">
                 <button type="submit" class="btn btn-primary" id="btn-registrar-aviso">
-                  <i class="fa-solid fa-floppy-disk"></i> Registrar Aviso en Sistema
+                  <i class="fa-solid fa-cloud-arrow-up"></i> Publicar en Página Web
                 </button>
-                <a id="btn-abrir-whatsapp" href="#" target="_blank" class="whatsapp-action-btn" style="display: none;">
-                  <i class="fa-brands fa-whatsapp" style="font-size: 1.15rem;"></i> Abrir Chat en WhatsApp
-                </a>
+                <button type="reset" class="btn btn-secondary" id="btn-limpiar-aviso">
+                  <i class="fa-solid fa-rotate-left"></i> Limpiar Campos
+                </button>
               </div>
             </form>
           </div>
 
-          <!-- LADO DERECHO: HISTORIAL DE AVISOS EMITIDOS -->
+          <!-- LADO DERECHO: HISTORIAL DE ANUNCIOS WEB -->
           <div class="notice-box">
-            <h3 class="card-title" style="margin-bottom: 0.35rem;">
-              <i class="fa-solid fa-clock-rotate-left" style="color: #c084fc;"></i> Historial de Comunicaciones
-            </h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h3 class="card-title">
+                <i class="fa-solid fa-rectangle-ad"></i> Anuncios en Página Web
+              </h3>
+              <button class="btn btn-secondary" style="padding: 5px 12px; font-size: 0.78rem;" onclick="cargarHistorialAvisos()">
+                <i class="fa-solid fa-rotate"></i> Actualizar
+              </button>
+            </div>
             <p class="card-subtitle" style="margin-bottom: 1.25rem;">
-              Registro de avisos enviados por el Administrador y seguimiento de contacto.
+              Gestiona, activa, pausa o retira los anuncios desplegados en el portal público de la clínica.
             </p>
 
-            <div id="contenedor-historial-avisos" style="max-height: 600px; overflow-y: auto; padding-right: 0.5rem;">
+            <div id="contenedor-historial-avisos" style="max-height: 620px; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 12px;">
               <!-- Se llena dinámicamente con JS -->
             </div>
           </div>
@@ -462,7 +493,7 @@
   <dialog id="modal-podologo" class="glass-modal">
     <div class="modal-header">
       <h3 class="modal-title" id="modal-podologo-titulo">
-        <i class="fa-solid fa-user-doctor" style="color: #38bdf8;"></i> Alta de Podólogo
+        <i class="fa-solid fa-user-doctor"></i> Alta de Podólogo
       </h3>
       <button class="btn-close" onclick="cerrarModal('modal-podologo')"><i class="fa-solid fa-xmark"></i></button>
     </div>
@@ -522,7 +553,7 @@
   <dialog id="modal-recepcionista" class="glass-modal">
     <div class="modal-header">
       <h3 class="modal-title" id="modal-recep-titulo">
-        <i class="fa-solid fa-user-nurse" style="color: #34d399;"></i> Alta de Recepcionista
+        <i class="fa-solid fa-user-nurse"></i> Alta de Recepcionista
       </h3>
       <button class="btn-close" onclick="cerrarModal('modal-recepcionista')"><i class="fa-solid fa-xmark"></i></button>
     </div>
@@ -570,7 +601,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-recepcionista')">Cancelar</button>
-        <button type="submit" class="btn btn-success" id="btn-guardar-recepcionista">
+        <button type="submit" class="btn btn-primary" id="btn-guardar-recepcionista">
           <i class="fa-solid fa-check"></i> Guardar Recepcionista
         </button>
       </div>
@@ -583,7 +614,7 @@
   <dialog id="modal-editar-paciente" class="glass-modal" style="max-width: 780px;">
     <div class="modal-header">
       <h3 class="modal-title">
-        <i class="fa-solid fa-pen-to-square" style="color: #38bdf8;"></i> Modificar Datos del Paciente
+        <i class="fa-solid fa-pen-to-square"></i> Modificar Datos del Paciente
       </h3>
       <button class="btn-close" onclick="cerrarModal('modal-editar-paciente')"><i class="fa-solid fa-xmark"></i></button>
     </div>
@@ -592,7 +623,7 @@
         <div class="admin-modal-grid">
           <div class="form-group">
             <label class="form-label" for="pac-edit-exp">No. Expediente (Identificador)</label>
-            <input type="text" class="form-input" id="pac-edit-exp" readonly style="opacity: 0.8; background: rgba(0,0,0,0.3);">
+            <input type="text" class="form-input" id="pac-edit-exp" readonly style="opacity: 0.8; background: var(--color-fog);">
           </div>
           <div class="form-group">
             <label class="form-label" for="pac-edit-telefono">Teléfono *</label>
@@ -625,22 +656,22 @@
           
           <!-- Alertas Críticas de Salud -->
           <div class="form-risk-card">
-            <div style="font-weight: 700; font-size: 0.88rem; color: #f8fafc; display: flex; align-items: center; gap: 0.5rem;">
-              <i class="fa-solid fa-heart-pulse" style="color: #ef4444;"></i> Alertas de Riesgo y Condiciones Crónicas:
+            <div style="font-weight: 600; font-size: 0.88rem; color: var(--color-midnight-ink); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 8px;">
+              <i class="fa-solid fa-heart-pulse" style="color: var(--color-dusty-rose);"></i> Alertas de Riesgo y Condiciones Crónicas:
             </div>
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; gap: 1.25rem; flex-wrap: wrap;">
               <label class="risk-checkbox-item">
                 <input type="checkbox" id="pac-edit-diabetico">
                 <div>
-                  <strong style="color: #fbbf24; font-size: 0.88rem;"><i class="fa-solid fa-droplet"></i> Diabético</strong>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">Protocolo preventivo de pie de riesgo</div>
+                  <strong style="color: #c25e1a; font-size: 0.85rem;"><i class="fa-solid fa-droplet"></i> Diabético</strong>
+                  <div style="font-size: 0.75rem; color: var(--color-stone);">Protocolo preventivo de pie de riesgo</div>
                 </div>
               </label>
               <label class="risk-checkbox-item">
                 <input type="checkbox" id="pac-edit-hipertenso">
                 <div>
-                  <strong style="color: #f87171; font-size: 0.88rem;"><i class="fa-solid fa-heart-pulse"></i> Hipertenso</strong>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">Seguimiento de presión y circulación</div>
+                  <strong style="color: var(--color-dusty-rose); font-size: 0.85rem;"><i class="fa-solid fa-heart-pulse"></i> Hipertenso</strong>
+                  <div style="font-size: 0.75rem; color: var(--color-stone);">Seguimiento de presión y circulación</div>
                 </div>
               </label>
             </div>
@@ -672,7 +703,7 @@
   <dialog id="modal-clinica" class="glass-modal">
     <div class="modal-header">
       <h3 class="modal-title" id="modal-clinica-titulo">
-        <i class="fa-solid fa-hospital" style="color: #fbbf24;"></i> Alta de Sede Clínica
+        <i class="fa-solid fa-hospital"></i> Alta de Sede Clínica
       </h3>
       <button class="btn-close" onclick="cerrarModal('modal-clinica')"><i class="fa-solid fa-xmark"></i></button>
     </div>
@@ -700,7 +731,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-clinica')">Cancelar</button>
-        <button type="submit" class="btn btn-primary" id="btn-guardar-clinica" style="background: linear-gradient(135deg, #d97706, #fbbf24); border-color: #f59e0b;">
+        <button type="submit" class="btn btn-primary" id="btn-guardar-clinica">
           <i class="fa-solid fa-check"></i> Guardar Sede Clínica
         </button>
       </div>
@@ -708,17 +739,17 @@
   </dialog>
 
   <!-- =========================================================================
-       MODAL 4: CONFIRMACIÓN DE BAJA / REACTIVACIÓN (PODÓLOGOS, RECEPCIONISTAS Y CLÍNICAS)
+       MODAL 4: CONFIRMACIÓN DE BAJA / REACTIVACIÓN
        ========================================================================= -->
   <dialog id="modal-confirmar-estado" class="glass-modal" style="max-width: 480px;">
     <div class="modal-header">
       <h3 class="modal-title" id="modal-confirm-titulo">
-        <i class="fa-solid fa-triangle-exclamation" style="color: #fbbf24;"></i> Confirmar Cambio de Estado
+        <i class="fa-solid fa-triangle-exclamation"></i> Confirmar Cambio de Estado
       </h3>
       <button class="btn-close" onclick="cerrarModal('modal-confirmar-estado')"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body">
-      <p id="modal-confirm-mensaje" style="font-size: 0.95rem; color: #f8fafc; line-height: 1.5; margin-bottom: 1rem;">
+      <p id="modal-confirm-mensaje" style="font-size: 0.95rem; color: var(--color-midnight-ink); line-height: 1.5; margin-bottom: 1rem;">
         ¿Estás seguro de que deseas cambiar el estado de este elemento?
       </p>
       <div class="form-group" id="grupo-motivo-baja">

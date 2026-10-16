@@ -1,386 +1,872 @@
 /* ==========================================================================
-   ESTILOS ESPECÍFICOS DEL PANEL DE ADMINISTRACIÓN GENERAL (ADMIN)
-   Elite Foot Care - Diseño Boutique Clínico, Glassmorphism & Material 3
+   DIALOG DESIGN SYSTEM — STYLE REFERENCE FOR ADMIN CONSOLE
+   Neutral showroom with one warm price tag (#f69251).
+   Every surface is a different tone of off-white; the orange CTA is the only color in the room.
    ========================================================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&family=Inter:wght@300;400;500;600&display=swap');
+
 :root {
-  --admin-primary: #0284c7;
-  --admin-primary-hover: #0369a1;
-  --admin-primary-glow: rgba(2, 132, 199, 0.25);
-  --admin-accent: #06b6d4;
-  --admin-bg-surface: rgba(15, 23, 42, 0.78);
-  --admin-card-border: rgba(255, 255, 255, 0.09);
-  --color-whatsapp: #25d366;
-  --color-whatsapp-hover: #1eb956;
+  /* Colors — Dialog Palette */
+  --color-tangerine-tag: #f69251;
+  --color-tangerine-hover: #e58241;
+  --color-midnight-ink: #181825;
+  --color-graphite: #484758;
+  --color-deep-slate: #242433;
+  --color-carbon: #000000;
+  --color-stone: #636363;
+  --color-pebble: #949494;
+  --color-ash: #e5e5e5;
+  --color-ash-border: #ebebeb;
+  --color-fog: #f7f7f7;
+  --color-snow: #ffffff;
+  --color-peach-whisper: #fad7c1;
+  --color-dusty-rose: #c97b84;
+  --color-mint-subtle: #10b981;
+
+  /* Typography */
+  --font-pp-radio-grotesk-light: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-inter: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Type Scale */
+  --text-caption: 12px;
+  --text-body: 14.5px;
+  --text-subheading: 18px;
+  --text-heading-sm: 22px;
+  --text-heading: 32px;
+  --text-heading-lg: 48px;
+
+  /* Border Radius */
+  --radius-cards: 24px;
+  --radius-small: 8px;
+  --radius-badges: 100px;
+  --radius-inputs: 4px; /* Deliberate tension between sharp input & pill button */
+  --radius-buttons: 28px; /* The signature 28px pill shape */
+  --radius-overlays: 32px;
+  --radius-cardinner: 12px;
+
+  /* Subtle Near-Invisible Showroom Elevation */
+  --shadow-subtle: rgba(24, 24, 37, 0.05) 0px 2px 4px -2px;
+  --shadow-card: rgba(0, 0, 0, 0.02) 0px 1px 2px 0px, rgba(24, 24, 37, 0.04) 0px 4px 12px -2px;
+  --shadow-floating-nav: rgba(0, 0, 0, 0.03) 0px 2px 8px 0px, rgba(24, 24, 37, 0.05) 0px 8px 20px -4px;
+  --shadow-cta-orange: rgba(246, 146, 81, 0.28) 0px 4px 14px 0px;
+
+  /* Overrides for Legacy Dark Tokens */
+  --bg-primary: #f7f7f7;
+  --bg-secondary: #ffffff;
+  --border-color: #ebebeb;
+  --text-primary: #181825;
+  --text-secondary: #484758;
+  --text-muted: #636363;
 }
 
-/* Badge de Rol Administrador */
-.role-badge-admin {
-  background: rgba(14, 165, 233, 0.2);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  font-weight: 700;
-  letter-spacing: 0.02em;
+/* ==========================================================================
+   BASE & CANVAS (Near-White Showroom #f7f7f7)
+   ========================================================================== */
+html, body {
+  background-color: var(--color-fog) !important;
+  color: var(--color-midnight-ink) !important;
+  font-family: var(--font-inter) !important;
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 24px 80px;
+}
+
+/* ==========================================================================
+   FLOATING PILL NAVIGATION HEADER (Pure White Snow Surface #ffffff)
+   ========================================================================== */
+.app-header {
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: 32px !important;
+  padding: 12px 24px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-floating-nav) !important;
+  margin-bottom: 24px;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
 .brand-logo-icon.admin {
-  background: linear-gradient(135deg, #0284c7, #06b6d4);
-  color: #ffffff;
-  box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
+  width: 40px;
+  height: 40px;
+  border-radius: 50% !important;
+  background: var(--color-carbon) !important;
+  color: var(--color-snow) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  box-shadow: none !important;
 }
 
-/* Barra de control y filtros */
-.admin-toolbar {
+.brand-title {
+  font-family: var(--font-pp-radio-grotesk-light) !important;
+  font-size: 1.25rem !important;
+  font-weight: 400 !important;
+  color: var(--color-carbon) !important;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.brand-subtitle {
+  font-family: var(--font-inter) !important;
+  font-size: 0.78rem !important;
+  color: var(--color-stone) !important;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.header-actions {
   display: flex;
+  align-items: center;
+  gap: 10px;
   flex-wrap: wrap;
+}
+
+/* User Chip in Header */
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-fog) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-badges) !important;
+  padding: 5px 14px 5px 6px !important;
+}
+
+.user-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: var(--color-midnight-ink) !important;
+  color: var(--color-snow) !important;
+  font-family: var(--font-inter) !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  color: var(--color-carbon) !important;
+}
+
+.user-role-badge {
+  font-size: 0.7rem !important;
+  font-weight: 500 !important;
+  color: var(--color-stone) !important;
+}
+
+.role-badge-admin {
+  background: transparent !important;
+  border: none !important;
+  color: var(--color-stone) !important;
+  padding: 0 !important;
+  font-weight: 500 !important;
+}
+
+/* Role Switcher & Ghost Action Pills */
+.role-switch-btn {
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-buttons) !important; /* 28px pill */
+  padding: 8px 16px !important;
+  color: var(--color-graphite) !important;
+  font-family: var(--font-inter) !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-subtle) !important;
+  cursor: pointer;
+}
+
+.role-switch-btn:hover {
+  background: var(--color-fog) !important;
+  border-color: #d8d8d8 !important;
+  color: var(--color-carbon) !important;
+  transform: translateY(-1px);
+}
+
+.role-switch-btn.btn-logout {
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  color: var(--color-stone) !important;
+}
+
+.role-switch-btn.btn-logout:hover {
+  background: rgba(201, 123, 132, 0.08) !important;
+  border-color: var(--color-dusty-rose) !important;
+  color: var(--color-dusty-rose) !important;
+}
+
+/* ==========================================================================
+   NAVIGATION TABS (Minimal Floating Showroom Pill Bar)
+   ========================================================================== */
+.nav-tabs-container {
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: 32px !important;
+  padding: 6px !important;
+  display: inline-flex !important;
+  gap: 4px !important;
+  box-shadow: var(--shadow-subtle) !important;
+  margin-bottom: 32px !important;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.nav-tab-btn {
+  background: transparent !important;
+  border: none !important;
+  border-radius: var(--radius-buttons) !important; /* 28px pill */
+  padding: 9px 18px !important;
+  color: var(--color-stone) !important;
+  font-family: var(--font-inter) !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-tab-btn i {
+  font-size: 0.9rem;
+}
+
+.nav-tab-btn:hover {
+  color: var(--color-carbon) !important;
+  background: var(--color-fog) !important;
+}
+
+/* Active Tab: Pure Midnight Ink Contrast */
+.nav-tab-btn.active {
+  background: var(--color-midnight-ink) !important;
+  color: var(--color-snow) !important;
+  font-weight: 500 !important;
+}
+
+.nav-tab-btn.active i {
+  color: var(--color-snow) !important;
+}
+
+/* Tab Panes */
+.tab-pane {
+  display: none;
+  animation: fadeInPane 0.25s ease-out;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+@keyframes fadeInPane {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   SHOWROOM HERO HEADING (PP Radio Grotesk Light style @ 36-48px)
+   ========================================================================== */
+.admin-showroom-header {
+  margin-bottom: 32px;
+}
+
+.admin-showroom-title {
+  font-family: var(--font-pp-radio-grotesk-light) !important;
+  font-size: 2.35rem !important;
+  font-weight: 300 !important;
+  color: var(--color-carbon) !important;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+
+.admin-showroom-sub {
+  font-family: var(--font-inter) !important;
+  font-size: 0.95rem !important;
+  color: var(--color-stone) !important;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   KPI CARDS (White Snow Surfaces with 24px Radius)
+   ========================================================================== */
+.grid-cols-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1024px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kpi-card {
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important; /* 24px */
+  padding: 24px !important;
+  box-shadow: var(--shadow-subtle) !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 130px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card) !important;
+}
+
+.kpi-header {
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 1rem 1.25rem;
-  background: var(--admin-bg-surface);
-  border: 1px solid var(--admin-card-border);
-  border-radius: var(--radius-lg);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  margin-bottom: 12px;
 }
 
-.admin-toolbar-actions {
+.kpi-title {
+  font-family: var(--font-inter) !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  color: var(--color-stone) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.kpi-icon-badge {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: var(--radius-badges) !important;
+  background: var(--color-fog) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  color: var(--color-midnight-ink) !important;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
+  font-size: 0.88rem !important;
+  box-shadow: none !important;
+}
+
+.kpi-value {
+  font-family: var(--font-pp-radio-grotesk-light) !important;
+  font-size: 2.3rem !important;
+  font-weight: 300 !important;
+  color: var(--color-carbon) !important;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.kpi-trend {
+  font-family: var(--font-inter) !important;
+  font-size: 0.78rem !important;
+  color: var(--color-pebble) !important;
+  font-weight: 400;
+}
+
+/* ==========================================================================
+   CARDS GENERALES & SECCIONES (Snow Surface 24px)
+   ========================================================================== */
+.card {
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important; /* 24px radius */
+  padding: 24px !important; /* 24px internal padding */
+  box-shadow: var(--shadow-subtle) !important;
+  margin-bottom: 24px;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #f2f2f2 !important;
+  padding-bottom: 14px !important;
+}
+
+.card-title {
+  font-family: var(--font-pp-radio-grotesk-light) !important;
+  font-size: 1.35rem !important;
+  font-weight: 400 !important;
+  color: var(--color-carbon) !important;
+  letter-spacing: -0.015em;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-title i {
+  font-size: 1.1rem;
+  color: var(--color-carbon);
+}
+
+.card-subtitle {
+  font-family: var(--font-inter) !important;
+  font-size: 0.82rem !important;
+  color: var(--color-stone) !important;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   BUTTONS — THE DIALOG 28PX PILL SYSTEM
+   Tangerine Tag (#f69251) is the warm price tag on white linen!
+   ========================================================================== */
+.btn {
+  font-family: var(--font-inter) !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em;
+  border-radius: var(--radius-buttons) !important; /* 28px pill */
+  padding: 10px 22px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+/* Primary CTA Button: The Tangerine Tag (#f69251) */
+.btn-primary, .btn-primary-tangerine {
+  background: var(--color-tangerine-tag) !important;
+  color: var(--color-carbon) !important; /* #000000 text */
+  border: none !important;
+  box-shadow: var(--shadow-cta-orange) !important;
+}
+
+.btn-primary:hover, .btn-primary-tangerine:hover {
+  background: var(--color-tangerine-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(246, 146, 81, 0.36) !important;
+}
+
+/* Ghost Pill Button: White fill floating against near-white or card */
+.btn-secondary, .btn-ghost {
+  background: var(--color-snow) !important;
+  color: var(--color-midnight-ink) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  box-shadow: var(--shadow-subtle) !important;
+}
+
+.btn-secondary:hover, .btn-ghost:hover {
+  background: var(--color-fog) !important;
+  border-color: #d8d8d8 !important;
+  color: var(--color-carbon) !important;
+  transform: translateY(-1px);
+}
+
+/* Subtle Semantic Buttons in Pills */
+.btn-success {
+  background: var(--color-snow) !important;
+  color: #065f46 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+
+.btn-success:hover {
+  background: rgba(16, 185, 129, 0.08) !important;
+  border-color: var(--color-mint-subtle) !important;
+}
+
+.btn-danger {
+  background: var(--color-snow) !important;
+  color: #9f1239 !important;
+  border: 1px solid rgba(201, 123, 132, 0.4) !important;
+}
+
+.btn-danger:hover {
+  background: rgba(201, 123, 132, 0.1) !important;
+  border-color: var(--color-dusty-rose) !important;
+}
+
+/* ==========================================================================
+   TOOLBARS, SEARCH & FORM CONTROLS
+   Sharp inputs (0-4px radius) creating tension with 28px pill buttons
+   ========================================================================== */
+.admin-toolbar {
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important; /* 24px */
+  padding: 16px 24px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-subtle) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   flex-wrap: wrap;
 }
 
 .search-input-group {
   position: relative;
   min-width: 280px;
+  flex: 1;
+  max-width: 480px;
 }
 
 .search-input-group i {
   position: absolute;
-  left: 1.1rem;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  pointer-events: none;
+  color: var(--color-stone);
+  font-size: 0.9rem;
+}
+
+.search-input-group input, .form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-inputs) !important; /* Sharp 4px radius */
+  padding: 10px 14px;
+  font-family: var(--font-inter) !important;
+  font-size: 0.9rem;
+  color: var(--color-midnight-ink) !important;
+  letter-spacing: -0.01em;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .search-input-group input {
-  width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.8rem;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--admin-card-border);
-  background: rgba(2, 6, 23, 0.65);
-  color: #f8fafc;
-  font-size: 0.92rem;
-  font-family: inherit;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding-left: 38px !important;
 }
 
-.search-input-group input:focus {
-  outline: none;
-  border-color: var(--admin-accent);
-  box-shadow: 0 0 0 3px var(--admin-primary-glow);
-  background: rgba(2, 6, 23, 0.9);
+.search-input-group input:focus, .form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--color-carbon) !important;
+  box-shadow: 0 0 0 1px var(--color-carbon) !important;
+  background: #ffffff !important;
 }
 
-/* Pills de estado */
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.32rem 0.85rem;
-  border-radius: var(--radius-full);
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
+.search-input-group input::placeholder, .form-input::placeholder, .form-textarea::placeholder {
+  color: var(--color-pebble) !important;
 }
 
-.status-pill.active {
-  background: rgba(16, 185, 129, 0.16);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.35);
+.form-label {
+  display: block;
+  font-family: var(--font-inter) !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  color: var(--color-graphite) !important;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
 }
 
-.status-pill.active::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 8px #10b981;
+.form-group {
+  margin-bottom: 16px;
 }
 
-.status-pill.baja {
-  background: rgba(239, 68, 68, 0.16);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-}
-
-.status-pill.baja::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #ef4444;
-}
-
-/* Grilla de Tarjetas para Podólogos, Recepcionistas y Sedes */
+/* ==========================================================================
+   STAFF & CLINIC CARDS (White Surfaces 24px)
+   ========================================================================== */
 .staff-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
 }
 
 .staff-card {
-  background: var(--admin-bg-surface);
-  border: 1px solid var(--admin-card-border);
-  border-radius: 16px;
-  padding: 1.35rem;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important; /* 24px */
+  padding: 24px !important; /* 24px internal padding */
+  box-shadow: var(--shadow-subtle) !important;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 1rem;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.staff-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--admin-primary), var(--admin-accent));
-  opacity: 0;
-  transition: opacity 0.25s ease;
+  gap: 16px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .staff-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(6, 182, 212, 0.35);
-  box-shadow: 0 12px 28px -5px rgba(0, 0, 0, 0.55), 0 0 15px -3px var(--admin-primary-glow);
-}
-
-.staff-card:hover::before {
-  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card) !important;
 }
 
 .staff-card.inactive {
-  opacity: 0.7;
-  filter: grayscale(0.25);
-}
-
-.staff-card.inactive::before {
-  background: #ef4444;
-  opacity: 1;
+  opacity: 0.65;
+  background: #fafafa !important;
 }
 
 .staff-header {
   display: flex;
-  align-items: flex-start;
-  gap: 0.9rem;
+  align-items: center;
+  gap: 14px;
 }
 
 .staff-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(2, 132, 199, 0.3), rgba(6, 182, 212, 0.2));
-  color: #38bdf8;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  background: var(--color-fog) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  color: var(--color-midnight-ink) !important;
+  font-family: var(--font-inter) !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
-  font-weight: 700;
-  border: 1px solid rgba(56, 189, 248, 0.3);
   flex-shrink: 0;
 }
 
 .staff-avatar.recep {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.15));
-  color: #34d399;
-  border-color: rgba(16, 185, 129, 0.3);
-}
-
-.staff-avatar.clinica {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.15));
-  color: #fbbf24;
-  border-color: rgba(245, 158, 11, 0.3);
+  background: var(--color-fog) !important;
+  color: var(--color-midnight-ink) !important;
 }
 
 .staff-title-group h4 {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #f8fafc;
-  line-height: 1.25;
+  font-family: var(--font-pp-radio-grotesk-light) !important;
+  font-size: 1.15rem !important;
+  font-weight: 400 !important;
+  color: var(--color-carbon) !important;
+  letter-spacing: -0.01em;
+  margin-bottom: 2px;
 }
 
 .staff-subtitle {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  margin-top: 0.25rem;
+  font-size: 0.78rem !important;
+  color: var(--color-stone) !important;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 6px;
+}
+
+/* Status Pills (100px Badges) */
+.status-pill {
+  border-radius: var(--radius-badges) !important; /* 100px */
+  padding: 4px 12px !important;
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.status-pill.active {
+  background: rgba(16, 185, 129, 0.08) !important;
+  color: #065f46 !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+
+.status-pill.active::before {
+  background: #10b981 !important;
+  box-shadow: none !important;
+}
+
+.status-pill.baja {
+  background: rgba(201, 123, 132, 0.1) !important;
+  color: var(--color-dusty-rose) !important;
+  border: 1px solid rgba(201, 123, 132, 0.3) !important;
+}
+
+.status-pill.baja::before {
+  background: var(--color-dusty-rose) !important;
 }
 
 .staff-details-list {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
-  font-size: 0.88rem;
-  color: var(--text-muted);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding-top: 0.85rem;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--color-fog);
+  border-radius: var(--radius-cardinner);
+  border: 1px solid var(--color-ash-border);
 }
 
 .staff-detail-item {
+  font-size: 0.82rem;
+  color: var(--color-graphite);
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 8px;
 }
 
 .staff-detail-item i {
+  color: var(--color-stone);
+  font-size: 0.85rem;
   width: 16px;
-  color: var(--admin-accent);
-  text-align: center;
 }
 
 .staff-actions {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  margin-top: 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding-top: 0.85rem;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 4px;
 }
 
-/* Botones de acción específicos */
 .btn-toggle-baja {
-  padding: 0.45rem 0.85rem;
-  border-radius: var(--radius-md);
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-family: var(--font-inter) !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  border-radius: var(--radius-buttons) !important; /* 28px pill */
+  padding: 7px 16px !important;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  transition: all 0.2s ease;
   border: 1px solid transparent;
-  font-family: inherit;
+  transition: all 0.2s ease;
+  background: transparent;
 }
 
 .btn-toggle-baja.danger {
-  background: rgba(239, 68, 68, 0.12);
-  color: #f87171;
-  border-color: rgba(239, 68, 68, 0.25);
+  color: var(--color-dusty-rose);
+  border-color: rgba(201, 123, 132, 0.35);
+  background: var(--color-snow);
 }
 
 .btn-toggle-baja.danger:hover {
-  background: rgba(239, 68, 68, 0.25);
-  border-color: #ef4444;
+  background: rgba(201, 123, 132, 0.08);
+  border-color: var(--color-dusty-rose);
 }
 
 .btn-toggle-baja.success {
-  background: rgba(16, 185, 129, 0.12);
-  color: #34d399;
-  border-color: rgba(16, 185, 129, 0.25);
+  color: #065f46;
+  border-color: rgba(16, 185, 129, 0.35);
+  background: var(--color-snow);
 }
 
 .btn-toggle-baja.success:hover {
-  background: rgba(16, 185, 129, 0.25);
-  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
 }
 
-/* Tabla de Pacientes para Admin */
+/* ==========================================================================
+   PATIENTS TABLE (Clean Showroom Line-Up)
+   ========================================================================= */
 .admin-table-container {
-  background: var(--admin-bg-surface);
-  border: 1px solid var(--admin-card-border);
-  border-radius: 16px;
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important; /* 24px */
   overflow: hidden;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-subtle) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .admin-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .admin-table th {
-  background: rgba(2, 6, 23, 0.75);
-  color: var(--text-muted);
-  font-weight: 700;
+  background: var(--color-fog) !important;
+  color: var(--color-stone) !important;
+  font-weight: 500 !important;
   text-transform: uppercase;
-  font-size: 0.74rem;
-  letter-spacing: 0.07em;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--admin-card-border);
+  font-size: 0.72rem !important;
+  letter-spacing: 0.04em !important;
+  padding: 14px 20px !important;
+  border-bottom: 1px solid var(--color-ash-border) !important;
 }
 
 .admin-table td {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  color: #f8fafc;
+  padding: 14px 20px !important;
+  border-bottom: 1px solid #f2f2f2 !important;
+  color: var(--color-midnight-ink) !important;
   vertical-align: middle;
 }
 
-.admin-table tbody tr {
-  transition: background 0.15s ease;
-}
-
 .admin-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.035);
+  background: #fafafa !important;
 }
 
-/* Badges clínicos para pacientes */
+/* Clinical Risk Tags */
 .risk-tag {
+  border-radius: var(--radius-badges) !important; /* 100px */
+  padding: 3px 10px !important;
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 700;
-  white-space: nowrap;
+  gap: 5px;
 }
 
 .risk-tag.diabetes {
-  background: rgba(245, 158, 11, 0.18);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: rgba(246, 146, 81, 0.12) !important;
+  color: #c25e1a !important;
+  border: 1px solid rgba(246, 146, 81, 0.3) !important;
 }
 
 .risk-tag.hipertension {
-  background: rgba(239, 68, 68, 0.18);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(201, 123, 132, 0.12) !important;
+  color: var(--color-dusty-rose) !important;
+  border: 1px solid rgba(201, 123, 132, 0.3) !important;
 }
 
 .risk-tag.healthy {
-  background: rgba(16, 185, 129, 0.14);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: rgba(16, 185, 129, 0.08) !important;
+  color: #065f46 !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
 }
 
-/* Centro de Avisos */
+/* ==========================================================================
+   NOTICE COMPOSER (WhatsApp & Patient Communications)
+   ========================================================================== */
 .notice-composer-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 20px;
 }
 
 @media (max-width: 960px) {
@@ -390,330 +876,189 @@
 }
 
 .notice-box {
-  background: var(--admin-bg-surface);
-  border: 1px solid var(--admin-card-border);
-  border-radius: 16px;
-  padding: 1.6rem;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important; /* 24px */
+  padding: 24px !important;
+  box-shadow: var(--shadow-subtle) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .notice-templates-bar {
   display: flex;
-  gap: 0.55rem;
+  gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 1rem;
+  margin-bottom: 12px;
 }
 
 .template-chip {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #94a3b8;
-  border-radius: var(--radius-full);
-  padding: 0.4rem 0.9rem;
-  font-size: 0.82rem;
-  font-weight: 600;
+  background: var(--color-fog) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  color: var(--color-graphite) !important;
+  border-radius: var(--radius-badges) !important; /* 100px */
+  padding: 6px 14px !important;
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
   cursor: pointer;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 6px;
 }
 
-.template-chip:hover, .template-chip.selected {
-  background: var(--admin-primary-glow);
-  color: #38bdf8;
-  border-color: var(--admin-primary);
+.template-chip:hover {
+  background: #ebebeb !important;
+  color: var(--color-carbon) !important;
+}
+
+.template-chip.selected {
+  background: var(--color-midnight-ink) !important;
+  color: var(--color-snow) !important;
+  border-color: var(--color-midnight-ink) !important;
 }
 
 .whatsapp-action-btn {
-  background: var(--color-whatsapp);
-  color: #ffffff;
-  border: none;
-  border-radius: 12px;
-  padding: 0.8rem 1.4rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.7rem;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  font-size: 0.95rem;
-  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
-  font-family: inherit;
-}
-
-.whatsapp-action-btn:hover {
-  background: var(--color-whatsapp-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.45);
+  background: #25d366 !important;
+  color: #ffffff !important;
+  border-radius: var(--radius-buttons) !important; /* 28px pill */
+  padding: 10px 22px !important;
+  font-weight: 500 !important;
+  font-size: 0.88rem !important;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25) !important;
 }
 
 .notice-preview-card {
-  background: rgba(2, 6, 23, 0.88);
-  border: 1px solid rgba(37, 211, 102, 0.35);
-  border-radius: 14px;
-  padding: 1.35rem;
-  position: relative;
-  font-family: inherit;
-  margin-top: 1rem;
+  background: var(--color-fog) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cardinner) !important;
+  padding: 16px !important;
+  margin-top: 14px;
 }
 
 .notice-preview-header {
+  font-size: 0.78rem !important;
+  color: var(--color-stone) !important;
+  margin-bottom: 8px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 0.75rem;
-  margin-bottom: 0.85rem;
-  font-size: 0.85rem;
-  color: var(--color-whatsapp);
-  font-weight: 700;
 }
 
-.notice-history-item {
-  background: rgba(15, 23, 42, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 12px;
-  padding: 1.1rem;
-  margin-bottom: 0.9rem;
-  transition: all 0.2s ease;
-}
-
-.notice-history-item:hover {
-  border-color: rgba(255, 255, 255, 0.16);
-  background: rgba(15, 23, 42, 0.85);
-}
-
-.notice-meta-line {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-bottom: 0.4rem;
-}
-
-.notice-text-content {
-  font-size: 0.88rem;
-  color: #f8fafc;
-  line-height: 1.45;
+#preview-mensaje-render {
+  color: var(--color-midnight-ink) !important;
+  font-size: 0.88rem !important;
 }
 
 /* ==========================================================================
-   REDISEÑO ULTRA-MODERNO DE FORMULARIOS Y MODALES
+   MODAL DIALOGS (Dialog Showroom Experience)
    ========================================================================== */
-
 dialog.glass-modal {
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  border-radius: 20px !important;
-  background: linear-gradient(150deg, rgba(15, 23, 42, 0.98), rgba(10, 16, 31, 0.97)) !important;
-  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.85), 0 0 45px -10px rgba(6, 182, 212, 0.2) !important;
-  backdrop-filter: blur(28px) !important;
-  -webkit-backdrop-filter: blur(28px) !important;
-  padding: 0 !important;
-  color: #f8fafc !important;
-  width: 92% !important;
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important; /* 24px */
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12) !important;
+  color: var(--color-midnight-ink) !important;
+  padding: 28px !important;
+  width: 90%;
   max-width: 680px;
-  overflow: hidden;
-  animation: modalFadeIn 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(14px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
 }
 
 dialog::backdrop {
-  background: rgba(2, 6, 23, 0.78) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
+  background: rgba(24, 24, 37, 0.25) !important;
+  backdrop-filter: blur(4px) !important;
 }
 
 .modal-header {
-  padding: 1.35rem 1.6rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.02);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .modal-title {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #f8fafc;
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
+  font-family: var(--font-pp-radio-grotesk-light) !important;
+  font-size: 1.35rem !important;
+  font-weight: 400 !important;
+  color: var(--color-carbon) !important;
+  letter-spacing: -0.015em;
   margin: 0;
 }
 
-.modal-body {
-  padding: 1.6rem;
-  max-height: calc(85vh - 140px);
-  overflow-y: auto;
-}
-
-.modal-footer {
-  padding: 1.15rem 1.6rem;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.85rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(2, 6, 23, 0.45);
-}
-
 .btn-close {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--color-stone);
+  font-size: 1.1rem;
   cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
   transition: all 0.2s ease;
 }
 
 .btn-close:hover {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
-  border-color: rgba(239, 68, 68, 0.4);
+  color: var(--color-carbon);
+  background: var(--color-fog);
 }
 
-/* Grillas de campos dentro del modal */
 .admin-modal-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.15rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 600px) {
   .admin-modal-grid {
     grid-template-columns: 1fr;
   }
 }
 
-/* Estilos de Campos de Formulario Rediseñados */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.form-label {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #cbd5e1;
-  letter-spacing: 0.02em;
+.modal-footer {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
 }
 
-.form-label i {
-  color: var(--admin-accent);
-  font-size: 0.8rem;
-}
-
-.form-input,
-.form-select,
-.form-textarea {
-  width: 100%;
-  background: rgba(2, 6, 23, 0.72) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 12px !important;
-  padding: 0.75rem 1rem !important;
-  color: #f8fafc !important;
-  font-size: 0.92rem !important;
-  font-family: 'Plus Jakarta Sans', sans-serif !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  box-sizing: border-box;
-}
-
-.form-input::placeholder,
-.form-textarea::placeholder {
-  color: #64748b;
-  font-size: 0.88rem;
-}
-
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
-  outline: none !important;
-  border-color: #06b6d4 !important;
-  background: rgba(2, 6, 23, 0.92) !important;
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.22), 0 8px 20px -4px rgba(0, 0, 0, 0.6) !important;
-}
-
-.form-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2338bdf8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
-  background-repeat: no-repeat !important;
-  background-position: right 1rem center !important;
-  background-size: 1.1rem !important;
-  padding-right: 2.5rem !important;
-  cursor: pointer;
-}
-
-.form-select option {
-  background: #0f172a;
-  color: #f8fafc;
-  padding: 0.5rem;
-}
-
-.form-textarea {
-  min-height: 85px;
-  resize: vertical;
-  line-height: 1.5;
-}
-
-/* Tarjeta de Riesgo en Modales de Paciente */
 .form-risk-card {
   grid-column: span 2;
-  background: rgba(2, 6, 23, 0.5);
-  padding: 1.15rem;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
+  background: var(--color-fog);
+  border: 1px solid var(--color-ash-border);
+  border-radius: var(--radius-cardinner);
+  padding: 14px 18px;
 }
 
 .risk-checkbox-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 10px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  flex: 1;
 }
 
-.risk-checkbox-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.15);
+/* ==========================================================================
+   TOASTS (Minimal Showroom Notifications)
+   ========================================================================== */
+#toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.risk-checkbox-item input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--admin-accent);
-  cursor: pointer;
+.toast {
+  background: var(--color-midnight-ink) !important;
+  color: var(--color-snow) !important;
+  border: 1px solid #2d2d3d !important;
+  border-radius: 16px !important;
+  padding: 12px 18px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+  font-family: var(--font-inter) !important;
+  font-size: 0.85rem !important;
 }

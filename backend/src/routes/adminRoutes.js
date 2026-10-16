@@ -21,9 +21,11 @@ router.put('/recepcionistas/:id/estado', adminController.cambiarEstadoRecepcioni
 router.get('/pacientes', adminController.obtenerPacientesAdmin);
 router.put('/pacientes/:no_expediente', adminController.actualizarPacienteAdmin);
 
-// 5. Centro de Avisos y Notificaciones
+// 5. Centro de Anuncios Web
 router.post('/avisos', adminController.enviarAvisoPaciente);
 router.get('/avisos', adminController.obtenerHistorialAvisos);
+router.put('/avisos/:id/estado', adminController.toggleEstadoAviso);
+router.delete('/avisos/:id', adminController.eliminarAviso);
 
 // 6. Gestión de Clínicas y Sedes
 router.get('/clinicas', adminController.obtenerClinicasAdmin);

@@ -1,4 +1,6 @@
+const path = require('path');
 const mysql = require('mysql2/promise');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 require('dotenv').config();
 
 // Validación de seguridad: Asegurarnos de que las variables existan
