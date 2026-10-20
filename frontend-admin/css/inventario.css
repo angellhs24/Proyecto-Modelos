@@ -1,0 +1,257 @@
+/* ==========================================================================
+   ESTILOS DE MÓDULO DE INVENTARIO (LIGHT MINIMALIST CLINICAL STYLE)
+   ========================================================================== */
+
+/* Tarjetas KPI para métricas de inventario */
+.inventory-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.inv-kpi-card {
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important; /* 24px */
+  padding: 22px 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 18px !important;
+  box-shadow: var(--shadow-subtle) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.inv-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card) !important;
+}
+
+.inv-kpi-icon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.25rem !important;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+}
+
+.inv-kpi-icon.blue { background: #eff6ff !important; color: #2563eb !important; border-color: rgba(37, 99, 235, 0.2) !important; }
+.inv-kpi-icon.amber { background: #fffbeb !important; color: #d97706 !important; border-color: rgba(245, 158, 11, 0.2) !important; }
+.inv-kpi-icon.red { background: #fee2e2 !important; color: #dc2626 !important; border-color: rgba(220, 38, 38, 0.2) !important; }
+.inv-kpi-icon.green { background: #ecfdf5 !important; color: #059669 !important; border-color: rgba(16, 185, 129, 0.2) !important; }
+
+.inv-kpi-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.inv-kpi-val {
+  font-family: var(--font-display) !important;
+  font-size: 1.9rem !important;
+  font-weight: 600 !important;
+  line-height: 1.1;
+  color: var(--color-carbon) !important;
+}
+
+.inv-kpi-label {
+  font-size: 0.76rem !important;
+  font-weight: 600 !important;
+  color: var(--color-stone) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+
+/* Barra de herramientas y filtros */
+.inv-toolbar {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px !important;
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-subtle) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.inv-toolbar-left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.inv-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ==========================================================================
+   SISTEMA DE ALERTAS VISUALES DE STOCK
+   ========================================================================== */
+
+/* Píldora de Stock */
+.stock-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 4px 12px !important;
+  border-radius: var(--radius-badges) !important;
+  font-weight: 600 !important;
+  font-size: 0.82rem !important;
+  letter-spacing: -0.01em;
+  border: 1px solid transparent;
+}
+
+/* Alerta Roja: Stock agotado (0) o crítico */
+.stock-pill-critico {
+  background: #fee2e2 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #991b1b !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+/* Alerta Amarilla/Ámbar: Stock menor o igual a stock_minimo */
+.stock-pill-alerta {
+  background: #fef3c7 !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  color: #92400e !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+/* Estado Óptimo: Stock por encima del mínimo */
+.stock-pill-optimo {
+  background: #d1fae5 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  color: #065f46 !important;
+}
+
+/* Resaltado de Filas de la Tabla según condición de stock */
+.glass-table tbody tr.row-stock-critico {
+  background: #fef2f2 !important;
+  border-left: 3px solid #ef4444 !important;
+}
+
+.glass-table tbody tr.row-stock-critico:hover {
+  background: #fee2e2 !important;
+}
+
+.glass-table tbody tr.row-stock-alerta {
+  background: #fffbeb !important;
+  border-left: 3px solid #f59e0b !important;
+}
+
+.glass-table tbody tr.row-stock-alerta:hover {
+  background: #fef3c7 !important;
+}
+
+/* Badges de Categoría */
+.category-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 0.74rem !important;
+  font-weight: 600 !important;
+  padding: 3px 10px !important;
+  border-radius: var(--radius-badges) !important;
+  background: var(--color-fog) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  color: var(--color-graphite) !important;
+}
+
+.category-badge.cat-curacion { background: #eff6ff !important; color: #1d4ed8 !important; border-color: rgba(59, 130, 246, 0.25) !important; }
+.category-badge.cat-instrumental { background: #f5f3ff !important; color: #6d28d9 !important; border-color: rgba(124, 58, 237, 0.25) !important; }
+.category-badge.cat-medicamentos { background: #fdf2f8 !important; color: #be185d !important; border-color: rgba(219, 39, 119, 0.25) !important; }
+.category-badge.cat-desechables { background: #f0fdfa !important; color: #0f766e !important; border-color: rgba(20, 184, 166, 0.25) !important; }
+.category-badge.cat-ortopodologia { background: #fffbeb !important; color: #b45309 !important; border-color: rgba(245, 158, 11, 0.25) !important; }
+
+/* Botones de acción en tabla */
+.table-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.btn-icon-action {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid var(--color-ash-border) !important;
+  background: var(--color-snow) !important;
+  color: var(--color-stone) !important;
+  cursor: pointer;
+  transition: all 0.2s ease !important;
+  font-size: 0.85rem !important;
+}
+
+.btn-icon-action:hover {
+  background: var(--color-fog) !important;
+  color: var(--color-carbon) !important;
+  transform: translateY(-1px);
+}
+
+.btn-icon-action.btn-edit:hover {
+  border-color: #3b82f6 !important;
+  color: #2563eb !important;
+  background: #eff6ff !important;
+  box-shadow: none !important;
+}
+
+.btn-icon-action.btn-delete:hover {
+  border-color: #ef4444 !important;
+  color: #dc2626 !important;
+  background: #fee2e2 !important;
+  box-shadow: none !important;
+}
+
+/* Mensaje de vacío / sin datos */
+.empty-table-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--color-stone);
+}
+
+.empty-table-state i {
+  font-size: 2.6rem;
+  margin-bottom: 12px;
+  opacity: 0.5;
+  color: var(--color-stone);
+}
+
+.empty-table-state h3 {
+  font-size: 1.1rem;
+  color: var(--color-carbon);
+  margin-bottom: 6px;
+}
+
+/* Modal personalizado de Inventario */
+.modal-stock-preview {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 14px 18px !important;
+  border-radius: var(--radius-cardinner) !important;
+  background: var(--color-fog) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  margin-top: 8px !important;
+}

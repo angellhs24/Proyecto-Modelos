@@ -6,6 +6,9 @@ const { verificarAutenticacion } = require('../middlewares/authMiddleware');
 // Login de usuario
 router.post('/login', authController.login);
 
+// Logout de usuario (invalida cookie HttpOnly)
+router.post('/logout', authController.logout);
+
 // Recuperar contraseña
 router.post('/recuperar-password', authController.recuperarPassword);
 

@@ -164,10 +164,14 @@ CREATE TABLE IF NOT EXISTS Documentos_escaneados (
 CREATE TABLE IF NOT EXISTS Recetas (
     Receta_id VARCHAR(50) PRIMARY KEY,
     fk_consulta_id VARCHAR(50) NOT NULL,
+    fk_paciente_id BIGINT NOT NULL,
     indicaciones_generales TEXT,
     fecha_emision DATETIME DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_recetas_consultas
         FOREIGN KEY (fk_consulta_id) REFERENCES Consultas(Consulta_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_recetas_pacientes
+        FOREIGN KEY (fk_paciente_id) REFERENCES Pacientes(No_expediente)
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
@@ -176,9 +180,9 @@ CREATE TABLE IF NOT EXISTS Detalles_Receta (
     fk_receta_id VARCHAR(50) NOT NULL,
     medicamento VARCHAR(150) NOT NULL,
     dosis VARCHAR(50) NOT NULL,
-    via_administracion VARCHAR(50),
-    frecuencia VARCHAR(50),
-    duracion VARCHAR(50),
+    via_administracion VARCHAR(50) DEFAULT 'Tópica',
+    frecuencia VARCHAR(50) DEFAULT 'Cada 12 horas',
+    duracion VARCHAR(50) DEFAULT '7 días',
     CONSTRAINT fk_detalles_receta
         FOREIGN KEY (fk_receta_id) REFERENCES Recetas(Receta_id)
         ON DELETE CASCADE ON UPDATE CASCADE

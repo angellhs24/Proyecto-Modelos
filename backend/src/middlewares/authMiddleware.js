@@ -38,7 +38,11 @@ function verificarTokenValido(token) {
     .update(`${header}.${payload}`)
     .digest('base64url');
 
-  if (signature !== expectedSig) return null;
+  const sigBuf = Buffer.from(signature);
+  const expBuf = Buffer.from(expectedSig);
+  if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
+    return null;
+  }
 
   try {
     const data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
@@ -57,11 +61,18 @@ function verificarTokenValido(token) {
 async function verificarAutenticacion(req, res, next) {
   try {
     let token = null;
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      token = authHeader.slice(7).trim();
-    } else if (req.query && req.query.token) {
-      token = req.query.token;
+
+    // 1. Prioridad: Cookie de sesión HttpOnly
+    if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    } else {
+      // 2. Soporte para cabecera Authorization (API REST y suites de pruebas)
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.slice(7).trim();
+      } else if (req.query && req.query.token) {
+        token = req.query.token;
+      }
     }
 
     let usuarioId = null;
@@ -73,8 +84,8 @@ async function verificarAutenticacion(req, res, next) {
       }
     }
 
-    // Compatibilidad adicional con headers directos (para pruebas y depuración)
-    if (!usuarioId) {
+    // Cabeceras directas de depuración: estrictamente bloqueadas en producción
+    if (!usuarioId && process.env.NODE_ENV !== 'production' && process.env.ALLOW_INSECURE_DEBUG_HEADERS === 'true') {
       const headerUserId = req.headers['x-usuario-id'] || req.headers['x-user-id'];
       if (headerUserId) {
         usuarioId = parseInt(headerUserId, 10);

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const bcrypt = require('bcrypt');
 const db = require('../config/db');
 
 // Ruta del archivo de persistencia local para metadatos del Admin (estados de baja, recepcionistas, avisos)
@@ -244,7 +245,7 @@ const crearPodologoAdmin = async (req, res) => {
   const apeM = (ape_materno || '').trim() || null;
   const tel = (Telefono_pod || '').trim() || null;
   const correo = (Email || email || '').trim().toLowerCase();
-  const pass = Password_hash || password || 'podo123';
+  const rawPass = Password_hash || password || 'podo123';
   const turnoVal = (turno || 'C').slice(0, 1).toUpperCase();
 
   if (!cedula || !nombre || !apeP || !correo) {
@@ -252,11 +253,16 @@ const crearPodologoAdmin = async (req, res) => {
   }
 
   try {
-    // 1. Insertar en tabla MySQL Podologos
+    // 1. Cifrado seguro de contraseña con Bcrypt
+    const passHash = (rawPass.startsWith('$2a$') || rawPass.startsWith('$2b$'))
+      ? rawPass
+      : await bcrypt.hash(rawPass, 10);
+
+    // 2. Insertar en tabla MySQL Podologos
     await db.pool.query(
       `INSERT INTO Podologos (Cedula_podologo, Nombre, ape_paterno, ape_materno, Telefono_pod, Email, Password_hash, turno)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [cedula, nombre, apeP, apeM, tel, correo, pass, turnoVal]
+      [cedula, nombre, apeP, apeM, tel, correo, passHash, turnoVal]
     );
 
     // 2. Guardar estado activo en store de admin
@@ -288,7 +294,7 @@ const crearPodologoAdmin = async (req, res) => {
     if (error.code === 'ER_DUP_ENTRY') {
       return res.status(409).json({ error: 'Ya existe un podólogo con esa cédula profesional o correo electrónico' });
     }
-    res.status(500).json({ error: 'Error en base de datos al registrar podólogo: ' + error.message });
+    res.status(500).json({ error: 'Error en base de datos al registrar podólogo' });
   }
 };
 
@@ -764,7 +770,7 @@ const crearClinicaAdmin = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al dar de alta clínica:', error);
-    res.status(500).json({ error: 'Error al registrar la clínica en base de datos: ' + error.message });
+    res.status(500).json({ error: 'Error al registrar la clínica en base de datos' });
   }
 };
 

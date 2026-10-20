@@ -1,120 +1,106 @@
 /* ==========================================================================
-   ESTILOS ESPECÍFICOS PARA EL CONSULTORIO PODOLÓGICO Y MAPA ANATÓMICO
+   ESTILOS DE CONSULTORIO PODOLÓGICO Y MAPA ANATÓMICO (LIGHT CLINICAL STYLE)
    ========================================================================== */
 
-/* Paciente Activo HUD */
+/* Paciente Activo HUD (Tarjeta Blanca Elevada 24px) */
 .active-patient-hud {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
-  border: 1px solid rgba(168, 85, 247, 0.3);
-  box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.15);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem 1.75rem;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  box-shadow: var(--shadow-card) !important;
+  border-radius: var(--radius-cards) !important; /* 24px */
+  padding: 20px 24px !important;
+  margin-bottom: 24px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 20px !important;
   flex-wrap: wrap;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .patient-hud-info {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
 }
 
 .patient-hud-avatar {
-  width: 54px;
-  height: 54px;
-  border-radius: var(--radius-md);
-  background: var(--color-accent-gradient);
-  display: grid;
-  place-items: center;
-  font-size: 1.6rem;
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  background: var(--color-midnight-ink) !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 1.35rem !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  flex-shrink: 0;
 }
 
 .patient-hud-details h3 {
-  font-size: 1.3rem;
-  margin-bottom: 0.15rem;
+  font-family: var(--font-display) !important;
+  font-size: 1.3rem !important;
+  font-weight: 600 !important;
+  color: var(--color-carbon) !important;
+  margin-bottom: 4px;
 }
 
 .patient-hud-meta {
-  display: flex;
+  display: flex !important;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  font-size: 0.82rem;
-  color: var(--text-secondary);
+  gap: 12px;
+  font-size: 0.82rem !important;
+  color: var(--color-stone) !important;
 }
 
 .patient-hud-meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+.patient-hud-meta strong {
+  color: var(--color-graphite) !important;
 }
 
 .patient-hud-badges {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.badge-risk {
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.25rem 0.65rem;
-  border-radius: var(--radius-full);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.badge-risk.diabetic {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  animation: pulseDiabetic 2s infinite;
-}
-
-@keyframes pulseDiabetic {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-  50% { box-shadow: 0 0 10px 2px rgba(239, 68, 68, 0.3); }
-}
-
-.badge-risk.hypertensive {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.4);
+  display: flex !important;
+  gap: 8px !important;
+  flex-wrap: wrap;
 }
 
 /* Somatometría & IMC */
 .imc-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.8rem;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  font-size: 0.85rem;
-  font-weight: 600;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 6px 14px !important;
+  background: var(--color-fog) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-badges) !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  color: var(--color-graphite) !important;
 }
 
 .imc-indicator {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
 }
 
-.imc-normal { background: var(--color-success); }
-.imc-sobrepeso { background: var(--color-warning); }
-.imc-obesidad { background: var(--color-danger); }
+.imc-normal { background: var(--color-mint-subtle) !important; }
+.imc-sobrepeso { background: var(--color-amber-subtle) !important; }
+.imc-obesidad { background: var(--color-dusty-rose) !important; }
 
-/* CONTENEDOR DEL MAPA PODOLÓGICO INTERACTIVO */
+/* ==========================================================================
+   CONTENEDOR DEL MAPA PODOLÓGICO INTERACTIVO
+   ========================================================================== */
 .foot-map-container {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 1.75rem;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 24px;
   align-items: start;
 }
 
@@ -125,123 +111,133 @@
 }
 
 .foot-map-board {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
-  padding: 1.5rem;
-  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important; /* 24px */
+  padding: 24px !important;
+  box-shadow: var(--shadow-subtle) !important;
   position: relative;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .foot-map-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.25rem;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 20px !important;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .foot-views-toggle {
-  display: inline-flex;
-  background: rgba(30, 41, 59, 0.8);
-  padding: 0.25rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--glass-border);
+  display: inline-flex !important;
+  background: var(--color-fog) !important;
+  padding: 4px !important;
+  border-radius: var(--radius-buttons) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  gap: 4px;
 }
 
 .foot-view-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  font-family: var(--font-family);
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 0.45rem 0.9rem;
-  border-radius: var(--radius-sm);
+  background: transparent !important;
+  border: none !important;
+  color: var(--color-stone) !important;
+  font-family: var(--font-inter) !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  padding: 6px 14px !important;
+  border-radius: var(--radius-buttons) !important;
   cursor: pointer;
-  transition: var(--transition-fast);
+  transition: all 0.2s ease !important;
+  box-shadow: none !important;
+}
+
+.foot-view-btn:hover {
+  color: var(--color-carbon) !important;
 }
 
 .foot-view-btn.active {
-  background: var(--color-accent-gradient);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4);
+  background: var(--color-midnight-ink) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
 }
 
 /* Canvas / SVG Anatómico */
 .anatomy-svg-wrapper {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1rem 0;
-  min-height: 440px;
+  display: flex !important;
+  justify-content: space-around !important;
+  align-items: center !important;
+  gap: 20px !important;
+  padding: 12px 0 !important;
+  min-height: 420px;
 }
 
 .foot-canvas-card {
   flex: 1;
-  max-width: 300px;
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-lg);
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  max-width: 290px;
+  background: #fbfcfd !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important;
+  padding: 18px 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
   position: relative;
-  transition: var(--transition-normal);
+  transition: all 0.2s ease !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .foot-canvas-card:hover {
-  border-color: rgba(168, 85, 247, 0.4);
+  border-color: #cbd5e1 !important;
 }
 
 .foot-card-label {
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #c084fc;
-  margin-bottom: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--color-graphite) !important;
+  margin-bottom: 12px;
 }
 
 .interactive-foot-svg {
   width: 100%;
-  max-width: 240px;
-  height: 380px;
+  max-width: 230px;
+  height: 360px;
   cursor: crosshair;
 }
 
 /* Zonas Interactivas SVG */
 .foot-zone {
-  fill: rgba(71, 85, 105, 0.35);
-  stroke: rgba(148, 163, 184, 0.5);
+  fill: #e2e8f0;
+  stroke: #94a3b8;
   stroke-width: 1.5;
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .foot-zone:hover {
-  fill: rgba(168, 85, 247, 0.45);
-  stroke: #c084fc;
-  stroke-width: 2.5;
-  filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.6));
+  fill: rgba(124, 58, 237, 0.15) !important;
+  stroke: var(--color-purple-subtle) !important;
+  stroke-width: 2.2;
 }
 
 .foot-zone.selected {
-  fill: rgba(236, 72, 153, 0.55);
-  stroke: #f472b6;
-  stroke-width: 3;
-  filter: drop-shadow(0 0 12px rgba(236, 72, 153, 0.8));
+  fill: rgba(246, 146, 81, 0.25) !important;
+  stroke: var(--color-tangerine-tag) !important;
+  stroke-width: 2.5;
 }
 
 /* Marcadores / Pines de Lesiones sobre el pie */
 .lesion-pin {
   cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .lesion-pin:hover {
-  transform: scale(1.3);
+  transform: scale(1.25);
 }
 
 .pin-pulse {
@@ -251,129 +247,186 @@
 
 @keyframes pulsePin {
   0% { r: 6; opacity: 1; }
-  50% { r: 14; opacity: 0.25; }
-  100% { r: 20; opacity: 0; }
+  50% { r: 13; opacity: 0.2; }
+  100% { r: 18; opacity: 0; }
 }
 
 /* Panel de Registro Lateral */
 .lesion-form-panel {
-  background: var(--glass-surface-card);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-md);
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important; /* 24px */
+  padding: 24px !important;
+  box-shadow: var(--shadow-subtle) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .zone-selector-indicator {
-  background: rgba(168, 85, 247, 0.12);
-  border: 1px dashed rgba(168, 85, 247, 0.4);
-  border-radius: var(--radius-md);
-  padding: 0.85rem 1rem;
-  margin-bottom: 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  background: #f5f3ff !important;
+  border: 1px dashed rgba(124, 58, 237, 0.35) !important;
+  border-radius: var(--radius-cardinner) !important;
+  padding: 14px 16px !important;
+  margin-bottom: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
 }
 
 .zone-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--color-accent-gradient);
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-size: 1rem;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: var(--color-midnight-ink) !important;
+  display: grid !important;
+  place-items: center !important;
+  color: #ffffff !important;
+  font-size: 0.95rem !important;
+  flex-shrink: 0;
 }
 
 .zone-text h4 {
-  font-size: 0.95rem;
-  color: #c084fc;
+  font-size: 0.92rem !important;
+  font-weight: 600 !important;
+  color: #5b21b6 !important;
+  margin-bottom: 2px;
 }
 
 .zone-text p {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
+  font-size: 0.78rem !important;
+  color: var(--color-stone) !important;
 }
 
 /* Lista de Lesiones Registradas */
 .lesions-list-card {
-  margin-top: 1.5rem;
+  margin-top: 24px;
 }
 
 .lesion-item {
-  background: rgba(15, 23, 42, 0.65);
-  border: 1px solid var(--glass-border-subtle);
-  border-radius: var(--radius-md);
-  padding: 0.85rem 1rem;
-  margin-bottom: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  transition: var(--transition-fast);
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cardinner) !important;
+  padding: 12px 16px !important;
+  margin-bottom: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  transition: all 0.2s ease !important;
 }
 
 .lesion-item:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(30, 41, 59, 0.5);
+  background: var(--color-fog) !important;
+  border-color: #cbd5e1 !important;
 }
 
 .lesion-item-info h5 {
-  font-size: 0.9rem;
+  font-size: 0.88rem !important;
+  font-weight: 600 !important;
+  color: var(--color-carbon) !important;
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 6px;
 }
 
 .lesion-item-info p {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  margin-top: 0.2rem;
+  font-size: 0.78rem !important;
+  color: var(--color-stone) !important;
+  margin-top: 3px;
 }
 
 .lesion-item-tag {
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-full);
-  background: rgba(236, 72, 153, 0.2);
-  color: #f472b6;
-  border: 1px solid rgba(236, 72, 153, 0.3);
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  padding: 3px 10px !important;
+  border-radius: var(--radius-badges) !important;
+  background: #fdf2f8 !important;
+  color: #be185d !important;
+  border: 1px solid rgba(219, 39, 119, 0.25) !important;
 }
 
 /* Acordeón de Expediente */
 .accordion-item {
-  background: var(--glass-surface-card);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  margin-bottom: 1rem;
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important; /* 24px */
+  margin-bottom: 16px;
   overflow: hidden;
+  box-shadow: var(--shadow-subtle) !important;
 }
 
 .accordion-header {
-  padding: 1.15rem 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  padding: 18px 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.02);
-  transition: var(--transition-fast);
+  background: var(--color-snow) !important;
+  transition: all 0.2s ease !important;
 }
 
 .accordion-header:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-fog) !important;
 }
 
 .accordion-header h3 {
-  font-size: 1.1rem;
+  font-size: 1.15rem !important;
+  font-weight: 600 !important;
+  color: var(--color-carbon) !important;
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 10px;
 }
 
 .accordion-body {
-  padding: 1.5rem;
-  border-top: 1px solid var(--glass-border-subtle);
+  padding: 24px !important;
+  border-top: 1px solid #f2f2f2 !important;
+  background: var(--color-snow) !important;
 }
+
+/* ==========================================================================
+   MÓDULO DE RECETA MÉDICA DIGITAL (LIGHT MINIMALIST / CORPORATIVO)
+   ========================================================================== */
+.card-receta-digital {
+  background: #ffffff !important;
+  border-radius: 24px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.btn-tangerine {
+  background: var(--color-tangerine-tag, #f69251) !important;
+  color: #ffffff !important;
+  border: none !important;
+  font-weight: 600 !important;
+  border-radius: 12px !important;
+  padding: 12px 26px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(246, 146, 81, 0.28) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: inherit !important;
+}
+
+.btn-tangerine:hover {
+  background: var(--color-tangerine-hover, #e58241) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(246, 146, 81, 0.36) !important;
+}
+
+.btn-tangerine:active {
+  transform: translateY(0) !important;
+}
+
+.item-medicamento-fila:hover {
+  border-color: #cbd5e1 !important;
+  background: #f1f5f9 !important;
+}
+
+.tarjeta-receta-emitida:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important;
+}
+

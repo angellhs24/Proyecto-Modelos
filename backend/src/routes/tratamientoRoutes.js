@@ -5,6 +5,9 @@ const {
   crearTratamiento,
   eliminarTratamiento
 } = require('../controllers/tratamientoController');
+const { verificarAutenticacion } = require('../middlewares/authMiddleware');
+
+router.use(verificarAutenticacion);
 
 router.get('/consulta/:consulta_id', obtenerTratamientosPorConsulta);
 router.post('/', crearTratamiento);

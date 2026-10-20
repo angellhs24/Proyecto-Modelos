@@ -8,6 +8,9 @@ const {
   eliminarDetalleMapa,
   limpiarMapaPorConsulta
 } = require('../controllers/mapaPodologicoController');
+const { verificarAutenticacion } = require('../middlewares/authMiddleware');
+
+router.use(verificarAutenticacion);
 
 router.get('/', obtenerDetallesMapa);
 router.get('/consulta/:consulta_id', obtenerPorConsulta);
