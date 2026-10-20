@@ -196,37 +196,41 @@ function renderTablaAgenda(consultas) {
 
     return `
       <tr>
-        <td><strong>${fechaFormat}</strong></td>
-        <td><code style="color:#38bdf8;">${c.Consulta_id}</code></td>
+        <td><strong>${escapeHtml(fechaFormat)}</strong></td>
+        <td><code style="color:#38bdf8;">${escapeHtml(c.Consulta_id)}</code></td>
         <td>
-          <div style="font-weight: 600;">${c.paciente_nombre || 'Paciente'}</div>
-          <small style="color: var(--text-secondary);">Exp: ${c.fk_no_expediente}</small>
+          <div style="font-weight: 600;">${escapeHtml(c.paciente_nombre || 'Paciente')}</div>
+          <small style="color: var(--text-secondary);">Exp: ${escapeHtml(c.fk_no_expediente)}</small>
         </td>
-        <td>${c.paciente_telefono || '—'}</td>
+        <td>${escapeHtml(c.paciente_telefono || '—')}</td>
         <td>
           <i class="fa-solid fa-user-doctor" style="color: #c084fc; margin-right: 0.3rem;"></i>
-          ${c.podologo_nombre || c.fk_cedula_podologo}
+          ${escapeHtml(c.podologo_nombre || c.fk_cedula_podologo)}
         </td>
-        <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${c.motivo_o_notas || ''}">
-          ${c.motivo_o_notas || '—'}
+        <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(c.motivo_o_notas || '')}">
+          ${escapeHtml(c.motivo_o_notas || '—')}
         </td>
-        <td><span class="status-badge ${estadoBadgeClass}">${c.estado}</span></td>
+        <td><span class="status-badge ${estadoBadgeClass}">${escapeHtml(c.estado)}</span></td>
         <td>${estadoPagoBadge}</td>
         <td>
-          <div style="display: flex; gap: 0.4rem;">
-            <button class="btn btn-secondary btn-sm" onclick="abrirModalEditarConsulta('${c.Consulta_id}')" title="Reprogramar o cambiar estado">
+          <div style="display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn btn-secondary btn-sm" onclick="abrirModalEditarConsulta('${escapeHtml(c.Consulta_id)}')" title="Reprogramar o cambiar estado">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
             ${c.estado_pago !== 'Completado' ? `
-              <button class="btn btn-success btn-sm" onclick="abrirModalCobro('${c.Consulta_id}', '${(c.paciente_nombre || '').replace(/'/g, "\\'")}')" title="Cobrar consulta">
+              <button class="btn btn-success btn-sm" onclick="abrirModalCobro('${escapeHtml(c.Consulta_id)}', '${escapeHtml(c.paciente_nombre || '')}')" title="Cobrar consulta">
                 <i class="fa-solid fa-dollar-sign"></i> Cobrar
               </button>
             ` : `
-              <button class="btn btn-secondary btn-sm" onclick="verComprobantePago('${c.Pago_id}')" title="Ver recibo de pago">
+              <button class="btn btn-secondary btn-sm" onclick="verComprobantePago('${escapeHtml(c.Pago_id)}')" title="Ver recibo de pago">
                 <i class="fa-solid fa-receipt"></i>
               </button>
             `}
-            <button class="btn btn-danger-outline btn-sm" onclick="cancelarConsulta('${c.Consulta_id}')" title="Cancelar cita">
+            <!-- Botón Píldora Pastel para Descargar Receta Médica Digital -->
+            <button class="btn btn-sm btn-pill-receta-pastel" onclick="descargarRecetaConsulta('${escapeHtml(c.Consulta_id)}', '${escapeHtml(c.paciente_nombre || '')}')" title="Descargar / Imprimir Receta Médica Digital (PDF)">
+              <i class="fa-solid fa-file-prescription"></i> Descargar Receta
+            </button>
+            <button class="btn btn-danger-outline btn-sm" onclick="cancelarConsulta('${escapeHtml(c.Consulta_id)}')" title="Cancelar cita">
               <i class="fa-solid fa-ban"></i>
             </button>
           </div>
@@ -646,6 +650,38 @@ window.verComprobantePago = async (pagoId) => {
       `;
     }
     document.getElementById('modal-ver-recibo').showModal();
+  }
+};
+
+/**
+ * Descargar / Visualizar Receta Médica Digital (PDF) para Recepcionista
+ * Rol ID: 3 tiene permisos legítimos de lectura (GET) e impresión para entrega al paciente.
+ */
+window.descargarRecetaConsulta = async function (consultaId, pacienteNombre = 'Paciente') {
+  try {
+    AppAuth.showToast(`Consultando receta médica para folio ${consultaId}...`, 'info');
+
+    const res = await AppAuth.fetchApi(`/api/recetas/consulta/${consultaId}`);
+    
+    // Si existe la receta, abrir el PDF membretado
+    let receta = null;
+    if (res.ok && res.data) {
+      receta = Array.isArray(res.data) ? res.data[0] : res.data;
+    }
+
+    if (receta && (receta.Receta_id || receta.folio)) {
+      const folio = receta.Receta_id || receta.folio;
+      const pdfUrl = receta.url_pdf || `/api/recetas/${encodeURIComponent(folio)}/pdf`;
+      AppAuth.showToast(`Abriendo Receta Médica Oficial ${folio} de ${pacienteNombre}...`, 'success');
+      window.open(pdfUrl, '_blank');
+      return;
+    }
+
+    // Si no se encontró receta emitida para esta consulta
+    AppAuth.showToast(`El especialista podólogo aún no ha emitido una receta médica para la consulta ${consultaId}.`, 'warning');
+  } catch (err) {
+    console.error('Error al consultar receta:', err);
+    AppAuth.showToast('Error de comunicación al buscar la receta médica.', 'error');
   }
 };
 

@@ -1,0 +1,362 @@
+/* ==========================================================================
+   ESTILOS DE MÓDULO DE CAJA Y COBROS (LIGHT MINIMALIST CLINICAL STYLE)
+   ========================================================================== */
+
+/* Grid de Métricas KPI Financieras */
+.caja-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.caja-kpi-card {
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important; /* 24px */
+  padding: 22px 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 18px !important;
+  box-shadow: var(--shadow-subtle) !important;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.caja-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card) !important;
+}
+
+.caja-kpi-icon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.25rem !important;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+}
+
+.caja-kpi-icon.amber {
+  background: #fffbeb !important;
+  color: #d97706 !important;
+  border-color: rgba(245, 158, 11, 0.25) !important;
+}
+
+.caja-kpi-icon.green {
+  background: #ecfdf5 !important;
+  color: #059669 !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+.caja-kpi-icon.blue {
+  background: #eff6ff !important;
+  color: #2563eb !important;
+  border-color: rgba(37, 99, 235, 0.25) !important;
+}
+
+.caja-kpi-icon.purple {
+  background: #f5f3ff !important;
+  color: #7c3aed !important;
+  border-color: rgba(124, 58, 237, 0.25) !important;
+}
+
+.caja-kpi-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.caja-kpi-val {
+  font-family: var(--font-display) !important;
+  font-size: 1.9rem !important;
+  font-weight: 600 !important;
+  line-height: 1.1;
+  color: var(--color-carbon) !important;
+}
+
+.caja-kpi-label {
+  font-size: 0.76rem !important;
+  font-weight: 600 !important;
+  color: var(--color-stone) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+
+/* Toolbar de Caja */
+.caja-toolbar {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px !important;
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cards) !important;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-subtle) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Sub-pestañas de Caja (Pendientes / Historial de Pagos) */
+.caja-subtabs-bar {
+  display: inline-flex;
+  background: var(--color-fog);
+  border: 1px solid var(--color-ash-border);
+  border-radius: var(--radius-buttons);
+  padding: 4px;
+  gap: 4px;
+}
+
+.caja-subtab-btn {
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-buttons);
+  padding: 7px 16px;
+  font-family: var(--font-inter);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-stone);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.caja-subtab-btn:hover {
+  color: var(--color-carbon);
+}
+
+.caja-subtab-btn.active {
+  background: var(--color-midnight-ink);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Badges de Estado Financiero */
+.badge-pago-pendiente {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 0.74rem !important;
+  font-weight: 600 !important;
+  padding: 4px 12px !important;
+  border-radius: var(--radius-badges) !important;
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+.badge-pago-completado {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 0.74rem !important;
+  font-weight: 600 !important;
+  padding: 4px 12px !important;
+  border-radius: var(--radius-badges) !important;
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  box-shadow: none !important;
+}
+
+.badge-consulta-atendida {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 0.74rem !important;
+  font-weight: 600 !important;
+  padding: 4px 12px !important;
+  border-radius: var(--radius-badges) !important;
+  background: #dbeafe !important;
+  color: #1e40af !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Botón Verde 'Cobrar' */
+.btn-cobrar {
+  background: var(--color-mint-subtle) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 0.84rem !important;
+  padding: 7px 16px !important;
+  border-radius: var(--radius-buttons) !important; /* 28px pill */
+  border: none !important;
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25) !important;
+  cursor: pointer;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn-cobrar:hover {
+  background: var(--color-mint-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(16, 185, 129, 0.35) !important;
+}
+
+.btn-cobrar:active {
+  transform: translateY(0);
+}
+
+/* Píldora de Monto */
+.monto-pill {
+  font-family: var(--font-display) !important;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: #059669 !important;
+  letter-spacing: -0.01em;
+}
+
+/* Modal de Cobro */
+.paciente-resumen-box {
+  background: var(--color-fog) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cardinner) !important;
+  padding: 16px 20px !important;
+  margin-bottom: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+
+.paciente-avatar-circle {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  background: var(--color-midnight-ink) !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  flex-shrink: 0;
+  box-shadow: none !important;
+}
+
+/* Selector Visual de Método de Pago */
+.metodos-pago-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 12px !important;
+  margin-top: 8px !important;
+}
+
+.metodo-card {
+  background: var(--color-snow) !important;
+  border: 1px solid var(--color-ash-border) !important;
+  border-radius: var(--radius-cardinner) !important;
+  padding: 14px 10px !important;
+  text-align: center !important;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 6px !important;
+  user-select: none;
+}
+
+.metodo-card i {
+  font-size: 1.3rem !important;
+  color: var(--color-stone) !important;
+  transition: color 0.2s ease;
+}
+
+.metodo-card span {
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  color: var(--color-graphite) !important;
+}
+
+.metodo-card:hover {
+  background: var(--color-fog) !important;
+  border-color: #d1d5db !important;
+}
+
+.metodo-card.active {
+  background: #ecfdf5 !important;
+  border-color: var(--color-mint-subtle) !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.15) !important;
+}
+
+.metodo-card.active i {
+  color: #059669 !important;
+}
+
+.metodo-card.active span {
+  color: #065f46 !important;
+}
+
+/* Input Destacado de Monto */
+.monto-input-wrapper {
+  position: relative;
+  margin-top: 6px;
+}
+
+.monto-input-wrapper .currency-symbol {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-display) !important;
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
+  color: #059669 !important;
+}
+
+.input-monto-grande {
+  padding-left: 32px !important;
+  font-family: var(--font-display) !important;
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+  color: var(--color-carbon) !important;
+  letter-spacing: -0.01em;
+}
+
+/* Modal de Recibo Digital (Ticket Limpio Corporativo) */
+.recibo-digital-ticket {
+  background: #ffffff !important;
+  border: 1px dashed var(--color-ash-border) !important;
+  border-radius: var(--radius-cardinner) !important;
+  padding: 20px 24px !important;
+  margin-top: 14px !important;
+  box-shadow: var(--shadow-subtle) !important;
+}
+
+.recibo-line {
+  display: flex !important;
+  justify-content: space-between !important;
+  padding: 8px 0 !important;
+  font-size: 0.86rem !important;
+  border-bottom: 1px solid #f2f2f2 !important;
+  color: var(--color-graphite) !important;
+}
+
+.recibo-line strong {
+  color: var(--color-carbon) !important;
+}
+
+.recibo-line.total {
+  border-bottom: none !important;
+  border-top: 2px solid var(--color-carbon) !important;
+  margin-top: 10px !important;
+  padding-top: 12px !important;
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  color: #059669 !important;
+}

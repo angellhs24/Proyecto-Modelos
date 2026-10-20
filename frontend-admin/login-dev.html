@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login de Desarrollo | Elite Foot Care</title>
+
+  <!-- Tipografía Dialog: DM Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons 6.5.2 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <style>
+    /* =====================================================================
+       ESTILOS CLEAN & MINIMALIST: LOGIN DE DESARROLLO CORPORATIVO
+       ===================================================================== */
+    :root {
+      --bg-canvas: #f7f9fa;
+      --color-snow: #ffffff;
+      --color-midnight-ink: #181825;
+      --color-carbon: #111111;
+      --color-graphite: #2d3748;
+      --color-stone: #718096;
+      --color-ash-border: #ebebeb;
+      --color-tangerine: #f69251;
+      --color-mint: #10b981;
+      --color-blue: #2563eb;
+      --color-purple: #7c3aed;
+      --color-dusty-rose: #ef4444;
+
+      --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-body: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+      --radius-cards: 24px;
+      --radius-buttons: 28px;
+      --radius-badges: 100px;
+      --radius-inner: 16px;
+
+      --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
+      --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+      --shadow-floating: 0 12px 36px rgba(0, 0, 0, 0.06);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-canvas);
+      color: var(--color-midnight-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Contenedor Principal Showroom */
+    .dev-login-wrapper {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 880px;
+      background: var(--color-snow);
+      border: 1px solid var(--color-ash-border);
+      border-radius: var(--radius-cards);
+      padding: 40px;
+      box-shadow: var(--shadow-card);
+      animation: fadeInCard 0.3s ease-out;
+    }
+
+    @keyframes fadeInCard {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Encabezado */
+    .header-section {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .dev-badge-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-canvas);
+      border: 1px solid var(--color-ash-border);
+      padding: 5px 16px;
+      border-radius: var(--radius-badges);
+      font-size: 0.74rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-stone);
+      margin-bottom: 16px;
+    }
+
+    .dev-badge-banner .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--color-mint);
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--color-carbon);
+      color: #ffffff;
+      font-size: 1.4rem;
+      margin-bottom: 14px;
+    }
+
+    .title-main {
+      font-family: var(--font-display);
+      font-size: 2.1rem;
+      font-weight: 600;
+      color: var(--color-carbon);
+      letter-spacing: -0.025em;
+      margin-bottom: 6px;
+    }
+
+    .subtitle-main {
+      color: var(--color-stone);
+      font-size: 0.95rem;
+      max-width: 540px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* Grid de Tarjetas de Roles */
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .role-card {
+      background: var(--color-snow);
+      border: 1px solid var(--color-ash-border);
+      border-radius: var(--radius-inner);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--shadow-subtle);
+    }
+
+    .role-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card);
+      border-color: #cbd5e1;
+    }
+
+    .role-meta-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .role-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--bg-canvas);
+      border: 1px solid var(--color-ash-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      color: var(--color-midnight-ink);
+    }
+
+    .role-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: var(--radius-badges);
+      background: var(--bg-canvas);
+      border: 1px solid var(--color-ash-border);
+      color: var(--color-stone);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .role-name {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--color-carbon);
+      letter-spacing: -0.015em;
+      margin-bottom: 3px;
+    }
+
+    .role-title {
+      font-size: 0.82rem;
+      color: var(--color-stone);
+      margin-bottom: 16px;
+    }
+
+    .role-details-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--color-graphite);
+      background: var(--bg-canvas);
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--color-ash-border);
+    }
+
+    .role-details-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .role-details-list li i {
+      width: 16px;
+      color: var(--color-stone);
+      font-size: 0.85rem;
+    }
+
+    .role-details-list code {
+      font-family: monospace;
+      font-size: 0.8rem;
+      background: var(--color-snow);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--color-ash-border);
+    }
+
+    /* Botón de Simulación de Sesión */
+    .btn-simulate {
+      width: 100%;
+      height: 46px;
+      border-radius: var(--radius-buttons);
+      border: none;
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .card-recep .btn-simulate {
+      background: var(--color-midnight-ink);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(24, 24, 37, 0.2);
+    }
+
+    .card-recep .btn-simulate:hover {
+      background: #000000;
+      transform: translateY(-1px);
+    }
+
+    .card-podo .btn-simulate {
+      background: var(--color-tangerine);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(246, 146, 81, 0.28);
+    }
+
+    .card-podo .btn-simulate:hover {
+      background: var(--color-tangerine-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Barra de Estado Inferior */
+    .feedback-panel {
+      border-top: 1px solid var(--color-ash-border);
+      padding-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .feedback-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+      color: var(--color-stone);
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-stone);
+    }
+
+    .clear-session-btn {
+      background: var(--color-snow);
+      border: 1px solid var(--color-ash-border);
+      border-radius: var(--radius-buttons);
+      padding: 7px 16px;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--color-stone);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .clear-session-btn:hover {
+      background: #fef2f2;
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--color-dusty-rose);
+    }
+
+    /* Toast */
+    .toast-popup {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--color-midnight-ink);
+      color: #ffffff;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 0.86rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+
+    .toast-popup.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .toast-popup.success { border: 1px solid var(--color-mint); }
+    .toast-popup.error { border: 1px solid var(--color-dusty-rose); }
+    .toast-popup.info { border: 1px solid var(--color-blue); }
+  </style>
+</head>
+<body>
+
+  <main class="dev-login-wrapper">
+
+    <!-- Encabezado de Desarrollo -->
+    <header class="header-section">
+      <div class="dev-badge-banner">
+        <span class="pulse-dot"></span>
+        <span>Entorno de Simulación RBAC</span>
+      </div>
+
+      <div class="brand-logo">
+        <i class="fa-solid fa-socks"></i>
+      </div>
+
+      <h1 class="title-main">Acceso Rápido de Desarrollo</h1>
+      <p class="subtitle-main">
+        Emisión instantánea de tokens JWT para depuración de interfaces clínicas, auditoría de permisos y pruebas funcionales.
+      </p>
+    </header>
+
+    <!-- Grid de Selección de Rol -->
+    <section class="roles-grid">
+
+      <!-- TARJETA 1: RECEPCIONISTA (Usuario ID: 3) -->
+      <article class="role-card card-recep" id="card-recepcionista">
+        <div>
+          <div class="role-meta-header">
+            <div class="role-icon-box">
+              <i class="fa-solid fa-address-book"></i>
+            </div>
+            <span class="role-tag">Rol ID: 3</span>
+          </div>
+
+          <h2 class="role-name">María López</h2>
+          <p class="role-title">Recepción General • Estación DIF Tecámac</p>
+
+          <ul class="role-details-list">
+            <li><i class="fa-solid fa-envelope"></i> <code>recepcion@elitefoot.com</code></li>
+            <li><i class="fa-solid fa-id-card-clip"></i> Usuario ID: <strong>3</strong> · Recepcionista</li>
+            <li><i class="fa-solid fa-circle-check" style="color: #059669;"></i> Acceso: Agenda Global, Pacientes, Cobros, Inventario</li>
+            <li><i class="fa-solid fa-ban" style="color: #ef4444;"></i> Restringido: Historial patológico médico</li>
+          </ul>
+        </div>
+
+        <button 
+          type="button" 
+          class="btn-simulate" 
+          id="btn-simular-recep"
+          onclick="simularSesion(3, '/recepcion.html', this)">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>Simular Sesión de Recepcionista</span>
+        </button>
+      </article>
+
+      <!-- TARJETA 2: PODÓLOGO (Usuario ID: 4) -->
+      <article class="role-card card-podo" id="card-podologo">
+        <div>
+          <div class="role-meta-header">
+            <div class="role-icon-box">
+              <i class="fa-solid fa-user-doctor"></i>
+            </div>
+            <span class="role-tag">Rol ID: 4</span>
+          </div>
+
+          <h2 class="role-name">Dr. Carlos Pérez</h2>
+          <p class="role-title">Podólogo Titular • Cédula CED12345678</p>
+
+          <ul class="role-details-list">
+            <li><i class="fa-solid fa-envelope"></i> <code>dr.perez@elitefoot.com</code></li>
+            <li><i class="fa-solid fa-id-card-clip"></i> Usuario ID: <strong>4</strong> · Especialidad Podología</li>
+            <li><i class="fa-solid fa-circle-check" style="color: #059669;"></i> Acceso: Consultorio, Expediente ECE, Mapa Podológico</li>
+            <li><i class="fa-solid fa-ban" style="color: #ef4444;"></i> Restringido: Módulos de caja e inventario</li>
+          </ul>
+        </div>
+
+        <button 
+          type="button" 
+          class="btn-simulate" 
+          id="btn-simular-podo"
+          onclick="simularSesion(4, '/consultorio.html', this)">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>Simular Sesión de Podólogo</span>
+        </button>
+      </article>
+
+    </section>
+
+    <!-- Barra de Estado Inferior -->
+    <footer class="feedback-panel">
+      <div class="feedback-status">
+        <span class="status-indicator"></span>
+        <span id="session-status-text">Sin sesión activa actualmente</span>
+      </div>
+      <button type="button" class="clear-session-btn" onclick="limpiarSesionActiva()">
+        <i class="fa-solid fa-trash-can"></i> Limpiar sesión guardada
+      </button>
+    </footer>
+
+  </main>
+
+  <!-- Toast de Notificación -->
+  <div class="toast-popup" id="toast-dev">
+    <i class="fa-solid fa-circle-info" id="toast-icon"></i>
+    <span id="toast-msg">Mensaje</span>
+  </div>
+
+  <script>
+    /**
+     * Lógica de captura, almacenamiento de token y redirección automática
+     */
+    const SESSION_KEY = 'clinica_podologia_session';
+    const TOKEN_KEY = 'clinica_podologia_token';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      actualizarEstadoSesionUI();
+    });
+
+    function actualizarEstadoSesionUI() {
+      const statusText = document.getElementById('session-status-text');
+      try {
+        const raw = localStorage.getItem(SESSION_KEY);
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (raw && token) {
+          const user = JSON.parse(raw);
+          const rol = user.rol || (user.fk_rol_id === 3 ? 'Recepcionista' : 'Podólogo');
+          const nombre = user.nombre || user.perfil?.Nombre || user.email;
+          statusText.innerHTML = `Sesión detectada: <strong>${nombre}</strong> (${rol}) &bull; Token activo`;
+        } else {
+          statusText.textContent = 'Sin sesión previa activa en localStorage.';
+        }
+      } catch (e) {
+        statusText.textContent = 'Listo para simular sesión.';
+      }
+    }
+
+    async function simularSesion(usuarioId, defaultRedirectUrl, btnElement) {
+      const originalHtml = btnElement.innerHTML;
+      btnElement.disabled = true;
+      btnElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Emitiendo token JWT...</span>`;
+
+      try {
+        const response = await fetch('/api/dev/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ usuarioId })
+        });
+
+        let data = null;
+        try {
+          data = await response.json();
+        } catch (e) {
+          throw new Error('Respuesta del servidor no válida');
+        }
+
+        if (!response.ok || !data.token) {
+          throw new Error(data.error || 'No se pudo generar el token de sesión');
+        }
+
+        localStorage.setItem(TOKEN_KEY, data.token);
+        localStorage.setItem(SESSION_KEY, JSON.stringify(data.usuario));
+        
+        sessionStorage.setItem(TOKEN_KEY, data.token);
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(data.usuario));
+
+        const targetUrl = data.redirectUrl || defaultRedirectUrl;
+        mostrarToast(`Sesión de ${data.usuario.rol} iniciada con éxito. Redirigiendo...`, 'success');
+
+        setTimeout(() => {
+          window.location.href = targetUrl;
+        }, 650);
+
+      } catch (err) {
+        console.error('Error al simular sesión:', err);
+        mostrarToast(`Error: ${err.message}`, 'error');
+        btnElement.disabled = false;
+        btnElement.innerHTML = originalHtml;
+      }
+    }
+
+    function limpiarSesionActiva() {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
+      mostrarToast('Sesión y tokens eliminados de localStorage.', 'info');
+      actualizarEstadoSesionUI();
+    }
+
+    function mostrarToast(mensaje, tipo = 'info') {
+      const toast = document.getElementById('toast-dev');
+      const msgEl = document.getElementById('toast-msg');
+      const iconEl = document.getElementById('toast-icon');
+
+      msgEl.textContent = mensaje;
+      toast.className = `toast-popup show ${tipo}`;
+
+      if (tipo === 'success') {
+        iconEl.className = 'fa-solid fa-circle-check';
+        iconEl.style.color = '#10b981';
+      } else if (tipo === 'error') {
+        iconEl.className = 'fa-solid fa-triangle-exclamation';
+        iconEl.style.color = '#ef4444';
+      } else {
+        iconEl.className = 'fa-solid fa-circle-info';
+        iconEl.style.color = '#2563eb';
+      }
+
+      setTimeout(() => {
+        toast.className = 'toast-popup';
+      }, 3500);
+    }
+  </script>
+</body>
+</html>

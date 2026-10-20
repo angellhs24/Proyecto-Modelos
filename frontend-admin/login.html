@@ -3,71 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acceso al Sistema | Elite Foot Care — Monad Editorial System</title>
+  <title>Acceso al Sistema | Elite Foot Care</title>
   
-  <!-- Tipografías Monad: Untitled Serif / Editorial Serif + ABC Diatype Mono / JetBrains Mono -->
+  <!-- Tipografía Dialog: DM Sans & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Iconos Font Awesome 6 -->
+  <!-- Iconos Font Awesome 6.5.2 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
   <style>
     /* ==========================================================================
-       MONAD DESIGN SYSTEM TOKENS & ROLES
-       Editorial tech journal on warm parchment (#f6f3f1)
+       LOGIN CLINICAL DESIGN SYSTEM — LIGHT, MINIMALIST & CORPORATE
        ========================================================================== */
     :root {
-      /* Palette Tokens */
-      --color-parchment: #f6f3f1;
-      --color-lake-blue: #2b59d1;
-      --color-lake-blue-hover: #2247ad;
-      --color-periwinkle-mist: #cfdaf5;
-      --color-sky-blue: #a0b5eb;
-      --color-mint: #a7fccd;
-      --color-coral: #ff9473;
-      --color-gold: #ecda98;
-      --color-crimson: #f37a0a;
-      --color-off-black: #242424;
-      --color-ink: #000000;
-      --color-graphite: #4e4d4d;
-      --color-smoke: #797776;
-      --color-ash: #cecac8;
-      --color-card-surface: #ffffff;
-
-      /* Typography — Font Families */
-      --font-abc-diatype-mono: 'JetBrains Mono', 'ABC Diatype Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      --font-untitled-serif: 'Newsreader', 'Untitled Serif', Georgia, Cambria, "Times New Roman", Times, serif;
-
-      /* Typography — Scale & Tracking */
-      --text-caption: 12px;
-      --tracking-caption: -0.4px;
-      --text-body-sm: 14px;
-      --tracking-body-sm: -0.28px;
-      --text-body: 16px;
-      --tracking-body: -0.4px;
-      --text-label: 18px;
-      --tracking-label: -0.4px;
-      --text-body-lg: 20px;
-      --tracking-body-lg: -0.4px;
-      --text-subheading: 24px;
-      --tracking-subheading: -0.48px;
-      --text-heading-sm: 32px;
-      --tracking-heading-sm: -0.64px;
-      --text-heading: 40px;
-      --tracking-heading: -0.8px;
-
-      /* Radii */
-      --radius-tags: 9999px;
-      --radius-cards: 40px;
-      --radius-pills: 9999px;
-      --radius-buttons: 100px;
-      --radius-inputs: 16px;
-
-      /* Elevation & Transitions */
-      --shadow-ambient: rgba(0, 0, 0, 0.05) 0px 4px 24px 0px;
-      --transition-smooth: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      --bg-canvas: #f7f9fa;
+      --color-snow: #ffffff;
+      --color-midnight-ink: #181825;
+      --color-carbon: #111111;
+      --color-graphite: #2d3748;
+      --color-stone: #718096;
+      --color-pebble: #a0aec0;
+      --color-ash-border: #ebebeb;
+      --color-tangerine: #f69251;
+      --color-tangerine-hover: #e58241;
+      --color-mint: #10b981;
+      --color-dusty-rose: #ef4444;
+      --color-blue-soft: #2563eb;
+      
+      --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-body: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+      
+      --radius-cards: 24px;
+      --radius-buttons: 28px;
+      --radius-badges: 100px;
+      --radius-inputs: 8px;
+      --radius-inner: 14px;
+      
+      --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
+      --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+      --shadow-cta: 0 4px 14px rgba(246, 146, 81, 0.28);
+      --shadow-floating: 0 8px 30px rgba(0, 0, 0, 0.06);
     }
 
     *, *::before, *::after {
@@ -78,140 +55,26 @@
 
     html, body {
       min-height: 100vh;
-      background-color: var(--color-parchment);
-      color: var(--color-off-black);
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 16px;
-      line-height: 1.35;
+      background-color: var(--bg-canvas);
+      color: var(--color-midnight-ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.5;
+      letter-spacing: -0.01em;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      overflow-x: hidden;
     }
 
-    /* ==========================================================================
-       TOP ANNOUNCEMENT BAR (Monad Ink Surface)
-       ========================================================================== */
-    .monad-announcement-bar {
+    /* Navbar Superior */
+    .login-topbar {
       width: 100%;
-      height: 42px;
-      background: var(--color-ink);
-      color: var(--color-parchment);
+      background: var(--color-snow);
+      border-bottom: 1px solid var(--color-ash-border);
+      padding: 14px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 24px;
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 12px;
-      letter-spacing: -0.2px;
-      text-transform: uppercase;
-      z-index: 50;
-      position: relative;
-      border-bottom: 1px solid #1f1f1f;
-    }
-
-    .announcement-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .status-dot-pulse {
-      width: 7px;
-      height: 7px;
-      background: var(--color-mint);
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--color-mint);
-      animation: pulseGlow 2.5s infinite;
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
-    }
-
-    .announcement-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .announcement-pill-btn {
-      background: transparent;
-      border: 1px solid rgba(246, 243, 241, 0.35);
-      color: var(--color-parchment);
-      border-radius: 9999px;
-      padding: 4px 14px;
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 11px;
-      text-transform: uppercase;
-      text-decoration: none;
-      letter-spacing: 0.5px;
-      transition: var(--transition-smooth);
-    }
-
-    .announcement-pill-btn:hover {
-      background: var(--color-parchment);
-      color: var(--color-ink);
-      border-color: var(--color-parchment);
-    }
-
-    /* ==========================================================================
-       ATMOSPHERIC GRADIENT WASHES (Monad Color Halos)
-       Softly diffused Coral -> Sky Blue -> Mint behind content
-       ========================================================================== */
-    .monad-canvas-wrap {
-      position: relative;
-      min-height: calc(100vh - 42px);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 48px 24px 64px;
-      overflow: hidden;
-    }
-
-    .atmospheric-wash-a {
-      position: absolute;
-      width: 520px;
-      height: 480px;
-      top: -60px;
-      left: 10%;
-      background: radial-gradient(circle, rgba(255, 148, 115, 0.42) 0%, rgba(160, 181, 235, 0.28) 55%, transparent 75%);
-      filter: blur(75px);
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.85;
-    }
-
-    .atmospheric-wash-b {
-      position: absolute;
-      width: 560px;
-      height: 520px;
-      bottom: -80px;
-      right: 8%;
-      background: radial-gradient(circle, rgba(167, 252, 205, 0.38) 0%, rgba(207, 218, 245, 0.45) 50%, transparent 75%);
-      filter: blur(80px);
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.85;
-    }
-
-    /* ==========================================================================
-       MAIN EDITORIAL CONTAINER (Max-width 1200px)
-       ========================================================================== */
-    .monad-main-layout {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      max-width: 1180px;
-    }
-
-    .monad-nav-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 32px;
-      padding: 0 10px;
+      box-shadow: var(--shadow-subtle);
     }
 
     .brand-mark {
@@ -219,537 +82,478 @@
       align-items: center;
       gap: 12px;
       text-decoration: none;
-      color: var(--color-off-black);
+      color: inherit;
     }
 
-    .brand-dot {
-      width: 14px;
-      height: 14px;
+    .brand-mark-icon {
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      background: var(--color-off-black);
-      border: 3px solid var(--color-parchment);
-      box-shadow: 0 0 0 1px var(--color-ash);
+      background: var(--color-carbon);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
     }
 
-    .brand-wordmark {
-      font-family: var(--font-untitled-serif);
-      font-size: 26px;
-      font-weight: 400; /* Locked at 400 per Monad spec */
+    .brand-mark-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--color-carbon);
       letter-spacing: -0.02em;
-      color: var(--color-off-black);
     }
 
-    .brand-protocol-tag {
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 11px;
+    .topbar-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-canvas);
+      border: 1px solid var(--color-ash-border);
+      padding: 5px 14px;
+      border-radius: var(--radius-badges);
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--color-stone);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--color-smoke);
-      border: 1px solid var(--color-ash);
-      padding: 4px 12px;
-      border-radius: var(--radius-tags);
-      background: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.04em;
     }
 
-    /* Two-Column Grid */
-    .monad-grid-split {
+    /* Layout Central en Split de 2 Columnas */
+    .login-main-container {
+      max-width: 1120px;
+      margin: 40px auto;
+      padding: 0 24px 60px;
+    }
+
+    .login-grid-split {
       display: grid;
-      grid-template-columns: 1.15fr 1fr;
-      gap: 28px;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 32px;
       align-items: stretch;
     }
 
-    @media (max-width: 960px) {
-      .monad-grid-split {
+    @media (max-width: 900px) {
+      .login-grid-split {
         grid-template-columns: 1fr;
       }
     }
 
-    /* ==========================================================================
-       LEFT COLUMN: ELEVATED PERIWINKLE CARD (Monad Specification Surface)
-       ========================================================================== */
-    .monad-card-editorial {
-      background: var(--color-periwinkle-mist);
-      border: 1px solid var(--color-ash);
+    /* Columna Izquierda: Información Clínica y Accesos de Prueba */
+    .info-card-editorial {
+      background: var(--color-snow);
+      border: 1px solid var(--color-ash-border);
       border-radius: var(--radius-cards);
-      padding: 40px;
+      padding: 40px 36px;
+      box-shadow: var(--shadow-card);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-      box-shadow: var(--shadow-ambient);
+      gap: 32px;
     }
 
-    .editorial-top-tags {
+    .editorial-badge-row {
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 28px;
-    }
-
-    .pipeline-node-tag {
-      background: var(--color-parchment);
-      border: 1px solid var(--color-ash);
-      border-radius: var(--radius-tags);
-      padding: 8px 16px;
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: -0.2px;
-      color: var(--color-off-black);
-      display: inline-flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
     }
 
-    .pipeline-node-tag i {
-      font-size: 11px;
-      color: var(--color-graphite);
+    .editorial-pill {
+      background: var(--bg-canvas);
+      border: 1px solid var(--color-ash-border);
+      border-radius: var(--radius-badges);
+      padding: 4px 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--color-stone);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .editorial-headline {
-      font-family: var(--font-untitled-serif);
-      font-size: 34px;
-      font-weight: 400; /* Locked at 400 - NEVER BOLD */
-      line-height: 1.18;
-      letter-spacing: -0.8px;
-      color: var(--color-off-black);
-      margin-bottom: 18px;
+      font-family: var(--font-display);
+      font-size: 2.1rem;
+      font-weight: 600;
+      color: var(--color-carbon);
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      margin-bottom: 12px;
     }
 
-    .editorial-subtext {
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 14.5px;
-      line-height: 1.45;
-      color: var(--color-graphite);
-      margin-bottom: 32px;
-      letter-spacing: -0.25px;
+    .editorial-desc {
+      color: var(--color-stone);
+      font-size: 0.95rem;
+      line-height: 1.55;
+      margin-bottom: 24px;
     }
 
-    /* Monad Pipeline Diagram Nodes */
-    .monad-pipeline-strip {
-      background: rgba(246, 243, 241, 0.7);
-      border: 1px solid var(--color-ash);
-      border-radius: 24px;
-      padding: 20px 24px;
-      margin-bottom: 32px;
+    /* Pipeline Strip */
+    .pipeline-strip {
+      background: var(--bg-canvas);
+      border: 1px solid var(--color-ash-border);
+      border-radius: var(--radius-inner);
+      padding: 16px 20px;
+      margin-bottom: 24px;
     }
 
     .pipeline-label {
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 11px;
+      font-size: 0.74rem;
+      font-weight: 600;
       text-transform: uppercase;
-      color: var(--color-smoke);
-      letter-spacing: 0.5px;
-      margin-bottom: 14px;
+      color: var(--color-stone);
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
-    .pipeline-flow {
+    .pipeline-steps {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 8px;
+      gap: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-graphite);
+      flex-wrap: wrap;
     }
 
     .pipeline-step {
-      font-size: 12px;
-      text-transform: uppercase;
-      font-weight: 500;
-      color: var(--color-off-black);
-      background: #ffffff;
-      border: 1px solid var(--color-ash);
-      padding: 6px 14px;
-      border-radius: var(--radius-tags);
-      white-space: nowrap;
+      background: var(--color-snow);
+      border: 1px solid var(--color-ash-border);
+      padding: 4px 12px;
+      border-radius: var(--radius-badges);
     }
 
     .pipeline-connector {
-      color: var(--color-smoke);
-      font-size: 12px;
+      color: var(--color-pebble);
     }
 
-    /* Quick Test Demo Chips */
-    .demo-selector-section {
-      border-top: 1px solid rgba(206, 202, 200, 0.7);
-      padding-top: 24px;
+    /* Credenciales de Prueba Rápida */
+    .quick-roles-section {
+      background: var(--bg-canvas);
+      border: 1px solid var(--color-ash-border);
+      border-radius: var(--radius-inner);
+      padding: 20px;
     }
 
-    .demo-section-title {
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 11.5px;
+    .quick-roles-title {
+      font-size: 0.78rem;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--color-graphite);
-      margin-bottom: 14px;
+      letter-spacing: 0.04em;
+      color: var(--color-stone);
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
-    .demo-chips-monad {
+    .quick-roles-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
     }
 
     @media (max-width: 600px) {
-      .demo-chips-monad {
+      .quick-roles-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    .demo-chip-pill {
-      background: var(--color-parchment);
-      border: 1px solid var(--color-ash);
-      border-radius: var(--radius-buttons);
-      padding: 12px 14px;
+    .quick-role-btn {
+      background: var(--color-snow);
+      border: 1px solid var(--color-ash-border);
+      border-radius: var(--radius-inner);
+      padding: 12px 10px;
       cursor: pointer;
-      text-align: left;
-      transition: var(--transition-smooth);
+      text-align: center;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      align-items: center;
+      gap: 4px;
+      box-shadow: var(--shadow-subtle);
     }
 
-    .demo-chip-pill:hover {
-      background: #ffffff;
-      border-color: var(--color-off-black);
+    .quick-role-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      box-shadow: var(--shadow-card);
+      border-color: #cbd5e1;
     }
 
-    .demo-chip-title {
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 11px;
+    .quick-role-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--color-carbon);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .quick-role-sub {
+      font-size: 0.72rem;
+      color: var(--color-stone);
+    }
+
+    /* Columna Derecha: Tarjeta de Autenticación */
+    .auth-card-clean {
+      background: var(--color-snow);
+      border: 1px solid var(--color-ash-border);
+      border-radius: var(--radius-cards);
+      padding: 40px 36px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .auth-header-tag {
+      font-size: 0.74rem;
       font-weight: 600;
       text-transform: uppercase;
-      color: var(--color-off-black);
+      letter-spacing: 0.05em;
+      color: var(--color-stone);
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    .demo-chip-user {
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 10.5px;
-      color: var(--color-smoke);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .auth-card-title {
+      font-family: var(--font-display);
+      font-size: 1.85rem;
+      font-weight: 600;
+      color: var(--color-carbon);
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
     }
 
-    /* ==========================================================================
-       RIGHT COLUMN: THE AUTHENTICATION CARD (Clean Parchment Surface)
-       ========================================================================== */
-    .monad-card-auth {
-      background: var(--color-card-surface);
-      border: 1px solid var(--color-ash);
-      border-radius: var(--radius-cards);
-      padding: 40px;
+    .auth-card-sub {
+      font-size: 0.9rem;
+      color: var(--color-stone);
+      margin-bottom: 24px;
+    }
+
+    /* Notificaciones y Alertas */
+    .auth-notice-banner {
+      display: none;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      background: #fef2f2;
+      border-radius: var(--radius-inputs);
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: #991b1b;
+      margin-bottom: 20px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .auth-notice-banner.active {
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      position: relative;
-      box-shadow: var(--shadow-ambient);
     }
 
-    .auth-view-container {
-      transition: opacity 0.25s ease, transform 0.25s ease;
+    .auth-success-banner {
+      display: none;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      background: #ecfdf5;
+      border-radius: var(--radius-inputs);
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: #065f46;
+      margin-bottom: 20px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .auth-success-banner.active {
+      display: flex;
+    }
+
+    /* Formularios */
+    .form-field {
+      margin-bottom: 18px;
+    }
+
+    .field-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--color-graphite);
+      margin-bottom: 6px;
+    }
+
+    .input-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-box i.field-icon {
+      position: absolute;
+      left: 14px;
+      font-size: 0.9rem;
+      color: var(--color-stone);
+      pointer-events: none;
+    }
+
+    .input-clean {
+      width: 100%;
+      height: 46px;
+      padding: 0 16px 0 42px;
+      background: var(--color-snow);
+      border: 1px solid var(--color-ash-border);
+      border-radius: var(--radius-inputs);
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      color: var(--color-midnight-ink);
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .input-clean:focus {
+      border-color: var(--color-carbon);
+      box-shadow: 0 0 0 1px var(--color-carbon);
+    }
+
+    .btn-eye {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--color-stone);
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding: 6px;
+      transition: color 0.2s ease;
+    }
+
+    .btn-eye:hover {
+      color: var(--color-carbon);
+    }
+
+    .forgot-link-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+
+    .forgot-link {
+      font-size: 0.8rem;
+      color: var(--color-stone);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .forgot-link:hover {
+      color: var(--color-carbon);
+      text-decoration: underline;
+    }
+
+    /* Botón Principal */
+    .btn-submit-main {
+      width: 100%;
+      height: 48px;
+      background: var(--color-tangerine);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-buttons);
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: var(--shadow-cta);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-submit-main:hover {
+      background: var(--color-tangerine-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(246, 146, 81, 0.35);
+    }
+
+    .btn-submit-main:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-ghost-clean {
+      width: 100%;
+      height: 44px;
+      background: var(--color-snow);
+      color: var(--color-graphite);
+      border: 1px solid var(--color-ash-border);
+      border-radius: var(--radius-buttons);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-ghost-clean:hover {
+      background: var(--bg-canvas);
+      border-color: #cbd5e1;
+      color: var(--color-carbon);
     }
 
     .auth-view-container.hidden-view {
       display: none;
     }
 
-    .auth-header-meta {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 11.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--color-smoke);
-      margin-bottom: 12px;
-    }
-
-    .auth-card-title {
-      font-family: var(--font-untitled-serif);
-      font-size: 34px;
-      font-weight: 400; /* Locked at 400 */
-      letter-spacing: -0.64px;
-      color: var(--color-off-black);
-      margin-bottom: 8px;
-    }
-
-    .auth-card-desc {
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 14px;
-      color: var(--color-graphite);
-      margin-bottom: 28px;
-      line-height: 1.4;
-    }
-
-    /* Error & Notice Banners */
-    .monad-notice-banner {
-      display: none;
-      border: 1px solid var(--color-crimson);
-      background: rgba(243, 122, 10, 0.08);
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 12.5px;
-      color: #9a3412;
-      margin-bottom: 22px;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .monad-notice-banner.active {
-      display: flex;
-    }
-
-    .monad-success-banner {
-      display: none;
-      border: 1px solid #16a34a;
-      background: rgba(34, 197, 94, 0.1);
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 12.5px;
-      color: #14532d;
-      margin-bottom: 22px;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .monad-success-banner.active {
-      display: flex;
-    }
-
-    /* Form Fields */
-    .monad-form-field {
-      margin-bottom: 20px;
-    }
-
-    .monad-field-label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 11.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--color-graphite);
-      font-weight: 500;
-      margin-bottom: 8px;
-    }
-
-    .monad-input-box {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .monad-input-box i.field-icon {
-      position: absolute;
-      left: 16px;
-      font-size: 14px;
-      color: var(--color-smoke);
-      pointer-events: none;
-    }
-
-    .monad-input {
-      width: 100%;
-      height: 48px;
-      padding: 0 16px 0 46px;
-      background: var(--color-parchment);
-      border: 1px solid var(--color-ash);
-      border-radius: var(--radius-inputs);
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 14px;
-      color: var(--color-off-black);
-      transition: var(--transition-smooth);
-      outline: none;
-    }
-
-    .monad-input:focus {
-      background: #ffffff;
-      border-color: var(--color-lake-blue);
-      box-shadow: 0 0 0 3px rgba(43, 89, 209, 0.14);
-    }
-
-    .monad-btn-eye {
-      position: absolute;
-      right: 14px;
-      background: none;
-      border: none;
-      color: var(--color-smoke);
-      cursor: pointer;
-      font-size: 14px;
-      padding: 6px;
-      transition: var(--transition-smooth);
-    }
-
-    .monad-btn-eye:hover {
-      color: var(--color-off-black);
-    }
-
-    /* Form Utilities Row */
-    .monad-auth-utils-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 26px;
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 12px;
-    }
-
-    .monad-checkbox-wrap {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      color: var(--color-graphite);
-      user-select: none;
-    }
-
-    .monad-checkbox-wrap input[type="checkbox"] {
-      accent-color: var(--color-off-black);
-      cursor: pointer;
-    }
-
-    .monad-link-forgot {
-      color: var(--color-lake-blue);
-      text-decoration: none;
-      text-transform: uppercase;
-      font-weight: 500;
-      letter-spacing: -0.2px;
-      transition: var(--transition-smooth);
-    }
-
-    .monad-link-forgot:hover {
-      text-decoration: underline;
-      color: var(--color-lake-blue-hover);
-    }
-
-    /* Primary Conversion Pill Button (Lake Blue #2b59d1) */
-    .btn-pill-lake-blue {
-      width: 100%;
-      height: 48px;
-      background: var(--color-lake-blue);
-      color: #ffffff;
-      border: none;
-      border-radius: var(--radius-buttons); /* 100px border radius */
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 13.5px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 0 32px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: var(--transition-smooth);
-      box-shadow: 0 4px 14px rgba(43, 89, 209, 0.28);
-    }
-
-    .btn-pill-lake-blue:hover {
-      background: var(--color-lake-blue-hover);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(43, 89, 209, 0.36);
-    }
-
-    .btn-pill-lake-blue:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    /* Ghost Pill Button */
-    .btn-pill-ghost {
-      width: 100%;
-      height: 48px;
-      background: transparent;
-      color: var(--color-off-black);
-      border: 1px solid var(--color-off-black);
-      border-radius: var(--radius-buttons);
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 13px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: var(--transition-smooth);
-      margin-top: 12px;
-    }
-
-    .btn-pill-ghost:hover {
-      background: rgba(36, 36, 36, 0.05);
-      border-color: var(--color-ink);
-    }
-
-    .auth-footer-note {
-      text-align: center;
-      margin-top: 28px;
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 12.5px;
-      color: var(--color-smoke);
-    }
-
-    .auth-footer-note a {
-      color: var(--color-off-black);
-      text-decoration: underline;
-      font-weight: 500;
-    }
-
-    /* ==========================================================================
-       FORGOT PASSWORD / RECOVERY TERMINAL VIEW (Monad Style)
-       ========================================================================== */
+    /* Tarjeta de Código de Recuperación */
     .recovery-code-card {
-      background: var(--color-parchment);
-      border: 1px solid var(--color-ash);
-      border-radius: 20px;
-      padding: 18px;
-      margin: 18px 0;
+      background: var(--bg-canvas);
+      border: 1px solid var(--color-ash-border);
+      border-radius: var(--radius-inner);
+      padding: 16px;
+      margin: 16px 0;
       text-align: center;
     }
 
     .recovery-code-number {
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 28px;
-      font-weight: 600;
-      letter-spacing: 6px;
-      color: var(--color-lake-blue);
-      margin: 8px 0;
+      font-family: var(--font-display);
+      font-size: 1.85rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--color-blue-soft);
+      margin: 6px 0;
     }
 
     .recovery-code-meta {
-      font-size: 11.5px;
-      color: var(--color-smoke);
+      font-size: 0.75rem;
+      color: var(--color-stone);
     }
 
     .btn-copy-code {
       background: #ffffff;
-      border: 1px solid var(--color-ash);
-      border-radius: var(--radius-tags);
-      padding: 6px 14px;
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 11px;
+      border: 1px solid var(--color-ash-border);
+      border-radius: var(--radius-badges);
+      padding: 5px 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
       text-transform: uppercase;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 8px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -757,13 +561,11 @@
     }
 
     .btn-copy-code:hover {
-      border-color: var(--color-off-black);
-      color: var(--color-off-black);
+      border-color: var(--color-carbon);
+      color: var(--color-carbon);
     }
 
-    /* ==========================================================================
-       TOAST SYSTEM (Monad Style)
-       ========================================================================== */
+    /* Toasts */
     #toast-container {
       position: fixed;
       bottom: 24px;
@@ -771,291 +573,246 @@
       z-index: 9999;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       pointer-events: none;
     }
 
     .toast {
       pointer-events: auto;
-      background: var(--color-off-black);
+      background: var(--color-midnight-ink);
       color: #ffffff;
-      border: 1px solid #383838;
-      border-radius: var(--radius-inputs);
-      padding: 14px 20px;
-      min-width: 300px;
-      max-width: 420px;
-      font-family: var(--font-abc-diatype-mono);
-      font-size: 13px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      border: 1px solid #33334d;
+      border-radius: 12px;
+      padding: 12px 18px;
+      min-width: 280px;
+      max-width: 400px;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
       display: flex;
       align-items: center;
-      gap: 12px;
-      animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      gap: 10px;
+      animation: toastIn 0.25s ease-out;
     }
 
-    .toast.success {
-      border-color: var(--color-mint);
-    }
-
-    .toast.error {
-      border-color: var(--color-coral);
-    }
-
-    .toast.warning {
-      border-color: var(--color-gold);
-    }
+    .toast.success { border-color: var(--color-mint); }
+    .toast.error { border-color: var(--color-dusty-rose); }
+    .toast.warning { border-color: var(--color-tangerine); }
 
     @keyframes toastIn {
-      from { opacity: 0; transform: translateY(12px); }
+      from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Announcement Bar (Monad Ink Surface) -->
-  <header class="monad-announcement-bar">
-    <div class="announcement-left">
-      <span class="status-dot-pulse" aria-hidden="true"></span>
-      <span>SYSTEM PROTOCOL: V2.4 · CLINICAL NODE DIF TECÁMAC</span>
-    </div>
-    <div class="announcement-right">
-      <span style="color: var(--color-ash); display: none; @media(min-width:768px){display:inline;}">PORTAL MÉDICO RBAC</span>
-      <a href="/" class="announcement-pill-btn">
-        <i class="fa-solid fa-arrow-left" style="font-size: 10px;"></i> Portal de Pacientes
-      </a>
+  <!-- Topbar Minimalista -->
+  <header class="login-topbar">
+    <a href="/index.html" class="brand-mark">
+      <div class="brand-mark-icon">
+        <i class="fa-solid fa-socks"></i>
+      </div>
+      <span class="brand-mark-title">Elite Foot Care</span>
+    </a>
+    <div class="topbar-badge">
+      <i class="fa-solid fa-lock" style="font-size: 11px;"></i>
+      <span>Terminal Clínica Segura</span>
     </div>
   </header>
 
-  <!-- Atmospheric Canvas Background -->
-  <div class="monad-canvas-wrap">
-    <div class="atmospheric-wash-a" aria-hidden="true"></div>
-    <div class="atmospheric-wash-b" aria-hidden="true"></div>
-
-    <main class="monad-main-layout">
+  <!-- Contenedor Principal en 2 Columnas -->
+  <main class="login-main-container">
+    <div class="login-grid-split">
       
-      <!-- Top Brand Mark Header -->
-      <nav class="monad-nav-header">
-        <a href="/" class="brand-mark" title="Volver al inicio">
-          <div class="brand-dot"></div>
-          <span class="brand-wordmark">Elite Foot Care</span>
-        </a>
-        <div class="brand-protocol-tag">
-          <i class="fa-solid fa-lock" style="font-size: 10px; margin-right: 4px;"></i> TERMINAL SEGURA
+      <!-- Columna Izquierda: Información de la Plataforma -->
+      <section class="info-card-editorial">
+        <div>
+          <div class="editorial-badge-row">
+            <span class="editorial-pill">
+              <i class="fa-solid fa-server"></i> Nodo Clínico DIF Tecámac
+            </span>
+            <span class="editorial-pill">
+              <i class="fa-solid fa-shield-halved"></i> Encriptación SHA-256
+            </span>
+          </div>
+
+          <h1 class="editorial-headline">
+            Terminal de Gestión Clínica & Gobernanza Podológica
+          </h1>
+
+          <p class="editorial-desc">
+            Acceso unificado para el cuerpo médico y personal administrativo: expedientes podológicos digitales, agenda en tiempo real y asignación criptográfica de permisos por rol.
+          </p>
+
+          <!-- Diagrama de Flujo -->
+          <div class="pipeline-strip">
+            <div class="pipeline-label">
+              <i class="fa-solid fa-diagram-project"></i> Flujo Operativo Normalizado:
+            </div>
+            <div class="pipeline-steps">
+              <span class="pipeline-step">01. Admisión</span>
+              <span class="pipeline-connector">→</span>
+              <span class="pipeline-step">02. Valoración</span>
+              <span class="pipeline-connector">→</span>
+              <span class="pipeline-step">03. Tratamiento</span>
+            </div>
+          </div>
         </div>
-      </nav>
 
-      <!-- Grid Split Layout (2 Columns: Editorial Specification + Authentication) -->
-      <div class="monad-grid-split">
-        
-        <!-- Left Column: Elevated Periwinkle Mist Card -->
-        <section class="monad-card-editorial">
-          <div>
-            <div class="editorial-top-tags">
-              <div class="pipeline-node-tag">
-                <i class="fa-solid fa-server"></i> NODO: PODOLOGÍA CLÍNICA
-              </div>
-              <div class="pipeline-node-tag">
-                <i class="fa-solid fa-shield-halved"></i> ENCRIPTACIÓN SHA-256
-              </div>
-            </div>
-
-            <h1 class="editorial-headline">
-              Terminal de gestión clínica y gobernanza podológica.
-            </h1>
-
-            <p class="editorial-subtext">
-              Acceso unificado para el cuerpo médico y personal administrativo: expedientes podológicos digitales, agenda en tiempo real y asignación criptográfica de permisos por rol.
-            </p>
-
-            <!-- Monad Pipeline Diagram -->
-            <div class="monad-pipeline-strip">
-              <div class="pipeline-label">
-                <i class="fa-solid fa-diagram-project"></i> Flujo Operativo Normalizado:
-              </div>
-              <div class="pipeline-flow">
-                <span class="pipeline-step">01. Admisión</span>
-                <span class="pipeline-connector">→</span>
-                <span class="pipeline-step">02. Valoración</span>
-                <span class="pipeline-connector">→</span>
-                <span class="pipeline-step">03. Tratamiento</span>
-              </div>
-            </div>
+        <!-- Credenciales de Prueba Rápida (1-Click) -->
+        <div class="quick-roles-section">
+          <div class="quick-roles-title">
+            <i class="fa-solid fa-bolt" style="color: var(--color-tangerine);"></i>
+            <span>Credenciales de Prueba Rápida (1-Click):</span>
           </div>
-
-          <!-- Quick Test Roles Selector -->
-          <div class="demo-selector-section">
-            <div class="demo-section-title">
-              <i class="fa-solid fa-bolt" style="color: var(--color-lake-blue);"></i> Credenciales de Prueba Rápida (1-Click):
-            </div>
-            <div class="demo-chips-monad">
-              <button type="button" class="demo-chip-pill" onclick="cargarCredenciales('admin@elitefoot.com', 'admin123', 'admin')" title="Ingresar como Administrador General">
-                <span class="demo-chip-title"><i class="fa-solid fa-user-gear"></i> Admin</span>
-                <span class="demo-chip-user">Lic. Méndez</span>
-              </button>
-              <button type="button" class="demo-chip-pill" onclick="cargarCredenciales('recepcion@elitefoot.com', 'recep123', 'recep')" title="Ingresar como Recepcionista">
-                <span class="demo-chip-title"><i class="fa-solid fa-cash-register"></i> Recepción</span>
-                <span class="demo-chip-user">María López</span>
-              </button>
-              <button type="button" class="demo-chip-pill" onclick="cargarCredenciales('angelhernandez@gmail.com', 'angel1234', 'podo')" title="Ingresar como Podólogo Especialista">
-                <span class="demo-chip-title"><i class="fa-solid fa-stethoscope"></i> Podólogo</span>
-                <span class="demo-chip-user">Dr. Hernández</span>
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- Right Column: The Authentication Card (Login & Forgot Password) -->
-        <section class="monad-card-auth">
-          
-          <!-- ==========================================
-               VIEW 1: SIGN IN (Inicio de Sesión)
-               ========================================== -->
-          <div id="view-login" class="auth-view-container">
-            <div class="auth-header-meta">
-              <i class="fa-solid fa-key" style="font-size: 11px;"></i> GATEWAY DE ACCESO // RBAC
-            </div>
-            <h2 class="auth-card-title">Iniciar Sesión</h2>
-            <p class="auth-card-desc">
-              Ingresa tus credenciales profesionales autorizadas para acceder a tu estación de trabajo.
-            </p>
-
-            <!-- Error Banner -->
-            <div id="login-error-banner" class="monad-notice-banner" role="alert">
-              <i class="fa-solid fa-circle-exclamation"></i>
-              <span id="login-error-text">Credenciales incorrectas</span>
-            </div>
-
-            <form id="form-login" novalidate>
-              <div class="monad-form-field">
-                <label class="monad-field-label" for="input-email">
-                  <span>Correo Institucional</span>
-                  <span style="color: var(--color-smoke); font-size: 10px;">REQUERIDO</span>
-                </label>
-                <div class="monad-input-box">
-                  <i class="fa-regular fa-envelope field-icon"></i>
-                  <input type="email" id="input-email" class="monad-input" placeholder="usuario@elitefoot.com" required autocomplete="username">
-                </div>
-              </div>
-
-              <div class="monad-form-field">
-                <label class="monad-field-label" for="input-password">
-                  <span>Contraseña</span>
-                  <span style="color: var(--color-smoke); font-size: 10px;">CONFIDENCIAL</span>
-                </label>
-                <div class="monad-input-box">
-                  <i class="fa-solid fa-lock field-icon"></i>
-                  <input type="password" id="input-password" class="monad-input" placeholder="••••••••" required autocomplete="current-password">
-                  <button type="button" class="monad-btn-eye" id="btn-toggle-password" aria-label="Mostrar u ocultar contraseña">
-                    <i class="fa-regular fa-eye"></i>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Utilities Row: Recordar + ¿Olvidaste tu contraseña? -->
-              <div class="monad-auth-utils-row">
-                <label class="monad-checkbox-wrap">
-                  <input type="checkbox" id="check-remember" checked>
-                  <span>Recordar sesión</span>
-                </label>
-                <a href="#recuperar" id="link-show-recovery" class="monad-link-forgot">
-                  ¿Olvidaste tu contraseña? →
-                </a>
-              </div>
-
-              <!-- Primary Action Button: Lake Blue #2b59d1 with white text and trailing glyph -->
-              <button type="submit" id="btn-submit-login" class="btn-pill-lake-blue">
-                <span>Ingresar al Sistema</span>
-                <i class="fa-solid fa-arrow-right"></i>
-              </button>
-            </form>
-
-            <div class="auth-footer-note">
-              ¿Eres un paciente de la clínica? <a href="/">Agendar una cita en línea</a>
-            </div>
-          </div>
-
-          <!-- ==========================================
-               VIEW 2: RECOVERY (Olvidé mi Contraseña)
-               ========================================== -->
-          <div id="view-recovery" class="auth-view-container hidden-view">
-            <div class="auth-header-meta">
-              <i class="fa-solid fa-shield-virus" style="font-size: 11px;"></i> PROTOCOLO DE RECUPERACIÓN
-            </div>
-            <h2 class="auth-card-title">Recuperar Contraseña</h2>
-            <p class="auth-card-desc">
-              Ingresa el correo registrado con tu cédula profesional para recibir tu código de validación.
-            </p>
-
-            <!-- Recovery Notice / Error Banner -->
-            <div id="recovery-notice-banner" class="monad-notice-banner" role="alert">
-              <i class="fa-solid fa-circle-exclamation"></i>
-              <span id="recovery-notice-text">Error al procesar solicitud</span>
-            </div>
-
-            <!-- Recovery Success Banner -->
-            <div id="recovery-success-banner" class="monad-success-banner" role="status">
-              <i class="fa-solid fa-circle-check"></i>
-              <span id="recovery-success-text">Código emitido exitosamente</span>
-            </div>
-
-            <!-- Paso 1: Solicitar Código -->
-            <form id="form-recovery-step1">
-              <div class="monad-form-field">
-                <label class="monad-field-label" for="input-recovery-email">
-                  <span>Correo Electrónico Registrado</span>
-                  <span style="color: var(--color-smoke); font-size: 10px;">OBLIGATORIO</span>
-                </label>
-                <div class="monad-input-box">
-                  <i class="fa-regular fa-envelope field-icon"></i>
-                  <input type="email" id="input-recovery-email" class="monad-input" placeholder="ejemplo@elitefoot.com" required autocomplete="email">
-                </div>
-              </div>
-
-              <button type="submit" id="btn-submit-recovery" class="btn-pill-lake-blue">
-                <span>Enviar Código de Verificación</span>
-                <i class="fa-solid fa-paper-plane"></i>
-              </button>
-            </form>
-
-            <!-- Paso 2: Código Generado y Establecer Nueva Contraseña (Oculto inicialmente) -->
-            <div id="recovery-step2-box" style="display: none; margin-top: 16px;">
-              <div class="recovery-code-card">
-                <div class="recovery-code-meta">CÓDIGO TEMPORAL DE ACCESO:</div>
-                <div class="recovery-code-number" id="display-recovery-code">------</div>
-                <div class="recovery-code-meta">Válido por 15 minutos en el sistema clínico</div>
-                <button type="button" class="btn-copy-code" id="btn-copy-recovery-code">
-                  <i class="fa-regular fa-copy"></i> Copiar Código
-                </button>
-              </div>
-
-              <form id="form-recovery-step2">
-                <div class="monad-form-field">
-                  <label class="monad-field-label" for="input-new-pass">Nueva Contraseña</label>
-                  <div class="monad-input-box">
-                    <i class="fa-solid fa-key field-icon"></i>
-                    <input type="password" id="input-new-pass" class="monad-input" placeholder="Mínimo 6 caracteres" required minlength="6">
-                  </div>
-                </div>
-
-                <button type="submit" id="btn-confirm-new-pass" class="btn-pill-lake-blue">
-                  <span>Actualizar Contraseña y Entrar</span>
-                  <i class="fa-solid fa-check"></i>
-                </button>
-              </form>
-            </div>
-
-            <!-- Botón Ghost para volver al Login -->
-            <button type="button" id="btn-back-to-login" class="btn-pill-ghost">
-              <i class="fa-solid fa-arrow-left"></i> Volver a Iniciar Sesión
+          <div class="quick-roles-grid">
+            <button type="button" class="quick-role-btn" onclick="cargarCredenciales('admin@elitefoot.com', 'admin123', 'admin')" title="Ingresar como Administrador General">
+              <span class="quick-role-title"><i class="fa-solid fa-user-gear"></i> Admin</span>
+              <span class="quick-role-sub">Lic. Méndez</span>
+            </button>
+            <button type="button" class="quick-role-btn" onclick="cargarCredenciales('recepcion@elitefoot.com', 'recep123', 'recep')" title="Ingresar como Recepcionista">
+              <span class="quick-role-title"><i class="fa-solid fa-cash-register"></i> Recepción</span>
+              <span class="quick-role-sub">María López</span>
+            </button>
+            <button type="button" class="quick-role-btn" onclick="cargarCredenciales('angelhernandez@gmail.com', 'angel1234', 'podo')" title="Ingresar como Podólogo Especialista">
+              <span class="quick-role-title"><i class="fa-solid fa-stethoscope"></i> Podólogo</span>
+              <span class="quick-role-sub">Dr. Hernández</span>
             </button>
           </div>
+        </div>
+      </section>
 
-        </section>
+      <!-- Columna Derecha: Tarjeta de Autenticación -->
+      <section class="auth-card-clean">
+        
+        <!-- VISTA 1: INICIO DE SESIÓN -->
+        <div id="view-login" class="auth-view-container">
+          <div class="auth-header-tag">
+            <i class="fa-solid fa-key"></i> Gateway de Acceso RBAC
+          </div>
+          <h2 class="auth-card-title">Iniciar Sesión</h2>
+          <p class="auth-card-sub">
+            Ingresa tus credenciales profesionales autorizadas para acceder a tu estación de trabajo.
+          </p>
 
-      </div>
-    </main>
-  </div>
+          <!-- Banner de Error -->
+          <div id="login-error-banner" class="auth-notice-banner" role="alert">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="login-error-text">Credenciales incorrectas</span>
+          </div>
+
+          <form id="form-login" novalidate>
+            <div class="form-field">
+              <label class="field-label" for="input-email">
+                <span>Correo Institucional</span>
+                <span style="color: var(--color-stone); font-size: 10px;">REQUERIDO</span>
+              </label>
+              <div class="input-box">
+                <i class="fa-regular fa-envelope field-icon"></i>
+                <input type="email" id="input-email" class="input-clean" placeholder="usuario@elitefoot.com" required autocomplete="username">
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label" for="input-password">
+                <span>Contraseña</span>
+                <span style="color: var(--color-stone); font-size: 10px;">CONFIDENCIAL</span>
+              </label>
+              <div class="input-box">
+                <i class="fa-solid fa-lock field-icon"></i>
+                <input type="password" id="input-password" class="input-clean" placeholder="••••••••" required autocomplete="current-password">
+                <button type="button" class="btn-eye" id="btn-toggle-password" aria-label="Mostrar u ocultar contraseña">
+                  <i class="fa-regular fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="forgot-link-bar">
+              <a href="#" id="link-show-recovery" class="forgot-link">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <button type="submit" id="btn-submit-login" class="btn-submit-main">
+              <span>Ingresar al Sistema</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </form>
+        </div>
+
+        <!-- VISTA 2: RECUPERACIÓN DE CONTRASEÑA -->
+        <div id="view-recovery" class="auth-view-container hidden-view">
+          <div class="auth-header-tag">
+            <i class="fa-solid fa-shield-virus"></i> Protocolo de Restablecimiento
+          </div>
+          <h2 class="auth-card-title">Recuperar Acceso</h2>
+          <p class="auth-card-sub">
+            Emite un código temporal de verificación para restablecer tu contraseña médica.
+          </p>
+
+          <!-- Banners de Notificación -->
+          <div id="recovery-notice-banner" class="auth-notice-banner" role="alert">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="recovery-notice-text">Error en la solicitud</span>
+          </div>
+
+          <div id="recovery-success-banner" class="auth-success-banner" role="status">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="recovery-success-text">Código emitido correctamente</span>
+          </div>
+
+          <!-- Paso 1: Solicitar Código -->
+          <form id="form-recovery-step1">
+            <div class="form-field">
+              <label class="field-label" for="input-recovery-email">
+                <span>Correo Electrónico Registrado</span>
+              </label>
+              <div class="input-box">
+                <i class="fa-regular fa-envelope field-icon"></i>
+                <input type="email" id="input-recovery-email" class="input-clean" placeholder="ejemplo@elitefoot.com" required autocomplete="email">
+              </div>
+            </div>
+
+            <button type="submit" id="btn-submit-recovery" class="btn-submit-main">
+              <span>Enviar Código de Verificación</span>
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </form>
+
+          <!-- Paso 2: Código Generado y Nueva Contraseña -->
+          <div id="recovery-step2-box" style="display: none; margin-top: 16px;">
+            <div class="recovery-code-card">
+              <div class="recovery-code-meta">CÓDIGO TEMPORAL DE ACCESO:</div>
+              <div class="recovery-code-number" id="display-recovery-code">------</div>
+              <div class="recovery-code-meta">Válido por 15 minutos en el sistema clínico</div>
+              <button type="button" class="btn-copy-code" id="btn-copy-recovery-code">
+                <i class="fa-regular fa-copy"></i> Copiar Código
+              </button>
+            </div>
+
+            <form id="form-recovery-step2">
+              <div class="form-field">
+                <label class="field-label" for="input-new-pass">Nueva Contraseña</label>
+                <div class="input-box">
+                  <i class="fa-solid fa-key field-icon"></i>
+                  <input type="password" id="input-new-pass" class="input-clean" placeholder="Mínimo 6 caracteres" required minlength="6">
+                </div>
+              </div>
+
+              <button type="submit" id="btn-confirm-new-pass" class="btn-submit-main">
+                <span>Actualizar Contraseña y Entrar</span>
+                <i class="fa-solid fa-check"></i>
+              </button>
+            </form>
+          </div>
+
+          <button type="button" id="btn-back-to-login" class="btn-ghost-clean">
+            <i class="fa-solid fa-arrow-left"></i> Volver a Iniciar Sesión
+          </button>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
 
   <!-- Contenedor Toast -->
   <div id="toast-container"></div>
@@ -1092,7 +849,6 @@
         e.preventDefault();
         viewLogin.classList.add('hidden-view');
         viewRecovery.classList.remove('hidden-view');
-        // Prellenar email si ya escribió algo en el login
         const emailVal = document.getElementById('input-email').value.trim();
         if (emailVal) {
           document.getElementById('input-recovery-email').value = emailVal;
@@ -1102,7 +858,6 @@
       btnBackToLogin?.addEventListener('click', () => {
         viewRecovery.classList.add('hidden-view');
         viewLogin.classList.remove('hidden-view');
-        // Resetear vistas secundarias de recuperación
         document.getElementById('recovery-notice-banner')?.classList.remove('active');
         document.getElementById('recovery-success-banner')?.classList.remove('active');
       });
@@ -1182,7 +937,6 @@
             recoveryNoticeBanner.classList.add('active');
           }
         } catch (err) {
-          // Fallback seguro si no hay conectividad con backend
           const codeFallback = Math.floor(100000 + Math.random() * 900000).toString();
           recoverySuccessText.textContent = `Código emitido localmente para ${email}. Utilízalo a continuación:`;
           recoverySuccessBanner.classList.add('active');
@@ -1222,13 +976,11 @@
 
         AppAuth.showToast('¡Contraseña actualizada con éxito! Accediendo...', 'success');
         
-        // Auto-llenar en el login y volver
         document.getElementById('input-email').value = email;
         document.getElementById('input-password').value = newPass;
         viewRecovery.classList.add('hidden-view');
         viewLogin.classList.remove('hidden-view');
 
-        // Intentar login automático o dejar listo para ingresar
         setTimeout(() => {
           document.getElementById('btn-submit-login').click();
         }, 600);

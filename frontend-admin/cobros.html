@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elite Foot Care | Módulo de Pagos y Caja (Recepción)</title>
+  
+  <!-- Tipografía Dialog: DM Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons 6.5.2 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  
+  <!-- Unified Clinical Design System -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/inventario.css">
+  <link rel="stylesheet" href="css/caja.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- =========================================================================
+         HEADER FLOATING PILL BAR (Showroom Clean Design)
+         ========================================================================= -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-logo-icon" aria-hidden="true">
+          <i class="fa-solid fa-cash-register"></i>
+        </div>
+        <div>
+          <div class="brand-title">Elite Foot Care</div>
+          <div class="brand-subtitle">Módulo de Pagos & Control de Caja</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Indicador de Usuario Activo en Sesión (RBAC) -->
+        <div class="user-chip" id="user-chip-container">
+          <div class="user-avatar" id="user-avatar-initials">ML</div>
+          <div class="user-meta">
+            <span class="user-name" id="user-display-name">María López</span>
+            <span class="user-role-badge role-badge-recep" id="user-role-text">Rol ID: 3 · Recepcionista</span>
+          </div>
+        </div>
+
+        <!-- Botón para alternar a Recepción Principal -->
+        <a href="/recepcion.html" class="role-switch-btn" title="Ir a la Agenda y Recepción">
+          <i class="fa-solid fa-calendar-days" style="color: #2563eb;"></i>
+          <span>Recepción</span>
+        </a>
+
+        <!-- Botón para alternar a Inventario -->
+        <a href="/inventario.html" class="role-switch-btn" title="Control de Insumos y Farmacia">
+          <i class="fa-solid fa-boxes-stacked" style="color: #f69251;"></i>
+          <span>Inventario</span>
+        </a>
+
+        <!-- Botón para alternar a Consultorio (Rol Podólogo) -->
+        <a href="/consultorio.html" class="role-switch-btn" title="Ir al Consultorio Podológico">
+          <i class="fa-solid fa-user-doctor" style="color: #7c3aed;"></i>
+          <span>Consultorio</span>
+        </a>
+
+        <!-- Botón para alternar a Administración (Rol Admin) -->
+        <a href="/admin.html" class="role-switch-btn" title="Ir al Panel de Administración">
+          <i class="fa-solid fa-shield-halved" style="color: #6366f1;"></i>
+          <span>Panel Admin</span>
+        </a>
+
+        <!-- Botón Cerrar Sesión -->
+        <button type="button" class="role-switch-btn btn-logout" onclick="AppAuth.logout()" title="Cerrar Sesión Segura">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Salir</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Sistema de Navegación por Pestañas -->
+    <nav class="nav-tabs-container" aria-label="Navegación de módulos">
+      <a href="/recepcion.html" class="nav-tab-btn">
+        <i class="fa-solid fa-calendar-days"></i>
+        <span>Agenda Global</span>
+      </a>
+      <a href="/recepcion.html#tab-pacientes" class="nav-tab-btn">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>Registro de Pacientes</span>
+      </a>
+      <button type="button" class="nav-tab-btn active" id="nav-tab-caja">
+        <i class="fa-solid fa-cash-register"></i>
+        <span>Módulo de Pagos & Caja</span>
+      </button>
+      <a href="/inventario.html" class="nav-tab-btn">
+        <i class="fa-solid fa-boxes-stacked"></i>
+        <span>Control de Inventario</span>
+      </a>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="main-content">
+      
+      <!-- Showroom Header -->
+      <div class="admin-showroom-header">
+        <h1 class="admin-showroom-title">Liquidación de Cuentas & Control de Caja</h1>
+        <p class="admin-showroom-sub">
+          Registro de transacciones, emisión de comprobantes digitales foliados y conciliación financiera en tiempo real.
+        </p>
+      </div>
+
+      <!-- Banner Informativo RBAC -->
+      <div class="security-alert-box" style="margin-bottom: 24px;">
+        <i class="fa-solid fa-shield-halved security-alert-icon" style="color: #10b981;"></i>
+        <div class="security-alert-content" style="flex: 1;">
+          <div style="font-weight: 600; color: var(--color-carbon); font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+            <span>Módulo de Caja Bajo Protección RBAC</span>
+            <span class="status-badge" style="background: #ecfdf5; color: #065f46; border: 1px solid rgba(16, 185, 129, 0.25); font-size: 0.7rem;">Solo Admin y Recepción</span>
+          </div>
+          <div style="font-size: 0.83rem; color: var(--color-stone); margin-top: 3px;">
+            Muestra las consultas médicas ya atendidas por los podólogos con cobro pendiente. Al registrar el pago en <strong>Efectivo</strong>, <strong>Tarjeta</strong> o <strong>Transferencia</strong>, el estado se actualiza en tiempo real a <strong>Pagado</strong> y se genera el recibo foliado en la bitácora de auditoría.
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjetas KPI Financieras -->
+      <section class="caja-kpi-grid" aria-label="Métricas de Caja">
+        <div class="caja-kpi-card pendientes">
+          <div class="caja-kpi-icon amber">
+            <i class="fa-solid fa-hourglass-half"></i>
+          </div>
+          <div class="caja-kpi-info">
+            <span class="caja-kpi-val" id="kpi-total-pendientes" style="color: #d97706;">0</span>
+            <span class="caja-kpi-label">Pacientes por Cobrar</span>
+          </div>
+        </div>
+
+        <div class="caja-kpi-card ingresos-hoy">
+          <div class="caja-kpi-icon green">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
+          </div>
+          <div class="caja-kpi-info">
+            <span class="caja-kpi-val" id="kpi-total-hoy" style="color: #059669;">$0.00</span>
+            <span class="caja-kpi-label">Total Cobrado Hoy (Caja)</span>
+          </div>
+        </div>
+
+        <div class="caja-kpi-card transacciones">
+          <div class="caja-kpi-icon blue">
+            <i class="fa-solid fa-receipt"></i>
+          </div>
+          <div class="caja-kpi-info">
+            <span class="caja-kpi-val" id="kpi-cobros-hoy">0</span>
+            <span class="caja-kpi-label">Cobros Realizados Hoy</span>
+          </div>
+        </div>
+
+        <div class="caja-kpi-card estimado">
+          <div class="caja-kpi-icon purple">
+            <i class="fa-solid fa-sack-dollar"></i>
+          </div>
+          <div class="caja-kpi-info">
+            <span class="caja-kpi-val" id="kpi-monto-estimado" style="color: #7c3aed;">$0.00</span>
+            <span class="caja-kpi-label">Por Cobrar en Espera</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Selector de Subpestañas (Pendientes vs Historial) -->
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button type="button" class="btn btn-secondary caja-subtab-btn active" data-target="seccion-pendientes">
+          <i class="fa-solid fa-user-clock"></i>
+          <span>Pacientes Listos para Pagar</span>
+        </button>
+        <button type="button" class="btn btn-secondary caja-subtab-btn" data-target="seccion-historial">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span>Historial de Cobros de Hoy</span>
+        </button>
+      </div>
+
+      <!-- SECCIÓN 1: PACIENTES LISTOS PARA PAGAR (CENTRAL) -->
+      <div id="seccion-pendientes" class="caja-subtab-content">
+        
+        <!-- Barra de Búsqueda y Actualizar -->
+        <div class="caja-toolbar">
+          <div class="caja-search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input 
+              type="text" 
+              id="caja-search-input" 
+              class="form-control" 
+              placeholder="Buscar por paciente, expediente, folio o médico..."
+              autocomplete="off"
+            >
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <button 
+              type="button" 
+              class="btn btn-secondary" 
+              onclick="cargarConsultasPendientes()" 
+              id="btn-recargar-caja" 
+              title="Recargar cuentas pendientes">
+              <i class="fa-solid fa-rotate-right"></i>
+              <span>Actualizar Lista</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 0.84rem; color: var(--color-stone);">
+          <span id="contador-pendientes" style="font-weight: 500;">Cargando pacientes listos para pagar...</span>
+          <span style="color: var(--color-stone);"><i class="fa-solid fa-info-circle"></i> Haz clic en 'Cobrar' para registrar el pago en caja</span>
+        </div>
+
+        <!-- Tabla Central de Cuentas por Cobrar -->
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <div class="admin-table-container" style="box-shadow: none; border: none; border-radius: 0; margin-bottom: 0;">
+            <table class="admin-table" id="tabla-pendientes" aria-label="Consultas pendientes de pago">
+              <thead>
+                <tr>
+                  <th scope="col" style="width: 110px;">Folio Cita</th>
+                  <th scope="col">Paciente</th>
+                  <th scope="col" style="width: 170px;">Podólogo Tratante</th>
+                  <th scope="col">Motivo / Tratamiento</th>
+                  <th scope="col" style="width: 140px;">Atención</th>
+                  <th scope="col" style="width: 130px;">Estado Pago</th>
+                  <th scope="col" style="width: 130px; text-align: right;">Monto</th>
+                  <th scope="col" style="width: 120px; text-align: center;">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-pendientes-body">
+                <!-- Filas generadas dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SECCIÓN 2: HISTORIAL DE COBROS DE HOY -->
+      <div id="seccion-historial" class="caja-subtab-content" style="display: none;">
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <div class="admin-table-container" style="box-shadow: none; border: none; border-radius: 0; margin-bottom: 0;">
+            <table class="admin-table" id="tabla-historial" aria-label="Historial de pagos procesados">
+              <thead>
+                <tr>
+                  <th scope="col" style="width: 130px;">Folio Pago</th>
+                  <th scope="col">Paciente</th>
+                  <th scope="col" style="width: 120px;">Folio Cita</th>
+                  <th scope="col" style="width: 130px;">Método</th>
+                  <th scope="col" style="width: 120px;">Monto</th>
+                  <th scope="col" style="width: 120px;">Estado</th>
+                  <th scope="col" style="width: 100px;">Comprobante</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-historial-body">
+                <!-- Filas generadas dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- =========================================================================
+       MODAL PARA PROCESAR EL COBRO
+       ========================================================================= -->
+  <dialog id="modal-cobro" class="glass-modal" aria-labelledby="modal-cobro-titulo" style="max-width: 540px;">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-cobro-titulo" style="color: #059669;">
+        <i class="fa-solid fa-cash-register"></i>
+        <span>Procesar Cobro en Caja</span>
+      </h2>
+      <button type="button" class="btn-close" onclick="cerrarModal('modal-cobro')" title="Cerrar ventana">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <form id="form-cobro" method="dialog">
+      <div class="modal-body">
+        
+        <!-- Tarjeta de Resumen del Paciente -->
+        <div class="paciente-resumen-box">
+          <div class="paciente-avatar-circle" id="modal-paciente-avatar">
+            P
+          </div>
+          <div style="flex: 1;">
+            <div style="font-weight: 600; font-size: 1.05rem; color: var(--color-carbon);" id="modal-paciente-nombre">
+              Paciente
+            </div>
+            <div style="font-size: 0.8rem; color: var(--color-stone); margin-top: 2px;" id="modal-paciente-expediente">
+              Expediente: #2026101101
+            </div>
+            <div style="font-size: 0.78rem; color: var(--color-stone); margin-top: 3px;">
+              Atendido por: <strong style="color: var(--color-graphite);" id="modal-doctor-nombre">Dr. Carlos Pérez</strong> (Folio: <span id="modal-consulta-folio" style="font-family: monospace;">CNS-001</span>)
+            </div>
+          </div>
+        </div>
+
+        <input type="hidden" id="cobro-consulta-id" name="fk_consulta_id" value="">
+        <input type="hidden" id="cobro-metodo-pago" name="metodo_pago" value="Efectivo">
+
+        <!-- Monto Final a Cobrar -->
+        <div class="form-group">
+          <label for="cobro-monto" class="form-label">
+            Monto Final a Cobrar ($ MXN) <span style="color: #ef4444;">*</span>
+          </label>
+          <div class="monto-input-wrapper">
+            <span class="currency-symbol">$</span>
+            <input 
+              type="number" 
+              id="cobro-monto" 
+              name="monto" 
+              class="form-control input-monto-grande" 
+              step="0.01" 
+              min="1" 
+              value="450.00" 
+              required
+            >
+          </div>
+          <span style="font-size: 0.75rem; color: var(--color-stone); margin-top: 4px; display: block;">Puedes ajustar el monto si se aplicó un descuento o procedimiento adicional.</span>
+        </div>
+
+        <!-- Selector Visual de Método de Pago -->
+        <div class="form-group" style="margin-top: 14px;">
+          <label class="form-label">
+            Seleccionar Método de Pago <span style="color: #ef4444;">*</span>
+          </label>
+          <div class="metodos-pago-grid">
+            <div class="metodo-card active" data-metodo="Efectivo" onclick="seleccionarMetodo('Efectivo')">
+              <i class="fa-solid fa-money-bill-wave"></i>
+              <span>Efectivo</span>
+            </div>
+            <div class="metodo-card" data-metodo="Tarjeta" onclick="seleccionarMetodo('Tarjeta')">
+              <i class="fa-solid fa-credit-card"></i>
+              <span>Tarjeta</span>
+            </div>
+            <div class="metodo-card" data-metodo="Transferencia" onclick="seleccionarMetodo('Transferencia')">
+              <i class="fa-solid fa-mobile-screen-button"></i>
+              <span>Transferencia</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notas / Observaciones opcionales -->
+        <div class="form-group" style="margin-top: 14px;">
+          <label for="cobro-notas" class="form-label">Notas de Caja (Opcional)</label>
+          <input 
+            type="text" 
+            id="cobro-notas" 
+            name="notas" 
+            class="form-control" 
+            placeholder="Ej. Se entregó cambio, folio de terminal #4928"
+          >
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-cobro')">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-cobrar" id="btn-procesar-cobro" style="padding: 9px 20px;">
+          <i class="fa-solid fa-check"></i>
+          <span>Confirmar y Procesar Cobro</span>
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- =========================================================================
+       MODAL DE RECIBO DIGITAL DE PAGO GENERADO
+       ========================================================================= -->
+  <dialog id="modal-recibo" class="glass-modal" style="max-width: 480px;">
+    <div class="modal-header">
+      <h2 class="modal-title" style="color: #059669;">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>Recibo de Pago Liquidado</span>
+      </h2>
+      <button type="button" class="btn-close" onclick="cerrarModal('modal-recibo')" title="Cerrar ventana">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align: center; margin-bottom: 16px;">
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: #ecfdf5; color: #059669; font-size: 1.6rem; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <h3 style="color: var(--color-carbon); font-size: 1.2rem; margin-bottom: 4px;">¡Pago Registrado Exitosamente!</h3>
+        <p style="color: var(--color-stone); font-size: 0.85rem;">La cuenta ha sido liquidada y archivada como Pagada.</p>
+      </div>
+
+      <div class="recibo-digital-ticket">
+        <div class="recibo-line">
+          <span style="color: var(--color-stone);">Folio de Pago:</span>
+          <strong style="color: #2563eb; font-family: monospace;" id="recibo-folio">PAG-2026-0001</strong>
+        </div>
+        <div class="recibo-line">
+          <span style="color: var(--color-stone);">Fecha y Hora:</span>
+          <span id="recibo-fecha">15 Oct 2026, 10:30</span>
+        </div>
+        <div class="recibo-line">
+          <span style="color: var(--color-stone);">Paciente:</span>
+          <strong id="recibo-paciente">Juan Martínez Hernández</strong>
+        </div>
+        <div class="recibo-line">
+          <span style="color: var(--color-stone);">Expediente:</span>
+          <span id="recibo-expediente">#2026101101</span>
+        </div>
+        <div class="recibo-line">
+          <span style="color: var(--color-stone);">Método de Pago:</span>
+          <strong id="recibo-metodo" style="color: #d97706;">Efectivo</strong>
+        </div>
+        <div class="recibo-line">
+          <span style="color: var(--color-stone);">Cajero / Recepción:</span>
+          <span id="recibo-cajero">María López</span>
+        </div>
+        <div class="recibo-line total">
+          <span>Total Pagado:</span>
+          <span id="recibo-total">$450.00 MXN</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="imprimirRecibo()">
+        <i class="fa-solid fa-print"></i>
+        <span>Imprimir Comprobante</span>
+      </button>
+      <button type="button" class="btn btn-primary" onclick="cerrarModal('modal-recibo')">
+        Aceptar y Continuar
+      </button>
+    </div>
+  </dialog>
+
+  <!-- Contenedor para Notificaciones Toast Flotantes -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- Scripts JavaScript Vanilla -->
+  <script src="js/session.js"></script>
+  <script src="js/caja.js"></script>
+</body>
+</html>

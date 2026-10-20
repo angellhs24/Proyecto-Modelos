@@ -51,15 +51,14 @@ function getToken() {
 }
 
 /**
- * Guardar sesión
+ * Guardar sesión (solo metadatos no sensibles del perfil; el token vive en cookie HttpOnly)
  */
 function saveSession(usuario, token) {
   if (usuario) {
     localStorage.setItem(SESSION_KEY, JSON.stringify(usuario));
   }
-  if (token) {
-    localStorage.setItem(TOKEN_KEY, token);
-  }
+  // Se remueve el token de localStorage para proteger contra robo por XSS
+  localStorage.removeItem(TOKEN_KEY);
 }
 
 /**
@@ -86,9 +85,18 @@ function redirectByRole(usuario) {
 }
 
 /**
- * Limpiar sesión y redirigir al login
+ * Limpiar sesión: Destruye la cookie HttpOnly en el backend y redirige al login
  */
-function logout() {
+async function logout() {
+  try {
+    await fetch(`${getApiBaseUrl()}/api/logout`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (err) {
+    console.warn('Advertencia al destruir cookie en /api/logout:', err);
+  }
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(TOKEN_KEY);
   sessionStorage.clear();
@@ -129,18 +137,19 @@ function getApiBaseUrl() {
 }
 
 /**
- * Iniciar sesión automática con una cuenta demo
+ * Iniciar sesión automática con una cuenta demo (recibe cookie HttpOnly)
  */
 async function autoLoginDemo(rolId) {
   const account = rolId === 1 ? DEMO_ACCOUNTS.ADMIN : (rolId === 4 ? DEMO_ACCOUNTS.PODOLOGO : DEMO_ACCOUNTS.RECEPCIONISTA);
   try {
     const res = await fetch(`${getApiBaseUrl()}/api/auth/login`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: account.email, password: account.password })
     });
     const data = await res.json();
-    if (res.ok && data.token) {
+    if (res.ok && (data.usuario || data.token)) {
       saveSession(data.usuario, data.token);
       return data.usuario;
     }
@@ -152,6 +161,7 @@ async function autoLoginDemo(rolId) {
 
 /**
  * Wrapper de Fetch con autenticación automática y captura de violaciones RBAC
+ * Envía credenciales (cookies HttpOnly) en todas las consultas
  */
 async function fetchApi(endpoint, options = {}) {
   const token = getToken();
@@ -173,6 +183,7 @@ async function fetchApi(endpoint, options = {}) {
 
   try {
     const response = await fetch(fullUrl, {
+      credentials: 'include',
       ...options,
       headers
     });
@@ -242,16 +253,18 @@ function showToast(message, type = 'info') {
 
 /**
  * Iniciar sesión con email y contraseña reales
+ * La respuesta incrusta el token en una cookie HttpOnly segura
  */
 async function login(email, password) {
   try {
     const res = await fetch(`${getApiBaseUrl()}/api/auth/login`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: (email || '').trim(), password })
     });
     const data = await res.json();
-    if (res.ok && data.token) {
+    if (res.ok && (data.usuario || data.token)) {
       saveSession(data.usuario, data.token);
       return { ok: true, usuario: data.usuario, token: data.token };
     }
@@ -260,6 +273,21 @@ async function login(email, password) {
     return { ok: false, error: 'No se pudo conectar con el servidor: ' + err.message };
   }
 }
+
+/**
+ * Sanitización de texto para prevenir ataques Cross-Site Scripting (XSS)
+ * en la inyección de cadenas en el DOM
+ */
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+window.escapeHtml = escapeHtml;
 
 // Exportar globalmente para scripts Vanilla JS
 window.AppAuth = {
@@ -274,5 +302,7 @@ window.AppAuth = {
   fetchApi,
   showToast,
   getApiBaseUrl,
+  escapeHtml,
   DEMO_ACCOUNTS
 };
+

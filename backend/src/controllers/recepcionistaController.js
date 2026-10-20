@@ -110,7 +110,7 @@ const registrarPacienteContacto = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al registrar paciente desde recepción:', error);
-    res.status(500).json({ error: 'Error al registrar el paciente en la base de datos', detalle: error.message });
+    res.status(500).json({ error: 'Error al registrar el paciente en la base de datos' });
   }
 };
 
@@ -285,7 +285,7 @@ const crearConsulta = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al agendar consulta:', error);
-    res.status(500).json({ error: 'Error al agendar la consulta', detalle: error.message });
+    res.status(500).json({ error: 'Error al agendar la consulta' });
   }
 };
 
@@ -544,7 +544,7 @@ const procesarCobro = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al procesar cobro:', error);
-    res.status(500).json({ error: 'Error al registrar el cobro en la base de datos', detalle: error.message });
+    res.status(500).json({ error: 'Error al registrar el cobro en la base de datos' });
   }
 };
 

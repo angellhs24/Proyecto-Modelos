@@ -5,6 +5,9 @@ const {
   crearDiagnostico,
   eliminarDiagnostico
 } = require('../controllers/diagnosticoController');
+const { verificarAutenticacion } = require('../middlewares/authMiddleware');
+
+router.use(verificarAutenticacion);
 
 router.get('/consulta/:consulta_id', obtenerDiagnosticosPorConsulta);
 router.post('/', crearDiagnostico);

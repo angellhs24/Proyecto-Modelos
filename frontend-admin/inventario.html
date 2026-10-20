@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elite Foot Care | Control de Inventario & Farmacia (Recepción)</title>
+  
+  <!-- Tipografía Dialog: DM Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons 6.5.2 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  
+  <!-- Unified Clinical Design System -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/inventario.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- =========================================================================
+         HEADER FLOATING PILL BAR (Showroom Clean Design)
+         ========================================================================= -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-logo-icon" aria-hidden="true">
+          <i class="fa-solid fa-boxes-stacked"></i>
+        </div>
+        <div>
+          <div class="brand-title">Elite Foot Care</div>
+          <div class="brand-subtitle">Control de Insumos & Farmacia Podológica</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Indicador de Usuario Activo en Sesión (RBAC) -->
+        <div class="user-chip" id="user-chip-container">
+          <div class="user-avatar" id="user-avatar-initials">ML</div>
+          <div class="user-meta">
+            <span class="user-name" id="user-display-name">María López</span>
+            <span class="user-role-badge role-badge-recep" id="user-role-text">Rol ID: 3 · Recepcionista</span>
+          </div>
+        </div>
+
+        <!-- Botón para alternar a Recepción Principal -->
+        <a href="/recepcion.html" class="role-switch-btn" title="Ir a la Agenda y Recepción">
+          <i class="fa-solid fa-calendar-days" style="color: #2563eb;"></i>
+          <span>Recepción</span>
+        </a>
+
+        <!-- Botón para alternar a Administración (Rol Admin) -->
+        <a href="/admin.html" class="role-switch-btn" title="Ir al Panel de Administración">
+          <i class="fa-solid fa-shield-halved" style="color: #6366f1;"></i>
+          <span>Panel Admin</span>
+        </a>
+
+        <!-- Botón para alternar a Consultorio (Rol Podólogo) -->
+        <a href="/consultorio.html" class="role-switch-btn" title="Ir al Consultorio Podológico">
+          <i class="fa-solid fa-user-doctor" style="color: #7c3aed;"></i>
+          <span>Consultorio</span>
+        </a>
+
+        <!-- Botón para alternar a Caja -->
+        <a href="/caja.html" class="role-switch-btn" title="Módulo de Caja y Cobros">
+          <i class="fa-solid fa-cash-register" style="color: #10b981;"></i>
+          <span>Caja y Cobros</span>
+        </a>
+
+        <!-- Botón Cerrar Sesión -->
+        <button type="button" class="role-switch-btn btn-logout" onclick="AppAuth.logout()" title="Cerrar Sesión Segura">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Salir</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Sistema de Navegación por Pestañas -->
+    <nav class="nav-tabs-container" aria-label="Navegación de módulos">
+      <a href="/recepcion.html" class="nav-tab-btn">
+        <i class="fa-solid fa-calendar-days"></i>
+        <span>Agenda Global</span>
+      </a>
+      <a href="/recepcion.html#tab-pacientes" class="nav-tab-btn">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>Registro de Pacientes</span>
+      </a>
+      <a href="/caja.html" class="nav-tab-btn">
+        <i class="fa-solid fa-cash-register"></i>
+        <span>Módulo de Cobros</span>
+      </a>
+      <button type="button" class="nav-tab-btn active" id="nav-tab-inventario">
+        <i class="fa-solid fa-boxes-stacked"></i>
+        <span>Control de Inventario (CRUD)</span>
+      </button>
+    </nav>
+
+    <!-- Contenido Principal del Módulo de Inventario -->
+    <main class="main-content">
+      
+      <!-- Showroom Header -->
+      <div class="admin-showroom-header">
+        <h1 class="admin-showroom-title">Control de Insumos & Farmacia</h1>
+        <p class="admin-showroom-sub">
+          Supervisión de stock clínico, umbrales de reabastecimiento en tiempo real y registro de inventario podológico.
+        </p>
+      </div>
+
+      <!-- Banner informativo de políticas RBAC y Stock -->
+      <div class="security-alert-box" style="margin-bottom: 24px;">
+        <i class="fa-solid fa-shield-halved security-alert-icon" style="color: #2563eb;"></i>
+        <div class="security-alert-content" style="flex: 1;">
+          <div style="font-weight: 600; color: var(--color-carbon); font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+            <span>Módulo de Inventario Bajo Control de Acceso RBAC</span>
+            <span class="status-badge" style="background: #eff6ff; color: #1d4ed8; border: 1px solid rgba(59, 130, 246, 0.25); font-size: 0.7rem;">Roles 1 y 3 Autorizados</span>
+          </div>
+          <div style="font-size: 0.83rem; color: var(--color-stone); margin-top: 3px;">
+            Operaciones de lectura, creación, actualización de stock y eliminación sincronizadas con la bitácora de auditoría. Los insumos cuyo stock sea menor o igual al stock mínimo se resaltan automáticamente en <strong>amarillo</strong> o <strong>rojo</strong> para reabastecimiento prioritario.
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjetas KPI de Métricas de Inventario -->
+      <section class="inventory-kpi-grid" aria-label="Métricas de Inventario">
+        <div class="inv-kpi-card total-articulos">
+          <div class="inv-kpi-icon blue">
+            <i class="fa-solid fa-box-open"></i>
+          </div>
+          <div class="inv-kpi-info">
+            <span class="inv-kpi-val" id="kpi-total-articulos">0</span>
+            <span class="inv-kpi-label">Artículos en Catálogo</span>
+          </div>
+        </div>
+
+        <div class="inv-kpi-card alert-reabastecer" id="kpi-card-reabastecer" style="cursor: pointer;" title="Haz clic para filtrar artículos que necesitan reposición">
+          <div class="inv-kpi-icon amber">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div class="inv-kpi-info">
+            <span class="inv-kpi-val" id="kpi-reabastecer" style="color: #d97706;">0</span>
+            <span class="inv-kpi-label">Por Reabastecer (≤ Mín)</span>
+          </div>
+        </div>
+
+        <div class="inv-kpi-card alert-critico" id="kpi-card-agotados" style="cursor: pointer;" title="Haz clic para filtrar insumos agotados">
+          <div class="inv-kpi-icon red">
+            <i class="fa-solid fa-circle-xmark"></i>
+          </div>
+          <div class="inv-kpi-info">
+            <span class="inv-kpi-val" id="kpi-agotados" style="color: #dc2626;">0</span>
+            <span class="inv-kpi-label">Agotados (Stock 0)</span>
+          </div>
+        </div>
+
+        <div class="inv-kpi-card stock-optimo">
+          <div class="inv-kpi-icon green">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div class="inv-kpi-info">
+            <span class="inv-kpi-val" id="kpi-optimos" style="color: #059669;">0</span>
+            <span class="inv-kpi-label">Existencias Óptimas</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Barra de Herramientas, Filtros y Botón 'Agregar Artículo' -->
+      <div class="inv-toolbar">
+        <div class="inv-toolbar-left">
+          <!-- Búsqueda en tiempo real -->
+          <div class="inv-search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input 
+              type="text" 
+              id="search-input" 
+              class="form-control" 
+              placeholder="Buscar insumo por nombre, código o categoría..."
+              autocomplete="off"
+            >
+          </div>
+
+          <!-- Filtro por Categoría -->
+          <div style="min-width: 200px;">
+            <select id="category-filter" class="form-select" aria-label="Filtrar por categoría">
+              <option value="Todas">Todas las Categorías</option>
+              <option value="Material de Curación">Material de Curación</option>
+              <option value="Instrumental">Instrumental Podológico</option>
+              <option value="Medicamentos">Medicamentos y Antisépticos</option>
+              <option value="Desechables">Desechables Clínicos</option>
+              <option value="Ortopodología">Ortopodología y Plantillas</option>
+            </select>
+          </div>
+
+          <!-- Filtro por Estado de Stock / Alerta -->
+          <div style="min-width: 200px;">
+            <select id="status-filter" class="form-select" aria-label="Filtrar por condición de stock">
+              <option value="todos">Todos los Estados</option>
+              <option value="reabastecer">⚠️ Requieren Reabastecer</option>
+              <option value="agotados">🔴 Stock Agotado (0)</option>
+              <option value="optimo">🟢 Stock Óptimo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="inv-toolbar-actions">
+          <!-- Botón Actualizar Datos -->
+          <button 
+            type="button" 
+            class="btn btn-secondary" 
+            onclick="cargarInventario()" 
+            id="btn-recargar" 
+            title="Recargar catálogo desde MySQL">
+            <i class="fa-solid fa-rotate-right"></i>
+            <span>Actualizar</span>
+          </button>
+
+          <!-- Botón de 'Agregar Artículo' -->
+          <button 
+            type="button" 
+            class="btn btn-primary" 
+            onclick="abrirModalCrear()" 
+            id="btn-abrir-modal-crear">
+            <i class="fa-solid fa-plus"></i>
+            <span>Agregar Artículo</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Leyenda y Contador de Artículos -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 0.84rem; color: var(--color-stone); flex-wrap: wrap; gap: 8px;">
+        <span id="contador-registros" style="font-weight: 500;">Cargando catálogo...</span>
+        <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+          <span style="display: inline-flex; align-items: center; gap: 6px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
+            <span>Rojo: Agotado / Crítico</span>
+          </span>
+          <span style="display: inline-flex; align-items: center; gap: 6px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+            <span>Amarillo: ≤ Stock Mínimo (Reabastecer)</span>
+          </span>
+          <span style="display: inline-flex; align-items: center; gap: 6px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+            <span>Verde: Existencia Óptima</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Tabla Limpia de Inventario (Consume endpoint GET /api/inventario) -->
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="admin-table-container" style="box-shadow: none; border: none; border-radius: 0; margin-bottom: 0;">
+          <table class="admin-table" id="tabla-inventario" aria-label="Inventario de insumos clínicos">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 90px;">Código</th>
+                <th scope="col">Insumo / Descripción</th>
+                <th scope="col" style="width: 180px;">Categoría</th>
+                <th scope="col" style="width: 130px; text-align: center;">Stock Actual</th>
+                <th scope="col" style="width: 110px;">Stock Mín.</th>
+                <th scope="col" style="width: 110px;">Unidad</th>
+                <th scope="col" style="width: 170px;">Alerta / Estado</th>
+                <th scope="col" style="width: 140px;">Actualización</th>
+                <th scope="col" style="width: 110px; text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-inventario-body">
+              <!-- Filas generadas dinámicamente mediante javascript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- =========================================================================
+       MODAL PARA AGREGAR / EDITAR ARTÍCULO
+       ========================================================================= -->
+  <dialog id="modal-articulo" class="glass-modal" aria-labelledby="modal-articulo-titulo">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-articulo-titulo">
+        <i class="fa-solid fa-box-archive" style="color: var(--color-midnight-ink);"></i>
+        <span>Nuevo Artículo de Inventario</span>
+      </h2>
+      <button type="button" class="btn-close" onclick="cerrarModal('modal-articulo')" title="Cerrar ventana">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <form id="form-articulo" method="dialog">
+      <div class="modal-body">
+        
+        <!-- Nombre del Artículo -->
+        <div class="form-group">
+          <label for="articulo-nombre" class="form-label">
+            Nombre del Insumo / Artículo <span style="color: #ef4444;">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="articulo-nombre" 
+            name="nombre_articulo" 
+            class="form-control" 
+            placeholder="Ej. Hojas de Bisturí #15 Estériles" 
+            required 
+            maxlength="100"
+          >
+        </div>
+
+        <!-- Categoría y Clínica Asignada -->
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="articulo-categoria" class="form-label">Categoría</label>
+            <select id="articulo-categoria" name="categoria" class="form-select">
+              <option value="Material de Curación">Material de Curación</option>
+              <option value="Instrumental">Instrumental Podológico</option>
+              <option value="Medicamentos">Medicamentos y Antisépticos</option>
+              <option value="Desechables">Desechables Clínicos</option>
+              <option value="Ortopodología">Ortopodología y Plantillas</option>
+              <option value="General">General / Otros</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="articulo-clinica" class="form-label">Clínica / Sucursal</label>
+            <select id="articulo-clinica" name="fk_clinica_id" class="form-select">
+              <!-- Cargado dinámicamente -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Cantidad en Stock y Stock Mínimo -->
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="articulo-stock" class="form-label">
+              Cantidad en Stock <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="articulo-stock" 
+              name="cantidad_stock" 
+              class="form-control" 
+              min="0" 
+              value="10" 
+              required
+            >
+            <span style="font-size: 0.75rem; color: var(--color-stone); margin-top: 4px; display: block;">Existencia actual en el almacén.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="articulo-minimo" class="form-label">
+              Stock Mínimo de Alerta <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="articulo-minimo" 
+              name="stock_minimo" 
+              class="form-control" 
+              min="1" 
+              value="5" 
+              required
+            >
+            <span style="font-size: 0.75rem; color: var(--color-stone); margin-top: 4px; display: block;">Umbral para disparar la alerta visual.</span>
+          </div>
+        </div>
+
+        <!-- Unidad de Medida -->
+        <div class="form-group">
+          <label for="articulo-unidad" class="form-label">Unidad de Medida</label>
+          <select id="articulo-unidad" name="unidad_medida" class="form-select">
+            <option value="Pieza">Pieza (pz)</option>
+            <option value="Caja 100pz">Caja (100 pz)</option>
+            <option value="Caja 50pz">Caja (50 pz)</option>
+            <option value="Caja 50 pares">Caja (50 pares)</option>
+            <option value="Paquete">Paquete</option>
+            <option value="Frasco 500ml">Frasco (500 ml)</option>
+            <option value="Frasco gotero">Frasco gotero</option>
+            <option value="Tarro 500g">Tarro (500 g)</option>
+            <option value="Rollo">Rollo</option>
+            <option value="Par">Par</option>
+            <option value="Ampolleta">Ampolleta</option>
+          </select>
+        </div>
+
+        <!-- Alerta reactiva en tiempo real sobre la condición del stock ingresado -->
+        <div id="modal-alerta-preview" class="security-alert-box warning" style="display: none; margin-top: 12px; margin-bottom: 0;">
+          <!-- Mensaje dinámico insertado por inventario.js -->
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-articulo')">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" id="btn-guardar-articulo">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Guardar Artículo</span>
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- =========================================================================
+       MODAL DE CONFIRMACIÓN PARA ELIMINAR ARTÍCULO
+       ========================================================================= -->
+  <dialog id="modal-confirmar-eliminar" class="glass-modal" style="max-width: 480px;">
+    <div class="modal-header">
+      <h2 class="modal-title" style="color: #ef4444;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>Confirmar Eliminación</span>
+      </h2>
+      <button type="button" class="btn-close" onclick="cerrarModal('modal-confirmar-eliminar')" title="Cerrar ventana">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size: 0.95rem; margin-bottom: 12px; color: var(--color-graphite); line-height: 1.5;">
+        ¿Estás seguro de que deseas eliminar permanentemente del inventario el siguiente insumo?
+      </p>
+      <div style="background: #fef2f2; border: 1px solid rgba(239, 68, 68, 0.25); padding: 14px 16px; border-radius: var(--radius-cardinner); font-weight: 600; color: #991b1b; font-size: 0.95rem;" id="eliminar-articulo-nombre">
+        Artículo
+      </div>
+      <p style="font-size: 0.8rem; color: var(--color-stone); margin-top: 12px; line-height: 1.4;">
+        Esta acción se registrará en la bitácora de auditoría. Si el insumo está vinculado a registros clínicos históricos, asegúrate de haber conciliado el inventario.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-confirmar-eliminar')">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-danger" id="btn-confirmar-eliminar">
+        <i class="fa-solid fa-trash-can"></i>
+        <span>Confirmar Eliminación</span>
+      </button>
+    </div>
+  </dialog>
+
+  <!-- Contenedor para Notificaciones Toast Flotantes -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- Scripts JavaScript Vanilla -->
+  <script src="js/session.js"></script>
+  <script src="js/inventario.js"></script>
+</body>
+</html>

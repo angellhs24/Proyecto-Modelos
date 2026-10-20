@@ -5,24 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Elite Foot Care | Recepción Clínica (Rol ID: 3)</title>
   
-  <!-- Tipografía Google Fonts -->
+  <!-- Tipografía Dialog: DM Sans & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Font Awesome Icons -->
+  <!-- Font Awesome Icons 6.5.2 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   
-  <!-- Design System Glassmorphism & Material 3 -->
+  <!-- Unified Clinical Design System -->
   <link rel="stylesheet" href="css/design-system.css">
 </head>
 <body>
   <div class="app-container">
-    <!-- Header Glassmorphic Superior -->
+
+    <!-- =========================================================================
+         HEADER FLOATING PILL BAR (Showroom Clean Design)
+         ========================================================================= -->
     <header class="app-header">
       <div class="brand-section">
-        <div class="brand-logo-icon">
-          <i class="fa-solid fa-socks"></i>
+        <div class="brand-logo-icon" aria-hidden="true">
+          <i class="fa-solid fa-calendar-check"></i>
         </div>
         <div>
           <div class="brand-title">Elite Foot Care</div>
@@ -36,32 +39,43 @@
           <div class="user-avatar" id="user-avatar-initials">ML</div>
           <div class="user-meta">
             <span class="user-name" id="user-display-name">María López</span>
-            <span class="user-role-badge role-badge-recep" id="user-role-text">Rol ID: 3 • Recepcionista</span>
+            <span class="user-role-badge role-badge-recep" id="user-role-text">Rol ID: 3 · Recepcionista</span>
           </div>
         </div>
 
-        <!-- Botón para alternar a Administración (Rol Admin) -->
-        <a href="/admin.html" class="role-switch-btn" title="Ir al Panel de Administración">
-          <i class="fa-solid fa-shield-halved" style="color: #38bdf8;"></i>
+        <!-- Accesos directos / Ghost Pills del ecosistema modular -->
+        <a href="/admin.html" class="role-switch-btn" title="Ir al Panel de Administración General">
+          <i class="fa-solid fa-shield-halved" style="color: #6366f1;"></i>
           <span>Panel Admin</span>
         </a>
 
-        <!-- Botón para alternar a Consultorio (Rol Podólogo) -->
         <a href="/consultorio.html" class="role-switch-btn" title="Ir a la interfaz del Podólogo">
-          <i class="fa-solid fa-user-doctor"></i>
-          <span>Consultorio Podológico</span>
+          <i class="fa-solid fa-user-doctor" style="color: #7c3aed;"></i>
+          <span>Consultorio</span>
+        </a>
+
+        <a href="/caja.html" class="role-switch-btn" title="Módulo de Caja y Cobros">
+          <i class="fa-solid fa-cash-register" style="color: #10b981;"></i>
+          <span>Caja</span>
+        </a>
+
+        <a href="/inventario.html" class="role-switch-btn" title="Control de Insumos y Farmacia">
+          <i class="fa-solid fa-boxes-stacked" style="color: #f69251;"></i>
+          <span>Inventario</span>
         </a>
 
         <!-- Botón Cerrar Sesión -->
-        <button type="button" class="role-switch-btn btn-logout" onclick="AppAuth.logout()" title="Cerrar Sesión Segura" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5;">
-          <i class="fa-solid fa-arrow-right-from-bracket" style="color: #f87171;"></i>
+        <button type="button" class="role-switch-btn btn-logout" onclick="AppAuth.logout()" title="Cerrar Sesión Segura">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
           <span>Salir</span>
         </button>
       </div>
     </header>
 
-    <!-- Sistema de Navegación por Pestañas Material 3 -->
-    <nav class="nav-tabs-container" aria-label="Navegación principal">
+    <!-- =========================================================================
+         SISTEMA DE NAVEGACIÓN POR PESTAÑAS (Floating Pill Tab Container)
+         ========================================================================= -->
+    <nav class="nav-tabs-container" aria-label="Navegación principal de recepción">
       <button class="nav-tab-btn active" data-tab="tab-agenda" id="tab-btn-agenda">
         <i class="fa-solid fa-calendar-days"></i>
         <span>Agenda Global</span>
@@ -87,91 +101,116 @@
            PESTAÑA 1: AGENDA GLOBAL (CRUD de Consultas de todos los médicos)
            ===================================================================== -->
       <section id="tab-agenda" class="tab-pane active">
-        <!-- Tarjetas KPI -->
+
+        <!-- Showroom Header -->
+        <div class="admin-showroom-header">
+          <h1 class="admin-showroom-title">Agenda Global de Consultas</h1>
+          <p class="admin-showroom-sub">
+            Programación, estatus de atención en sala y control de asistencia para todos los especialistas podológicos.
+          </p>
+        </div>
+
+        <!-- 4 Tarjetas KPI Principales (White Snow Surfaces 24px) -->
         <div class="grid-cols-4">
           <div class="kpi-card">
-            <div class="kpi-icon blue"><i class="fa-solid fa-calendar-check"></i></div>
-            <div class="kpi-data">
-              <span class="kpi-value" id="kpi-total-citas">0</span>
-              <span class="kpi-label">Consultas Totales</span>
+            <div class="kpi-header">
+              <span class="kpi-title">Consultas Totales</span>
+              <div class="kpi-icon-badge">
+                <i class="fa-solid fa-calendar-check" style="color: #2563eb;"></i>
+              </div>
             </div>
+            <div class="kpi-value" id="kpi-total-citas">0</div>
+            <div class="kpi-trend">Programadas en sistema</div>
           </div>
+
           <div class="kpi-card">
-            <div class="kpi-icon amber"><i class="fa-solid fa-clock"></i></div>
-            <div class="kpi-data">
-              <span class="kpi-value" id="kpi-pendientes">0</span>
-              <span class="kpi-label">Programadas / En Espera</span>
+            <div class="kpi-header">
+              <span class="kpi-title">En Espera / Programadas</span>
+              <div class="kpi-icon-badge">
+                <i class="fa-solid fa-clock" style="color: #d97706;"></i>
+              </div>
             </div>
+            <div class="kpi-value" id="kpi-pendientes">0</div>
+            <div class="kpi-trend">Turnos por atender</div>
           </div>
+
           <div class="kpi-card">
-            <div class="kpi-icon green"><i class="fa-solid fa-circle-check"></i></div>
-            <div class="kpi-data">
-              <span class="kpi-value" id="kpi-finalizadas">0</span>
-              <span class="kpi-label">Finalizadas</span>
+            <div class="kpi-header">
+              <span class="kpi-title">Finalizadas</span>
+              <div class="kpi-icon-badge">
+                <i class="fa-solid fa-circle-check" style="color: #059669;"></i>
+              </div>
             </div>
+            <div class="kpi-value" id="kpi-finalizadas">0</div>
+            <div class="kpi-trend">Atenciones completadas</div>
           </div>
+
           <div class="kpi-card">
-            <div class="kpi-icon purple"><i class="fa-solid fa-user-doctor"></i></div>
-            <div class="kpi-data">
-              <span class="kpi-value" id="kpi-medicos-activos">1</span>
-              <span class="kpi-label">Médicos Disponibles</span>
+            <div class="kpi-header">
+              <span class="kpi-title">Médicos Disponibles</span>
+              <div class="kpi-icon-badge">
+                <i class="fa-solid fa-user-doctor" style="color: #7c3aed;"></i>
+              </div>
             </div>
+            <div class="kpi-value" id="kpi-medicos-activos">1</div>
+            <div class="kpi-trend">Especialistas activos</div>
           </div>
         </div>
 
         <!-- Barra de Filtros y Acciones -->
-        <div class="glass-card mb-4" style="margin-bottom: 1.5rem;">
-          <div class="toolbar-container">
-            <div class="filters-group">
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">Filtrar por Podólogo</label>
-                <select id="filtro-podologo" class="form-select" style="min-width: 220px;">
-                  <option value="">Todos los Podólogos</option>
-                </select>
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">Estado</label>
-                <select id="filtro-estado" class="form-select">
-                  <option value="">Todos los Estados</option>
-                  <option value="Programada">Programada</option>
-                  <option value="En espera">En espera</option>
-                  <option value="En atención">En atención</option>
-                  <option value="Finalizada">Finalizada</option>
-                  <option value="Cancelada">Cancelada</option>
-                </select>
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">Fecha</label>
-                <input type="date" id="filtro-fecha" class="form-control">
-              </div>
-              <button id="btn-limpiar-filtros" class="btn btn-secondary btn-sm" style="margin-top: 1.4rem;">
-                <i class="fa-solid fa-rotate-left"></i> Limpiar
-              </button>
+        <div class="admin-toolbar">
+          <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap; flex: 1;">
+            <div style="min-width: 220px;">
+              <label class="form-label">Filtrar por Podólogo</label>
+              <select id="filtro-podologo" class="form-select">
+                <option value="">Todos los Podólogos</option>
+              </select>
             </div>
+            <div style="min-width: 180px;">
+              <label class="form-label">Estado</label>
+              <select id="filtro-estado" class="form-select">
+                <option value="">Todos los Estados</option>
+                <option value="Programada">Programada</option>
+                <option value="En espera">En espera</option>
+                <option value="En atención">En atención</option>
+                <option value="Finalizada">Finalizada</option>
+                <option value="Cancelada">Cancelada</option>
+              </select>
+            </div>
+            <div style="min-width: 170px;">
+              <label class="form-label">Fecha</label>
+              <input type="date" id="filtro-fecha" class="form-control">
+            </div>
+            <button id="btn-limpiar-filtros" class="btn btn-secondary" style="margin-top: 22px;">
+              <i class="fa-solid fa-rotate-left"></i> Limpiar
+            </button>
+          </div>
 
-            <div>
-              <button id="btn-abrir-modal-cita" class="btn btn-primary" style="margin-top: 1.2rem;">
-                <i class="fa-solid fa-calendar-plus"></i>
-                <span>Agendar Nueva Consulta</span>
-              </button>
-            </div>
+          <div>
+            <button id="btn-abrir-modal-cita" class="btn btn-primary" style="margin-top: 20px;">
+              <i class="fa-solid fa-calendar-plus"></i>
+              <span>Agendar Nueva Consulta</span>
+            </button>
           </div>
         </div>
 
-        <!-- Tabla de Agenda Global -->
-        <div class="glass-card">
-          <div class="glass-card-header">
+        <!-- Tabla de Agenda Global (Superficie Blanca 24px) -->
+        <div class="card">
+          <div class="card-header">
             <div>
-              <h2 class="glass-card-title"><i class="fa-solid fa-clipboard-list" style="color: var(--color-info);"></i> Consultas Médicas Programadas</h2>
-              <p class="glass-card-subtitle">Control integral de citas de todos los especialistas podológicos</p>
+              <h2 class="card-title">
+                <i class="fa-solid fa-clipboard-list" style="color: var(--color-midnight-ink);"></i>
+                <span>Consultas Médicas Programadas</span>
+              </h2>
+              <p class="card-subtitle">Control integral de citas de todos los especialistas podológicos</p>
             </div>
-            <button id="btn-recargar-agenda" class="btn btn-secondary btn-sm">
+            <button id="btn-recargar-agenda" class="btn btn-secondary">
               <i class="fa-solid fa-arrows-rotate"></i> Actualizar
             </button>
           </div>
 
-          <div class="table-responsive">
-            <table class="glass-table">
+          <div class="admin-table-container" style="box-shadow: none; border-radius: 16px; margin-bottom: 0;">
+            <table class="admin-table">
               <thead>
                 <tr>
                   <th>Fecha y Hora</th>
@@ -187,7 +226,7 @@
               </thead>
               <tbody id="tabla-agenda-body">
                 <tr>
-                  <td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                  <td colspan="9" style="text-align: center; padding: 3rem; color: var(--color-stone);">
                     <i class="fa-solid fa-spinner fa-spin"></i> Cargando agenda global...
                   </td>
                 </tr>
@@ -201,35 +240,39 @@
            PESTAÑA 2: REGISTRO DE PACIENTES (Solo datos de contacto)
            ===================================================================== -->
       <section id="tab-pacientes" class="tab-pane">
+        
         <!-- Banner de Política RBAC -->
-        <div class="security-alert-box">
-          <div class="security-alert-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="security-alert-box" style="margin-bottom: 24px;">
+          <div class="security-alert-icon"><i class="fa-solid fa-shield-halved" style="color: #10b981;"></i></div>
           <div class="security-alert-content">
-            <strong>Restricción de Seguridad RBAC (Rol ID: 3 - Recepcionista)</strong>
+            <strong>Restricción de Seguridad RBAC (Rol ID: 3 · Recepcionista):</strong>
             Por normativa estricta de protección de datos clínicos, la recepcionista solo tiene autorización para registrar 
-            datos de contacto y filiación general. El historial médico, diabetes, hipertensión, antecedentes y notas patológicas 
+            datos de contacto y filiación general. El historial médico, diabetes, hipertensión y notas patológicas 
             están excluidos y son de uso reservado exclusivo para el Podólogo en consultorio.
           </div>
         </div>
 
-        <div class="grid-cols-1-2">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
           <!-- Formulario de Alta de Paciente -->
-          <div class="glass-card">
-            <div class="glass-card-header">
+          <div class="card" style="margin-bottom: 0;">
+            <div class="card-header">
               <div>
-                <h2 class="glass-card-title"><i class="fa-solid fa-id-card" style="color: var(--color-info);"></i> Alta de Paciente</h2>
-                <p class="glass-card-subtitle">Exclusivamente información de contacto</p>
+                <h2 class="card-title">
+                  <i class="fa-solid fa-id-card" style="color: var(--color-midnight-ink);"></i>
+                  <span>Alta de Paciente</span>
+                </h2>
+                <p class="card-subtitle">Exclusivamente información de contacto y filiación</p>
               </div>
             </div>
 
             <form id="form-registro-paciente">
               <div class="form-grid-2">
                 <div class="form-group">
-                  <label class="form-label">Nombres <span class="required">*</span></label>
+                  <label class="form-label">Nombres <span style="color: #ef4444;">*</span></label>
                   <input type="text" id="pac-nombres" class="form-control" placeholder="Ej. Roberto" required>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Apellido Paterno <span class="required">*</span></label>
+                  <label class="form-label">Apellido Paterno <span style="color: #ef4444;">*</span></label>
                   <input type="text" id="pac-ape-paterno" class="form-control" placeholder="Ej. Vargas" required>
                 </div>
               </div>
@@ -269,7 +312,7 @@
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label">Municipio / Alcaldía</label>
-                  <input type="text" id="pac-municipio" class="form-control" placeholder="Ej. Ecatepec">
+                  <input type="text" id="pac-municipio" class="form-control" placeholder="Ej. Tecámac">
                 </div>
                 <div class="form-group">
                   <label class="form-label">Ocupación</label>
@@ -277,7 +320,7 @@
                 </div>
               </div>
 
-              <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;" id="btn-guardar-paciente">
+              <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;" id="btn-guardar-paciente">
                 <i class="fa-solid fa-user-check"></i>
                 <span>Registrar Paciente en el Sistema</span>
               </button>
@@ -285,19 +328,22 @@
           </div>
 
           <!-- Directorio de Pacientes -->
-          <div class="glass-card">
-            <div class="glass-card-header">
+          <div class="card" style="margin-bottom: 0;">
+            <div class="card-header">
               <div>
-                <h2 class="glass-card-title"><i class="fa-solid fa-address-book" style="color: var(--color-info);"></i> Directorio de Pacientes</h2>
-                <p class="glass-card-subtitle">Búsqueda rápida para agendar consultas</p>
+                <h2 class="card-title">
+                  <i class="fa-solid fa-address-book" style="color: var(--color-midnight-ink);"></i>
+                  <span>Directorio de Pacientes</span>
+                </h2>
+                <p class="card-subtitle">Búsqueda rápida para agendar consultas</p>
               </div>
-              <div style="min-width: 200px;">
-                <input type="text" id="buscador-pacientes" class="form-control" placeholder="Buscar por nombre o expediente...">
+              <div style="min-width: 220px;">
+                <input type="text" id="buscador-pacientes" class="form-control" placeholder="Buscar por nombre o exp...">
               </div>
             </div>
 
-            <div class="table-responsive">
-              <table class="glass-table">
+            <div class="admin-table-container" style="box-shadow: none; border-radius: 16px; margin-bottom: 0;">
+              <table class="admin-table">
                 <thead>
                   <tr>
                     <th>No. Expediente</th>
@@ -309,7 +355,7 @@
                 </thead>
                 <tbody id="tabla-pacientes-body">
                   <tr>
-                    <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <td colspan="5" style="text-align: center; padding: 2.5rem; color: var(--color-stone);">
                       Cargando directorio...
                     </td>
                   </tr>
@@ -324,19 +370,22 @@
            PESTAÑA 3: MÓDULO DE COBROS (Tabla Pagos con fk_recepcionista_id)
            ===================================================================== -->
       <section id="tab-cobros" class="tab-pane">
-        <div class="glass-card mb-4" style="margin-bottom: 1.5rem;">
-          <div class="glass-card-header">
+        <div class="card">
+          <div class="card-header">
             <div>
-              <h2 class="glass-card-title"><i class="fa-solid fa-hand-holding-dollar" style="color: var(--color-success);"></i> Módulo de Cobros de Consultas</h2>
-              <p class="glass-card-subtitle">
-                Procesamiento financiero en la tabla Pagos (Firma de recepcionista: <strong id="cajera-nombre-indicador">María López [ID: 1]</strong>)
+              <h2 class="card-title">
+                <i class="fa-solid fa-hand-holding-dollar" style="color: #059669;"></i>
+                <span>Módulo de Cobros de Consultas</span>
+              </h2>
+              <p class="card-subtitle">
+                Procesamiento financiero (Firma de recepcionista: <strong id="cajera-nombre-indicador">María López [ID: 1]</strong>)
               </p>
             </div>
-            <div class="filters-group">
-              <button class="btn btn-secondary btn-sm active" id="btn-ver-cobros-pendientes">
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary active" id="btn-ver-cobros-pendientes">
                 <i class="fa-solid fa-hourglass-half"></i> Consultas Pendientes de Cobro
               </button>
-              <button class="btn btn-secondary btn-sm" id="btn-ver-historial-cobros">
+              <button class="btn btn-secondary" id="btn-ver-historial-cobros">
                 <i class="fa-solid fa-receipt"></i> Historial de Pagos Procesados
               </button>
             </div>
@@ -344,8 +393,8 @@
 
           <!-- Tabla de Consultas Pendientes de Cobro -->
           <div id="seccion-pendientes-cobro">
-            <div class="table-responsive">
-              <table class="glass-table">
+            <div class="admin-table-container" style="box-shadow: none; border-radius: 16px; margin-bottom: 0;">
+              <table class="admin-table">
                 <thead>
                   <tr>
                     <th>ID Consulta</th>
@@ -360,7 +409,7 @@
                 </thead>
                 <tbody id="tabla-cobros-pendientes-body">
                   <tr>
-                    <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--color-stone);">
                       Cargando cobros pendientes...
                     </td>
                   </tr>
@@ -371,8 +420,8 @@
 
           <!-- Historial de Pagos -->
           <div id="seccion-historial-cobros" style="display: none;">
-            <div class="table-responsive">
-              <table class="glass-table">
+            <div class="admin-table-container" style="box-shadow: none; border-radius: 16px; margin-bottom: 0;">
+              <table class="admin-table">
                 <thead>
                   <tr>
                     <th>ID Pago</th>
@@ -387,7 +436,7 @@
                 </thead>
                 <tbody id="tabla-historial-cobros-body">
                   <tr>
-                    <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--color-stone);">
                       Cargando historial de pagos...
                     </td>
                   </tr>
@@ -402,16 +451,19 @@
            PESTAÑA 4: AUDITORÍA DE SEGURIDAD RBAC (Validación en Vivo)
            ===================================================================== -->
       <section id="tab-seguridad" class="tab-pane">
-        <div class="glass-card">
-          <div class="glass-card-header">
+        <div class="card">
+          <div class="card-header">
             <div>
-              <h2 class="glass-card-title"><i class="fa-solid fa-lock" style="color: var(--color-danger);"></i> Comprobación de Seguridad y Separación de Roles (RBAC)</h2>
-              <p class="glass-card-subtitle">Verificación en vivo del middleware de restricción de tablas clínicas</p>
+              <h2 class="card-title">
+                <i class="fa-solid fa-shield-halved" style="color: #ef4444;"></i>
+                <span>Comprobación de Seguridad y Separación de Roles (RBAC)</span>
+              </h2>
+              <p class="card-subtitle">Verificación en vivo del middleware de restricción de tablas clínicas</p>
             </div>
           </div>
 
-          <div class="security-alert-box danger">
-            <div class="security-alert-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div class="security-alert-box danger" style="margin-bottom: 20px;">
+            <div class="security-alert-icon"><i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i></div>
             <div class="security-alert-content">
               <strong>Regla de Seguridad Evaluada:</strong>
               El rol de Recepcionista (Rol ID: 3) tiene bloqueada cualquier consulta SQL a las tablas
@@ -419,8 +471,8 @@
             </div>
           </div>
 
-          <div style="margin: 1.5rem 0;">
-            <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.95rem;">
+          <div style="margin: 20px 0;">
+            <p style="margin-bottom: 16px; color: var(--color-graphite); font-size: 0.95rem; line-height: 1.5;">
               Presiona el botón a continuación para simular un intento de consulta directa a las tablas médicas desde la sesión de Recepción.
               El middleware del backend (<code>bloquearTablasClinicasParaRecepcionista</code>) interceptará la petición antes de tocar la base de datos y retornará un código <strong>403 Forbidden</strong>.
             </p>
@@ -431,11 +483,11 @@
             </button>
           </div>
 
-          <div id="resultado-bloqueo-box" style="display: none; margin-top: 1.5rem; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 1.25rem;">
-            <h4 style="color: #f87171; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+          <div id="resultado-bloqueo-box" style="display: none; margin-top: 20px; background: var(--color-fog); border: 1px solid var(--color-ash-border); border-radius: var(--radius-cardinner); padding: 18px;">
+            <h4 style="color: #ef4444; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
               <i class="fa-solid fa-ban"></i> Intercepción Exitosa por el Middleware de Seguridad
             </h4>
-            <pre id="resultado-bloqueo-json" style="font-family: monospace; font-size: 0.85rem; color: #a5f3fc; overflow-x: auto; white-space: pre-wrap;"></pre>
+            <pre id="resultado-bloqueo-json" style="font-family: monospace; font-size: 0.85rem; color: #1e293b; overflow-x: auto; white-space: pre-wrap;"></pre>
           </div>
         </div>
       </section>
@@ -448,13 +500,13 @@
        ========================================================================= -->
   <dialog id="modal-agendar-consulta" class="glass-modal">
     <div class="modal-header">
-      <h3 class="modal-title"><i class="fa-solid fa-calendar-plus" style="color: var(--color-info);"></i> Agendar Nueva Consulta</h3>
+      <h3 class="modal-title"><i class="fa-solid fa-calendar-plus" style="color: var(--color-midnight-ink);"></i> Agendar Nueva Consulta</h3>
       <button class="btn-close" onclick="document.getElementById('modal-agendar-consulta').close()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <form id="form-agendar-consulta">
       <div class="modal-body">
         <div class="form-group">
-          <label class="form-label">Paciente <span class="required">*</span></label>
+          <label class="form-label">Paciente <span style="color: #ef4444;">*</span></label>
           <select id="modal-cita-paciente" class="form-select" required>
             <option value="">Seleccione un paciente...</option>
           </select>
@@ -462,13 +514,13 @@
 
         <div class="form-grid-2">
           <div class="form-group">
-            <label class="form-label">Podólogo Tratante <span class="required">*</span></label>
+            <label class="form-label">Podólogo Tratante <span style="color: #ef4444;">*</span></label>
             <select id="modal-cita-podologo" class="form-select" required>
               <option value="">Seleccione un podólogo...</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Clínica / Sucursal <span class="required">*</span></label>
+            <label class="form-label">Clínica / Sucursal <span style="color: #ef4444;">*</span></label>
             <select id="modal-cita-clinica" class="form-select" required>
               <option value="">Seleccione clínica...</option>
             </select>
@@ -476,13 +528,13 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Fecha y Hora de la Consulta <span class="required">*</span></label>
+          <label class="form-label">Fecha y Hora de la Consulta <span style="color: #ef4444;">*</span></label>
           <input type="datetime-local" id="modal-cita-fechahora" class="form-control" required>
         </div>
 
         <div class="form-group">
           <label class="form-label">Motivo de Consulta o Notas de Agendamiento</label>
-          <textarea id="modal-cita-motivo" class="form-control" placeholder="Ej. Valoración inicial, uña incarnada o molestia al caminar..."></textarea>
+          <textarea id="modal-cita-motivo" class="form-control" rows="3" placeholder="Ej. Valoración inicial, uña incarnada o molestia al caminar..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -499,7 +551,7 @@
        ========================================================================= -->
   <dialog id="modal-editar-consulta" class="glass-modal">
     <div class="modal-header">
-      <h3 class="modal-title"><i class="fa-solid fa-calendar-check" style="color: var(--color-warning);"></i> Reprogramar / Editar Consulta</h3>
+      <h3 class="modal-title"><i class="fa-solid fa-calendar-check" style="color: #f59e0b;"></i> Reprogramar / Editar Consulta</h3>
       <button class="btn-close" onclick="document.getElementById('modal-editar-consulta').close()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <form id="form-editar-consulta">
@@ -531,7 +583,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Notas Adicionales</label>
-          <textarea id="edit-cita-motivo" class="form-control"></textarea>
+          <textarea id="edit-cita-motivo" class="form-control" rows="3"></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -546,14 +598,14 @@
        ========================================================================= -->
   <dialog id="modal-procesar-cobro" class="glass-modal">
     <div class="modal-header">
-      <h3 class="modal-title"><i class="fa-solid fa-cash-register" style="color: var(--color-success);"></i> Procesar Cobro de Consulta</h3>
+      <h3 class="modal-title"><i class="fa-solid fa-cash-register" style="color: #10b981;"></i> Procesar Cobro de Consulta</h3>
       <button class="btn-close" onclick="document.getElementById('modal-procesar-cobro').close()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <form id="form-procesar-cobro">
       <input type="hidden" id="cobro-consulta-id">
       <div class="modal-body">
-        <div class="security-alert-box warning" style="margin-bottom: 1rem; padding: 0.75rem 1rem;">
-          <div class="security-alert-icon"><i class="fa-solid fa-user-check"></i></div>
+        <div class="security-alert-box warning" style="margin-bottom: 16px;">
+          <div class="security-alert-icon"><i class="fa-solid fa-user-check" style="color: #f59e0b;"></i></div>
           <div class="security-alert-content" style="font-size: 0.82rem;">
             El cobro se asociará automáticamente a la cuenta de la recepcionista conectada:
             <strong id="cobro-recep-firmante">María López (fk_recepcionista_id: 1)</strong>
@@ -567,11 +619,11 @@
 
         <div class="form-grid-2">
           <div class="form-group">
-            <label class="form-label">Monto a Cobrar ($ MXN) <span class="required">*</span></label>
+            <label class="form-label">Monto a Cobrar ($ MXN) <span style="color: #ef4444;">*</span></label>
             <input type="number" step="0.50" id="cobro-monto" class="form-control" placeholder="450.00" required>
           </div>
           <div class="form-group">
-            <label class="form-label">Método de Pago <span class="required">*</span></label>
+            <label class="form-label">Método de Pago <span style="color: #ef4444;">*</span></label>
             <select id="cobro-metodo" class="form-select" required>
               <option value="Efectivo">Efectivo</option>
               <option value="Tarjeta de Débito">Tarjeta de Débito</option>
@@ -595,7 +647,7 @@
        ========================================================================= -->
   <dialog id="modal-ver-recibo" class="glass-modal">
     <div class="modal-header">
-      <h3 class="modal-title"><i class="fa-solid fa-receipt" style="color: var(--color-info);"></i> Comprobante de Pago Digital</h3>
+      <h3 class="modal-title"><i class="fa-solid fa-receipt" style="color: #2563eb;"></i> Comprobante de Pago Digital</h3>
       <button class="btn-close" onclick="document.getElementById('modal-ver-recibo').close()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body" id="recibo-contenido-render">

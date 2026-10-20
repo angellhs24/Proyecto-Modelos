@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const bcrypt = require('bcrypt');
 const medicoController = require('./medicoController');
 
 // Obtener todos los podólogos
@@ -101,17 +102,22 @@ const registrarPodologo = async (req, res) => {
   } = req.body;
 
   const emailFinal = (Email || email || '').trim().toLowerCase();
-  const passwordFinal = Password_hash || password || 'hash_simulado_podo123';
+  const rawPassword = Password_hash || password || 'hash_simulado_podo123';
 
   if (!Cedula_podologo || !Nombre || !ape_paterno || !emailFinal) {
     return res.status(400).json({ error: 'Cédula, nombre, apellido paterno y correo son obligatorios' });
   }
 
   try {
+    // Cifrado de contraseña con Bcrypt
+    const passwordHash = (rawPassword.startsWith('$2a$') || rawPassword.startsWith('$2b$'))
+      ? rawPassword
+      : await bcrypt.hash(rawPassword, 10);
+
     // 1. Insertar en Usuarios (Rol 4 = Podólogo)
     const [uResult] = await db.pool.query(
       `INSERT INTO Usuarios (fk_rol_id, email, password_hash, activo) VALUES (4, ?, ?, TRUE)`,
-      [emailFinal, passwordFinal]
+      [emailFinal, passwordHash]
     );
 
     // 2. Insertar en Podologos

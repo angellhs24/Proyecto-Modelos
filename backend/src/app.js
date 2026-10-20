@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 require('dotenv').config();
 
@@ -17,6 +19,7 @@ const diagnosticoRoutes = require('./routes/diagnosticoRoutes');
 const tratamientoRoutes = require('./routes/tratamientoRoutes');
 const documentoRoutes = require('./routes/documentoRoutes');
 const recetaRoutes = require('./routes/recetaRoutes');
+const recetasRoutes = require('./routes/recetasRoutes');
 const inventarioRoutes = require('./routes/inventarioRoutes');
 const pagosRoutes = require('./routes/pagosRoutes');
 const mapaPodologicoRoutes = require('./routes/mapaPodologicoRoutes');
@@ -24,6 +27,7 @@ const auditoriaRoutes = require('./routes/auditoriaRoutes');
 
 // Importar Rutas especializadas RBAC y Administración
 const authRoutes = require('./routes/authRoutes');
+const authController = require('./controllers/authController');
 const recepcionistaRoutes = require('./routes/recepcionistaRoutes');
 const medicoRoutes = require('./routes/medicoRoutes');
 const devRoutes = require('./routes/devRoutes');
@@ -35,10 +39,42 @@ const { auditoriaAutomaticaMiddleware } = require('./middlewares/auditoriaMiddle
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Middlewares globales
-app.use(cors());
+// 1. Blindaje de Cabeceras HTTP con Helmet
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "data:"],
+      imgSrc: ["'self'", "data:", "blob:", "https:"],
+      connectSrc: ["'self'"]
+    }
+  },
+  crossOriginEmbedderPolicy: false
+}));
+
+// 2. CORS con soporte estricto de Credenciales / Cookies
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (/^http:\/\/localhost(:\d+)?$/.test(origin) || /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
+  credentials: true
+}));
+
+// 3. Parser de Cookies para lectura de tokens HttpOnly
+app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(auditoriaAutomaticaMiddleware);
+
+// Endpoint directo de Logout para invalidar sesión
+app.post('/api/logout', authController.logout);
 
 // Rutas de carpetas estáticas del frontend
 const adminPath = path.join(__dirname, '../../frontend-admin');
@@ -124,7 +160,7 @@ app.use('/api/podologos', podologoRoutes);
 app.use('/api/diagnosticos', diagnosticoRoutes);
 app.use('/api/tratamientos', tratamientoRoutes);
 app.use('/api/documentos', documentoRoutes);
-app.use('/api/recetas', recetaRoutes);
+app.use('/api/recetas', recetasRoutes);
 app.use('/api/inventario', inventarioRoutes);
 app.use('/api/pagos', pagosRoutes);
 app.use('/api/mapa-podologico', mapaPodologicoRoutes);
