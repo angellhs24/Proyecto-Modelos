@@ -67,6 +67,24 @@
   ],
   "avisos": [
     {
+      "id": "anuncio-1792425475277",
+      "titulo": "Kiara me caes mal",
+      "asunto": "Kiara me caes mal",
+      "mensaje": "Cuida de tus pies con el respaldo de nuestros especialistas. Disfruta de un 15% de descuento en tu consulta integral al agendar a través del portal web.",
+      "tipo": "promocion",
+      "tipo_label": "Promoción / Campaña Web",
+      "ubicacion": "hero_banner",
+      "ubicacion_label": "Banner Principal (Inicio)",
+      "cta_texto": "Aprovechar Descuento",
+      "cta_enlace": "#agendar",
+      "sec_texto": "Ver Servicios",
+      "sec_enlace": "#servicios",
+      "activo": true,
+      "fecha_envio": "19/10/26, 9:57 a.m.",
+      "fecha_creacion": "19/10/26, 9:57 a.m.",
+      "publicado_por": "Administrador General"
+    },
+    {
       "id": "anuncio-1792131940589",
       "titulo": "Servicio el dia Lunes",
       "asunto": "Servicio el dia Lunes",
