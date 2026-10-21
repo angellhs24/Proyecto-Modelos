@@ -150,10 +150,12 @@ function checkAuthGuard(allowedRoles = []) {
  * Obtiene la URL base de la API Backend (puerto 4000)
  */
 function getApiBaseUrl() {
-  if (typeof window === 'undefined') return 'http://localhost:4000';
-  if (window.location.port === '4000') return '';
-  const hostname = window.location.hostname || 'localhost';
-  return `http://${hostname}:4000`;
+  if (typeof window === 'undefined') return '';
+  const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  if (isLocalDev && window.location.port && window.location.port !== '4000') {
+    return `http://${window.location.hostname}:4000`;
+  }
+  return '';
 }
 
 /**
