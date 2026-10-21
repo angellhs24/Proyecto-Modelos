@@ -1,26 +1,5 @@
 const db = require('../config/db');
-
-// Función auxiliar para separar un nombre completo en Nombres, ape_paterno, ape_materno
-function parseNombreCompleto(nombreCompleto = '') {
-  const parts = nombreCompleto.trim().split(/\s+/);
-  if (parts.length === 0 || parts[0] === '') {
-    return { nombres: 'Sin Nombre', apePaterno: 'Sin Apellido', apeMaterno: null };
-  }
-  if (parts.length === 1) {
-    return { nombres: parts[0], apePaterno: 'Sin Apellido', apeMaterno: null };
-  }
-  if (parts.length === 2) {
-    return { nombres: parts[0], apePaterno: parts[1], apeMaterno: null };
-  }
-  if (parts.length === 3) {
-    return { nombres: parts[0], apePaterno: parts[1], apeMaterno: parts[2] };
-  }
-  // 4 o más palabras: ej. "Maria del Carmen Garcia Perez" o "Juan Carlos Hernandez Gomez"
-  const apeMaterno = parts[parts.length - 1];
-  const apePaterno = parts[parts.length - 2];
-  const nombres = parts.slice(0, parts.length - 2).join(' ');
-  return { nombres, apePaterno, apeMaterno };
-}
+const { parseNombreCompleto } = require('../utils/nameParser');
 
 // Generador de número de expediente automático si no se especifica
 async function generarNoExpediente(clinicaId = 14) {

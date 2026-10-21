@@ -94,17 +94,20 @@
     <div class="hero-ambient-glow"></div>
 
     <!-- Flechas flotantes estilo Story Navigation en los costados del Hero -->
-    <button type="button" class="hero-story-arrow hero-story-prev" id="hero-btn-prev" aria-label="Historia anterior" title="Historia anterior" style="display: none;">
+    <button type="button" class="hero-story-arrow hero-story-prev" id="hero-btn-prev" aria-label="Historia anterior"
+      title="Historia anterior" style="display: none;">
       <i class="fa-solid fa-chevron-left"></i>
     </button>
-    <button type="button" class="hero-story-arrow hero-story-next" id="hero-btn-next" aria-label="Siguiente historia" title="Siguiente historia" style="display: none;">
+    <button type="button" class="hero-story-arrow hero-story-next" id="hero-btn-next" aria-label="Siguiente historia"
+      title="Siguiente historia" style="display: none;">
       <i class="fa-solid fa-chevron-right"></i>
     </button>
 
     <div class="hero-content" id="hero-content">
       <!-- 0. BARRAS DE PROGRESO DE HISTORIAS DE INSTAGRAM EN EL HERO -->
       <div class="hero-stories-progress-container" id="hero-stories-progress" style="display: none;">
-        <div class="hero-stories-progress-row" id="hero-stories-progress-row" role="progressbar" aria-label="Historias clínicas">
+        <div class="hero-stories-progress-row" id="hero-stories-progress-row" role="progressbar"
+          aria-label="Historias clínicas">
           <!-- Inyectado dinámicamente según historias activas -->
         </div>
       </div>
@@ -128,8 +131,8 @@
 
       <!-- Botones de Acción de la Historia -->
       <div class="hero-actions" id="hero-actions">
-        <button type="button" class="btn btn-primary-pill btn-abrir-agendar btn-glow-pulse"
-          id="hero-btn-primary" onclick="abrirModalAgendar()">
+        <button type="button" class="btn btn-primary-pill btn-abrir-agendar btn-glow-pulse" id="hero-btn-primary"
+          onclick="abrirModalAgendar()">
           <i class="fa-regular fa-calendar-plus" id="hero-btn-primary-icon"></i>
           <span id="hero-btn-primary-text">RESERVAR AHORA</span>
         </button>
@@ -662,7 +665,7 @@
   <!-- =========================================================================
        WIDGETS FLOTANTES: WHATSAPP Y SCROLL TO TOP
        ========================================================================= -->
-  <a href="https://api.whatsapp.com/send?phone=525560229842&text=Hola,%20me%20gustar%C3%ADa%20solicitar%20informaci%C3%B3n%20sobre%20sus%20servicios%20de%20podolog%C3%ADa"
+  <a href="https://api.whatsapp.com/send?phone=525626225027&text=Hola,%20me%20gustar%C3%ADa%20solicitar%20informaci%C3%B3n%20sobre%20sus%20servicios%20de%20podolog%C3%ADa"
     target="_blank" class="floating-whatsapp" title="Escríbenos por WhatsApp" aria-label="WhatsApp">
     <i class="fa-brands fa-whatsapp"></i>
     <span class="whatsapp-tooltip">¿Dudas? Escríbenos</span>
@@ -713,11 +716,13 @@
 
                 <!-- Búsqueda Rápida de Expediente o Teléfono -->
                 <div class="form-field-group-lux">
-                  <label for="booking-input-expediente"><i class="fa-solid fa-id-card-clip"></i> No. de Expediente Clínico
+                  <label for="booking-input-expediente"><i class="fa-solid fa-id-card-clip"></i> No. de Expediente
+                    Clínico
                     (Opcional)</label>
                   <div class="expediente-search-row-lux">
-                    <input type="text" id="booking-input-expediente" placeholder="Ej. 2026140001 (Sólo expediente clínico)"
-                      inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+                    <input type="text" id="booking-input-expediente"
+                      placeholder="Ej. 2026140001 (Sólo expediente clínico)" inputmode="numeric" pattern="[0-9]*"
+                      autocomplete="off">
                     <button type="button" class="btn-search-exp-lux" id="btn-buscar-expediente"
                       onclick="buscarExpedientePaciente()">
                       <i class="fa-solid fa-magnifying-glass"></i> <span>Buscar</span>
@@ -733,12 +738,29 @@
                   </div>
                 </div>
 
-                <!-- Nombre Completo -->
+                <!-- Nombre(s) y Apellidos -->
                 <div class="form-field-group-lux">
-                  <label for="booking-nombre"><i class="fa-solid fa-user"></i> Nombre Completo *</label>
-                  <input type="text" id="booking-nombre" required placeholder="Ej. Rosa María Martínez"
-                    autocomplete="name">
+                  <label for="booking-nombres"><i class="fa-solid fa-user"></i> Nombre(s) *</label>
+                  <input type="text" id="booking-nombres" required placeholder="Ej. Luis Angel o Rosa María"
+                    autocomplete="given-name">
                 </div>
+
+                <div class="grid-2-lux">
+                  <div class="form-field-group-lux">
+                    <label for="booking-ape-paterno"><i class="fa-solid fa-signature"></i> Primer Apellido (Paterno)
+                      *</label>
+                    <input type="text" id="booking-ape-paterno" required placeholder="Ej. Hernández"
+                      autocomplete="family-name">
+                  </div>
+                  <div class="form-field-group-lux">
+                    <label for="booking-ape-materno"><i class="fa-solid fa-signature"></i> Segundo Apellido
+                      (Materno)</label>
+                    <input type="text" id="booking-ape-materno" placeholder="Ej. Santillán"
+                      autocomplete="additional-name">
+                  </div>
+                </div>
+                <!-- Input oculto para retrocompatibilidad con scripts legacy -->
+                <input type="hidden" id="booking-nombre">
 
                 <!-- Teléfono y Sexo -->
                 <div class="grid-2-lux">
@@ -873,8 +895,7 @@
 
                   <!-- Clínica 35: Casa Adulto Mayor Flores -->
                   <div class="clinic-card-lux" data-clinica-id="35" data-nombre="Casa Adulto Mayor Flores"
-                    data-direccion="Av. Las Flores, Tecámac" data-tel="5559388260"
-                    onclick="seleccionarSedeClinica(35)">
+                    data-direccion="Av. Las Flores, Tecámac" data-tel="5559388260" onclick="seleccionarSedeClinica(35)">
                     <div class="clinic-icon-box">
                       <i class="fa-solid fa-hospital"></i>
                     </div>
@@ -941,7 +962,8 @@
                 <!-- Bloques de Horarios Frecuentes / Disponibles -->
                 <label class="time-slots-heading-lux">
                   <i class="fa-solid fa-list-check" style="color: var(--caramel-ochre);"></i> Horarios de Atención
-                  (<span id="label-sede-horarios">DIF Lomas de Tecámac</span> · <span id="label-podologo-horarios">Cargando...</span>):
+                  (<span id="label-sede-horarios">DIF Lomas de Tecámac</span> · <span
+                    id="label-podologo-horarios">Cargando...</span>):
                 </label>
                 <div class="time-slots-grid-lux" id="time-slots-container">
                   <button type="button" class="slot-pill-lux" data-time="09:00 AM"

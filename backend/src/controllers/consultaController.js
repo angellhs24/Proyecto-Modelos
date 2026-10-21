@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { parseNombreCompleto } = require('../utils/nameParser');
 
 // Normalizar fechas y horas para formato estándar MySQL DATETIME (YYYY-MM-DD HH:MM:SS)
 function normalizarFechaHoraMySQL(input) {
@@ -347,10 +348,14 @@ const crearConsulta = async (req, res) => {
     const clinicaFinal = fk_clinica_id || id_clinica || req.body.clinica_id || req.body.sucursal_id || 14;
 
     const nom = req.body.nombre_completo || req.body.paciente_nombre || req.body.nombre || '';
-    const partes = nom.trim().split(/\s+/);
-    const nombres = req.body.nombres || req.body.Nombres || partes[0] || 'Paciente';
-    const apePaterno = req.body.ape_paterno || req.body.apellidos || (partes.length > 1 ? partes[1] : 'Sin Apellido');
-    const apeMaterno = req.body.ape_materno || (partes.length > 2 ? partes.slice(2).join(' ') : null);
+    let parsed = { nombres: 'Paciente', apePaterno: 'Sin Apellido', apeMaterno: null };
+    if (nom) {
+      parsed = parseNombreCompleto(nom);
+    }
+
+    const nombres = req.body.nombres || req.body.Nombres || parsed.nombres || 'Paciente';
+    const apePaterno = req.body.ape_paterno || req.body.apellidos || parsed.apePaterno || 'Sin Apellido';
+    const apeMaterno = req.body.ape_materno !== undefined ? req.body.ape_materno : (parsed.apeMaterno || null);
     const tel = req.body.telefono || req.body.paciente_telefono || null;
     const fechaNac = req.body.Fecha_nacimiento || req.body.fecha_nacimiento || null;
     const calle = req.body.Calle_direccion || req.body.calle_direccion || null;
@@ -585,7 +590,12 @@ const crearConsulta = async (req, res) => {
       no_expediente: expedienteFinal,
       paciente: {
         No_expediente: expedienteFinal,
-        nombre: `${nombres} ${apePaterno}`.trim(),
+        Nombres: nombres,
+        nombres: nombres,
+        ape_paterno: apePaterno,
+        ape_materno: apeMaterno,
+        nombre: [nombres, apePaterno, apeMaterno].filter(Boolean).join(' '),
+        nombre_completo: [nombres, apePaterno, apeMaterno].filter(Boolean).join(' '),
         telefono: tel
       },
       consulta: {

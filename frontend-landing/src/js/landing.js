@@ -51,6 +51,9 @@ const CATALOGO_SLOTS = [
 let bookingState = {
   expediente: '',
   pacienteEncontrado: false,
+  nombres: '',
+  apePaterno: '',
+  apeMaterno: '',
   nombre: '',
   telefono: '',
   sexo: 'Femenino',
@@ -270,6 +273,9 @@ function configurarNavegacion() {
  * Escucha cambios en inputs del formulario para actualizar en tiempo real el comprobante
  */
 function configurarInputsReactivos() {
+  const inputNombres = document.getElementById('booking-nombres');
+  const inputApePaterno = document.getElementById('booking-ape-paterno');
+  const inputApeMaterno = document.getElementById('booking-ape-materno');
   const inputNombre = document.getElementById('booking-nombre');
   const inputTel = document.getElementById('booking-telefono');
   const inputFecha = document.getElementById('booking-fecha');
@@ -279,9 +285,29 @@ function configurarInputsReactivos() {
   const checkDiab = document.getElementById('booking-check-diabetico');
   const checkHiper = document.getElementById('booking-check-hipertenso');
 
-  inputNombre?.addEventListener('input', (e) => {
-    bookingState.nombre = e.target.value.trim();
+  const sincronizarNombreCompleto = () => {
+    const n = inputNombres ? inputNombres.value.trim() : '';
+    const ap = inputApePaterno ? inputApePaterno.value.trim() : '';
+    const am = inputApeMaterno ? inputApeMaterno.value.trim() : '';
+    bookingState.nombres = n;
+    bookingState.apePaterno = ap;
+    bookingState.apeMaterno = am;
+    bookingState.nombre = [n, ap, am].filter(Boolean).join(' ');
+    if (inputNombre) {
+      inputNombre.value = bookingState.nombre;
+    }
     actualizarComprobante();
+  };
+
+  inputNombres?.addEventListener('input', sincronizarNombreCompleto);
+  inputApePaterno?.addEventListener('input', sincronizarNombreCompleto);
+  inputApeMaterno?.addEventListener('input', sincronizarNombreCompleto);
+
+  inputNombre?.addEventListener('input', (e) => {
+    if (!inputNombres && !inputApePaterno) {
+      bookingState.nombre = e.target.value.trim();
+      actualizarComprobante();
+    }
   });
 
   inputTel?.addEventListener('input', (e) => {
@@ -871,6 +897,9 @@ async function buscarExpedientePaciente() {
   }
 
   // 1. Limpieza total previa para evitar arrastrar datos o bugs al cambiar de un expediente a otro
+  const inputNombres = document.getElementById('booking-nombres');
+  const inputApePaterno = document.getElementById('booking-ape-paterno');
+  const inputApeMaterno = document.getElementById('booking-ape-materno');
   const inputNombre = document.getElementById('booking-nombre');
   const inputTel = document.getElementById('booking-telefono');
   const inputFechaNac = document.getElementById('booking-fecha-nacimiento');
@@ -880,6 +909,9 @@ async function buscarExpedientePaciente() {
   const checkHiper = document.getElementById('booking-check-hipertenso');
   const badgeEdad = document.getElementById('booking-edad-badge');
 
+  if (inputNombres) inputNombres.value = '';
+  if (inputApePaterno) inputApePaterno.value = '';
+  if (inputApeMaterno) inputApeMaterno.value = '';
   if (inputNombre) inputNombre.value = '';
   if (inputTel) inputTel.value = '';
   if (inputFechaNac) inputFechaNac.value = '';
@@ -892,6 +924,9 @@ async function buscarExpedientePaciente() {
 
   bookingState.pacienteEncontrado = false;
   bookingState.expediente = '';
+  bookingState.nombres = '';
+  bookingState.apePaterno = '';
+  bookingState.apeMaterno = '';
   bookingState.nombre = '';
   bookingState.telefono = '';
   bookingState.fechaNacimiento = '';
@@ -907,12 +942,18 @@ async function buscarExpedientePaciente() {
       bookingState.expediente = p.No_expediente || termino;
 
       // Autocompletar datos del paciente
+      if (inputNombres) inputNombres.value = p.Nombres || '';
+      if (inputApePaterno) inputApePaterno.value = p.ape_paterno || '';
+      if (inputApeMaterno) inputApeMaterno.value = p.ape_materno || '';
       const nomCompleto = p.nombre_completo || `${p.Nombres || ''} ${p.ape_paterno || ''} ${p.ape_materno || ''}`.trim();
       if (inputNombre) inputNombre.value = nomCompleto;
       if (inputTel) inputTel.value = p.telefono || '';
       if (inputDir) inputDir.value = p.Calle_direccion || p.direccion || '';
       if (inputMun) inputMun.value = p.Municipio || p.municipio || 'Tecámac';
 
+      bookingState.nombres = p.Nombres || '';
+      bookingState.apePaterno = p.ape_paterno || '';
+      bookingState.apeMaterno = p.ape_materno || '';
       bookingState.nombre = nomCompleto;
       bookingState.telefono = p.telefono || '';
 
@@ -991,6 +1032,9 @@ async function buscarExpedientePaciente() {
 function resetearFormularioPaciente() {
   bookingState.expediente = '';
   bookingState.pacienteEncontrado = false;
+  bookingState.nombres = '';
+  bookingState.apePaterno = '';
+  bookingState.apeMaterno = '';
   bookingState.nombre = '';
   bookingState.telefono = '';
   bookingState.fechaNacimiento = '';
@@ -999,6 +1043,9 @@ function resetearFormularioPaciente() {
   bookingState.esHipertenso = false;
 
   const inputExp = document.getElementById('booking-input-expediente');
+  const inputNombres = document.getElementById('booking-nombres');
+  const inputApePaterno = document.getElementById('booking-ape-paterno');
+  const inputApeMaterno = document.getElementById('booking-ape-materno');
   const inputNombre = document.getElementById('booking-nombre');
   const inputTel = document.getElementById('booking-telefono');
   const inputFechaNac = document.getElementById('booking-fecha-nacimiento');
@@ -1011,6 +1058,9 @@ function resetearFormularioPaciente() {
   const checkHiper = document.getElementById('booking-check-hipertenso');
 
   if (inputExp) inputExp.value = '';
+  if (inputNombres) inputNombres.value = '';
+  if (inputApePaterno) inputApePaterno.value = '';
+  if (inputApeMaterno) inputApeMaterno.value = '';
   if (inputNombre) inputNombre.value = '';
   if (inputTel) inputTel.value = '';
   if (inputFechaNac) inputFechaNac.value = '';
@@ -1162,7 +1212,20 @@ function dispararEnvioFormulario() {
 async function procesarEnvioCita(event) {
   event.preventDefault();
 
-  const nombre = document.getElementById('booking-nombre')?.value.trim();
+  const inputNombres = document.getElementById('booking-nombres');
+  const inputApePaterno = document.getElementById('booking-ape-paterno');
+  const inputApeMaterno = document.getElementById('booking-ape-materno');
+  const inputNombre = document.getElementById('booking-nombre');
+
+  let nombres = inputNombres?.value.trim() || '';
+  let apePaterno = inputApePaterno?.value.trim() || '';
+  let apeMaterno = inputApeMaterno?.value.trim() || '';
+  let nombreCompleto = [nombres, apePaterno, apeMaterno].filter(Boolean).join(' ');
+
+  if (!nombreCompleto && inputNombre?.value.trim()) {
+    nombreCompleto = inputNombre.value.trim();
+  }
+
   const telefono = document.getElementById('booking-telefono')?.value.trim();
   const fecha = document.getElementById('booking-fecha')?.value;
   const horaFinal = document.getElementById('booking-hora-final')?.value || '10:00 AM';
@@ -1176,8 +1239,8 @@ async function procesarEnvioCita(event) {
   const esHipertenso = document.getElementById('booking-check-hipertenso')?.checked ? 1 : 0;
   const sexo = document.getElementById('booking-sexo')?.value || 'Femenino';
 
-  if (!nombre || !telefono || !fecha) {
-    alert('Por favor completa tu Nombre, Teléfono y Fecha de cita.');
+  if ((!nombres && !nombreCompleto) || (!apePaterno && !nombreCompleto) || !telefono || !fecha) {
+    alert('Por favor completa tu Nombre, Apellidos, Teléfono y Fecha de cita.');
     return;
   }
 
@@ -1236,8 +1299,13 @@ async function procesarEnvioCita(event) {
     fecha,
     hora: horaFinal,
     fecha_hora: `${fecha} ${hora12ha24h(horaFinal)}:00`,
-    nombre_completo: nombre,
-    paciente_nombre: nombre,
+    nombres: nombres || undefined,
+    Nombres: nombres || undefined,
+    ape_paterno: apePaterno || undefined,
+    ape_materno: apeMaterno || undefined,
+    nombre_completo: nombreCompleto,
+    paciente_nombre: nombreCompleto,
+    nombre: nombreCompleto,
     telefono,
     sexo,
     fecha_nacimiento: fechaNac,
@@ -1267,7 +1335,7 @@ async function procesarEnvioCita(event) {
       mostrarConfirmacionExito({
         folio: data.Consulta_id || data.id_cita || `CON${new Date().getFullYear()}${String(clinicaId).padStart(2, '0')}${Math.floor(1000 + Math.random() * 9000)}`,
         expediente: data.no_expediente || payload.fk_no_expediente || 'Generado en clínica',
-        paciente: nombre,
+        paciente: nombreCompleto,
         sede: clinicaSeleccionada.nombre,
         telefonoSede: clinicaSeleccionada.telefono,
         fecha,
@@ -1285,7 +1353,7 @@ async function procesarEnvioCita(event) {
       mostrarConfirmacionExito({
         folio: `CON${new Date().getFullYear()}${String(clinicaId).padStart(2, '0')}${Math.floor(1000 + Math.random() * 9000)}`,
         expediente: payload.fk_no_expediente || 'Registro nuevo',
-        paciente: nombre,
+        paciente: nombreCompleto,
         sede: clinicaSeleccionada.nombre,
         telefonoSede: clinicaSeleccionada.telefono,
         fecha,
@@ -1299,7 +1367,7 @@ async function procesarEnvioCita(event) {
     mostrarConfirmacionExito({
       folio: `CON${new Date().getFullYear()}${String(clinicaId).padStart(2, '0')}${Math.floor(1000 + Math.random() * 9000)}`,
       expediente: payload.fk_no_expediente || 'Registro nuevo',
-      paciente: nombre,
+      paciente: nombreCompleto,
       sede: clinicaSeleccionada.nombre,
       telefonoSede: clinicaSeleccionada.telefono,
       fecha,
