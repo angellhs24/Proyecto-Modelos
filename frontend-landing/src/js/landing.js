@@ -74,29 +74,130 @@ let bookingState = {
 let catalogoPodologos = [];
 let horasOcupadasBD = [];
 
-const catalogoClinicas = [
-  {
-    id: 14,
-    nombre: 'DIF Lomas de Tecámac',
-    direccion: 'Av. Constitución, Tecámac',
-    telefono: '5560229842',
-    especialista: 'Luis Angel Hernandez Santillan'
-  },
-  {
-    id: 28,
-    nombre: 'Casa Héroes Tecámac',
-    direccion: 'Av. Felipe Villanueva, Tecámac',
-    telefono: '5515311359',
-    especialista: 'Luis Angel Hernandez Santillan'
-  },
-  {
-    id: 35,
-    nombre: 'Casa Adulto Mayor Flores',
-    direccion: 'Av. Las Flores, Tecámac',
-    telefono: '5559388260',
-    especialista: 'Luis Angel Hernandez Santillan'
+let catalogoClinicas = [];
+
+/**
+ * Carga el catálogo de clínicas activas directamente desde la Base de Datos
+ */
+async function cargarCatalogoClinicas() {
+  try {
+    const res = await fetch(`${API_BASE}/clinicas`);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        catalogoClinicas = data.map((c) => ({
+          id: Number(c.Clinica_id || c.id_clinica || c.id),
+          nombre: c.Nombre || c.nombre,
+          direccion: c.direccion || `${c.Calle_clinica || ''}, ${c.Municipio_clinica || 'Tecámac'}`.replace(/^,\s*/, ''),
+          telefono: c.Telefono || c.telefono || 'Sin teléfono'
+        }));
+      }
+    }
+  } catch (err) {
+    console.warn('No se pudo consultar /api/clinicas en BD, usando catálogo de respaldo:', err.message);
   }
-];
+
+  // Respaldo de contingencia en caso de fallo total de red
+  if (!catalogoClinicas || catalogoClinicas.length === 0) {
+    catalogoClinicas = [
+      {
+        id: 14,
+        nombre: 'DIF Lomas de Tecámac',
+        direccion: 'Av. Constitución, Tecámac',
+        telefono: '5560229842'
+      },
+      {
+        id: 28,
+        nombre: 'Casa Héroes Tecámac',
+        direccion: 'Av. Felipe Villanueva, Tecámac',
+        telefono: '5515311359'
+      },
+      {
+        id: 35,
+        nombre: 'Casa Adulto Mayor Flores',
+        direccion: 'Av. Las Flores, Tecámac',
+        telefono: '5559388260'
+      }
+    ];
+  }
+
+  // 1. Renderizar en el modal de agendamiento
+  renderClinicasModal();
+
+  // 2. Renderizar en la sección de Sedes de la página web (abajo)
+  renderSedesLanding();
+
+  // 3. Validar si la clínica seleccionada sigue activa en el catálogo
+  const existeClinica = catalogoClinicas.some((c) => c.id === bookingState.clinicaId);
+  if (!existeClinica && catalogoClinicas.length > 0) {
+    seleccionarSedeClinica(catalogoClinicas[0].id);
+  }
+}
+
+/**
+ * Renderiza dinámicamente las tarjetas de clínicas activas en el Modal de Citas
+ */
+function renderClinicasModal() {
+  const container = document.getElementById('clinics-container-lux');
+  if (!container) return;
+
+  container.innerHTML = catalogoClinicas.map((c, idx) => {
+    const isActiva = bookingState.clinicaId ? bookingState.clinicaId === c.id : idx === 0;
+    return `
+      <div class="clinic-card-lux ${isActiva ? 'active' : ''}" 
+           data-clinica-id="${c.id}" 
+           data-nombre="${c.nombre}"
+           data-direccion="${c.direccion}" 
+           data-tel="${c.telefono}"
+           onclick="seleccionarSedeClinica(${c.id})">
+        <div class="clinic-icon-box">
+          <i class="fa-solid fa-hospital"></i>
+        </div>
+        <div class="clinic-meta">
+          <h4>${c.nombre}</h4>
+          <small>${c.direccion}</small>
+        </div>
+        <div class="clinic-check-pill"><i class="fa-solid fa-check"></i></div>
+      </div>
+    `;
+  }).join('');
+}
+
+/**
+ * Renderiza dinámicamente las tarjetas de clínicas activas en la sección inferior de la Landing (#sedes)
+ */
+function renderSedesLanding() {
+  const container = document.querySelector('.sedes-grid');
+  if (!container) return;
+
+  container.innerHTML = catalogoClinicas.map((c) => `
+    <div class="sede-card">
+      <div>
+        <div class="sede-tag">
+          <span class="live-beacon"></span> Sede ${c.id} • Abierta Hoy
+        </div>
+        <h3 class="sede-title">${c.nombre}</h3>
+        <div class="sede-info-item">
+          <i class="fa-solid fa-location-dot"></i>
+          <span>${c.direccion}</span>
+        </div>
+        <div class="sede-info-item">
+          <i class="fa-solid fa-phone"></i>
+          <span>Tel: ${c.telefono}</span>
+        </div>
+        <div class="sede-info-item">
+          <i class="fa-solid fa-clock"></i>
+          <span>Lunes a Sábado: 8:00 AM - 6:00 PM</span>
+        </div>
+      </div>
+      <button type="button" class="btn btn-outline-dark btn-abrir-agendar btn-agendar-sede"
+        onclick="abrirModalAgendar({ clinicaId: ${c.id} })" data-clinica="${c.id}" data-clinica-nombre="${c.nombre}"
+        data-servicio="Quiropodía Elite" style="margin-top: 1.5rem; width: 100%;">
+        <i class="fa-regular fa-calendar-check"></i> Agendar en esta Clínica
+      </button>
+    </div>
+  `).join('');
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
   // 1. Inicializar fechas con la fecha local del navegador
@@ -111,7 +212,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 2. Vincular listeners reactivos a inputs del formulario
   configurarInputsReactivos();
 
-  // 3. Cargar catálogo dinámico de podólogos desde la base de datos
+  // 3. Cargar catálogos dinámicos desde la base de datos (clínicas y podólogos activos)
+  await cargarCatalogoClinicas();
   await cargarCatalogoPodologos();
 
   // 4. Evaluar y sincronizar disponibilidad de horarios según la hora y la BD
@@ -336,7 +438,7 @@ function seleccionarPodologo(cedula) {
 }
 
 /**
- * Carga el catálogo de Podólogos directamente desde la Base de Datos
+ * Carga el catálogo de Podólogos directamente desde la Base de Datos (solo activos)
  */
 async function cargarCatalogoPodologos() {
   const container = document.getElementById('podologos-container-lux');
@@ -346,48 +448,26 @@ async function cargarCatalogoPodologos() {
     const res = await fetch(`${API_BASE}/podologos`);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        catalogoPodologos = data;
+      if (Array.isArray(data)) {
+        catalogoPodologos = data.filter((p) => p.activo !== false);
       }
     }
   } catch (err) {
-    console.warn('No se pudo consultar /api/podologos en BD, usando catálogo local:', err.message);
+    console.warn('No se pudo consultar /api/podologos en BD:', err.message);
   }
 
-  // Respaldo clínico en caso de fallo de red
+  // Respaldo en caso de fallo de red
   if (!catalogoPodologos || catalogoPodologos.length === 0) {
-    catalogoPodologos = [
-      {
-        Cedula_podologo: 'B-24267',
-        cedula: 'B-24267',
-        Nombre: 'Luis Angel',
-        ape_paterno: 'Hernandez',
-        ape_materno: 'Santillan',
-        nombre_completo: 'Luis Angel Hernandez Santillan',
-        Telefono_pod: '5626225027'
-      },
-      {
-        Cedula_podologo: 'A-54906',
-        cedula: 'A-54906',
-        Nombre: 'Maribel Benita',
-        ape_paterno: 'Santillan',
-        ape_materno: 'Velasco',
-        nombre_completo: 'Maribel Benita Santillan Velasco',
-        Telefono_pod: '5515311359'
-      },
-      {
-        Cedula_podologo: 'C-12345',
-        cedula: 'C-12345',
-        Nombre: 'Kiara',
-        ape_paterno: 'Nava',
-        ape_materno: 'Velazquez',
-        nombre_completo: 'Kiara Nava Velazquez',
-        Telefono_pod: '5512345678'
-      }
-    ];
+    container.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #64748b; background: rgba(241, 245, 249, 0.6); border-radius: 12px; border: 1px dashed #cbd5e1;">
+        <i class="fa-solid fa-user-doctor" style="font-size: 2rem; opacity: 0.4; margin-bottom: 0.5rem; display: block;"></i>
+        <p style="margin: 0; font-weight: 500;">No hay podólogos con agenda activa en este momento.</p>
+      </div>
+    `;
+    return;
   }
 
-  // Renderizar las tarjetas interactivas de podólogos
+  // Renderizar las tarjetas interactivas de podólogos activos
   container.innerHTML = catalogoPodologos.map((p, idx) => {
     const ced = p.Cedula_podologo || p.cedula || '';
     const nom = p.nombre_completo || `${p.Nombre || ''} ${p.ape_paterno || ''}`.trim();
@@ -413,15 +493,14 @@ async function cargarCatalogoPodologos() {
     `;
   }).join('');
 
-  // Sincronizar selección inicial
-  const podSeleccionado = catalogoPodologos.find((p) => (p.Cedula_podologo || p.cedula) === bookingState.cedulaPodologo) || catalogoPodologos[0];
+  // Sincronizar selección inicial: si el especialista actual ya no está activo, seleccionar el primero disponible
+  const existe = catalogoPodologos.some((p) => (p.Cedula_podologo || p.cedula) === bookingState.cedulaPodologo);
+  const podSeleccionado = existe
+    ? catalogoPodologos.find((p) => (p.Cedula_podologo || p.cedula) === bookingState.cedulaPodologo)
+    : catalogoPodologos[0];
+
   if (podSeleccionado) {
-    bookingState.cedulaPodologo = podSeleccionado.Cedula_podologo || podSeleccionado.cedula;
-    bookingState.especialista = podSeleccionado.nombre_completo || `${podSeleccionado.Nombre} ${podSeleccionado.ape_paterno}`;
-    const hiddenCed = document.getElementById('booking-cedula-podologo');
-    if (hiddenCed) hiddenCed.value = bookingState.cedulaPodologo;
-    const labelPodologo = document.getElementById('label-podologo-horarios');
-    if (labelPodologo) labelPodologo.textContent = bookingState.especialista;
+    seleccionarPodologo(podSeleccionado.Cedula_podologo || podSeleccionado.cedula);
   }
 }
 
@@ -1025,10 +1104,9 @@ function abrirModalAgendar(opciones = {}) {
     }
   }
 
-  // Asegurar catálogo de podólogos cargado
-  if (!catalogoPodologos || catalogoPodologos.length === 0) {
-    cargarCatalogoPodologos();
-  }
+  // Asegurar catálogos de clínicas y podólogos cargados y sincronizados
+  cargarCatalogoClinicas();
+  cargarCatalogoPodologos();
 
   // Actualizar disponibilidad de bloques y atajos según la fecha, podólogo y sede
   consultarDisponibilidadHorariosBD();

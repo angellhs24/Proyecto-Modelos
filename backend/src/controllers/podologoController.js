@@ -1,19 +1,49 @@
+const fs = require('fs');
+const path = require('path');
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
 const medicoController = require('./medicoController');
 
-// Obtener todos los podólogos
+// Obtener todos los podólogos (filtrando activos por defecto para agenda)
 const obtenerPodologos = async (req, res) => {
   try {
+    const { todas } = req.query;
+
+    // Leer posibles estados en admin_store.json
+    let metaMap = {};
+    try {
+      const storeFile = path.join(__dirname, '../data/admin_store.json');
+      if (fs.existsSync(storeFile)) {
+        const parsed = JSON.parse(fs.readFileSync(storeFile, 'utf8'));
+        metaMap = parsed.podologos_meta || {};
+      }
+    } catch (e) {
+      // Ignorar error de lectura de archivo
+    }
+
     const [rows] = await db.pool.query(
       `SELECT p.Cedula_podologo, p.Cedula_podologo AS cedula, p.Nombre, p.ape_paterno, p.ape_materno, 
               TRIM(CONCAT(p.Nombre, ' ', p.ape_paterno, ' ', COALESCE(p.ape_materno, ''))) AS nombre_completo,
-              p.Telefono_pod, p.Telefono_pod AS telefono, COALESCE(u.email, '') AS Email, COALESCE(p.Turno, 'C') AS turno 
+              p.Telefono_pod, p.Telefono_pod AS telefono, COALESCE(u.email, '') AS Email, COALESCE(p.Turno, 'C') AS turno,
+              COALESCE(u.activo, 1) = 1 AS usuario_activo
        FROM Podologos p
        LEFT JOIN Usuarios u ON p.fk_usuario_id = u.Usuario_id
        ORDER BY p.Nombre ASC`
     );
-    res.json(rows);
+
+    const podologos = rows.map((p) => {
+      const meta = metaMap[p.Cedula_podologo];
+      const estaActivo = (p.usuario_activo !== false) && (!meta || meta.activo !== false);
+      return {
+        ...p,
+        activo: estaActivo,
+        turno: meta?.turno || p.turno || 'C'
+      };
+    });
+
+    // Si no piden todas explícitamente, filtrar solo los podólogos activos para la agenda web
+    const resultado = todas === 'true' ? podologos : podologos.filter((p) => p.activo);
+    res.json(resultado);
   } catch (error) {
     console.error('Error al obtener podólogos:', error);
     res.status(500).json({ error: 'Error al obtener los podólogos' });

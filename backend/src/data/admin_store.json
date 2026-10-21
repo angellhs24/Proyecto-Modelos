@@ -13,7 +13,9 @@
     "C-12345": {
       "activo": true,
       "fecha_alta": "2025-06-01",
-      "notas_admin": "Podóloga General"
+      "notas_admin": "Podóloga General",
+      "fecha_modificacion": "2026-10-21",
+      "motivo_baja": null
     },
     "TEST-9988": {
       "activo": true,
