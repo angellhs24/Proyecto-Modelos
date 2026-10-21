@@ -183,13 +183,12 @@ const obtenerDisponibilidadHorarios = async (req, res) => {
     `;
     const params = [fecha];
 
-    if (podologoFinal && clinicaFinal) {
-      sql += ` AND (c.fk_cedula_podologo = ? OR c.fk_clinica_id = ?)`;
-      params.push(podologoFinal, clinicaFinal);
-    } else if (podologoFinal) {
+    if (podologoFinal) {
+      // La disponibilidad se rige por la agenda del especialista seleccionado
       sql += ` AND c.fk_cedula_podologo = ?`;
       params.push(podologoFinal);
     } else if (clinicaFinal) {
+      // Si no se eligió un podólogo específico, filtrar por las citas de la sede
       sql += ` AND c.fk_clinica_id = ?`;
       params.push(clinicaFinal);
     }
@@ -470,27 +469,38 @@ const crearConsulta = async (req, res) => {
 
     fechaHoraFinal = normalizarFechaHoraMySQL(fechaHoraFinal);
 
-    // Validar que el especialista o la clínica no tengan ya una cita confirmada en ese mismo horario
-    const conflicto = await db.query(
-      `SELECT c.Consulta_id, pod.Nombre, pod.ape_paterno, cl.Nombre AS clinica_nombre, c.fk_clinica_id, c.fk_cedula_podologo
-       FROM Consultas c
-       LEFT JOIN Podologos pod ON c.fk_cedula_podologo = pod.Cedula_podologo
-       LEFT JOIN Clinicas cl ON c.fk_clinica_id = cl.Clinica_id
-       WHERE c.fecha_hora = ? 
-         AND (c.fk_cedula_podologo = ? OR c.fk_clinica_id = ?)
-         AND c.estado != 'Cancelada'
-       LIMIT 1`,
-      [fechaHoraFinal, podologoFinal, clinicaFinal]
-    );
+    // Validar que el especialista seleccionado no tenga ya una cita confirmada en ese mismo horario
+    let conflicto = { rows: [] };
+    if (podologoFinal) {
+      conflicto = await db.query(
+        `SELECT c.Consulta_id, pod.Nombre, pod.ape_paterno
+         FROM Consultas c
+         LEFT JOIN Podologos pod ON c.fk_cedula_podologo = pod.Cedula_podologo
+         WHERE c.fecha_hora = ? 
+           AND c.fk_cedula_podologo = ?
+           AND c.estado != 'Cancelada'
+         LIMIT 1`,
+        [fechaHoraFinal, podologoFinal]
+      );
+    } else if (clinicaFinal) {
+      conflicto = await db.query(
+        `SELECT c.Consulta_id, cl.Nombre AS clinica_nombre
+         FROM Consultas c
+         LEFT JOIN Clinicas cl ON c.fk_clinica_id = cl.Clinica_id
+         WHERE c.fecha_hora = ? 
+           AND c.fk_clinica_id = ?
+           AND c.estado != 'Cancelada'
+         LIMIT 1`,
+        [fechaHoraFinal, clinicaFinal]
+      );
+    }
 
     if (conflicto.rows.length > 0) {
       const row = conflicto.rows[0];
-      const esMismoPodologo = (row.fk_cedula_podologo === podologoFinal);
-      const nombrePod = row.Nombre ? `${row.Nombre} ${row.ape_paterno}` : 'El especialista';
-      const mensajeError = esMismoPodologo
-        ? `${nombrePod} ya cuenta con una cita confirmada en este horario. Por favor selecciona otro horario o especialista disponible.`
-        : `La sede ${row.clinica_nombre || 'seleccionada'} ya cuenta con una consulta en este horario. Por favor selecciona otro horario disponible.`;
-      return res.status(409).json({ error: mensajeError });
+      const nombrePod = row.Nombre ? `El especialista ${row.Nombre} ${row.ape_paterno}` : 'El especialista seleccionado';
+      return res.status(409).json({ 
+        error: `${nombrePod} ya cuenta con una cita confirmada en este horario. Por favor selecciona otro horario o especialista disponible.` 
+      });
     }
 
     const consultaIdFinal = Consulta_id || (await generarConsultaId(clinicaFinal));
