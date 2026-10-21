@@ -538,7 +538,17 @@ async function consultarDisponibilidadHorariosBD() {
     const res = await fetch(url);
     if (res.ok) {
       const data = await res.json();
-      horasOcupadasBD = data.horas_ocupadas || [];
+      if (Array.isArray(data.detalles) && cedula) {
+        // Doble validación: filtrar estrictamente las citas del podólogo seleccionado
+        const citasPodologo = data.detalles.filter(d => 
+          String(d.fk_cedula_podologo || '').trim().toLowerCase() === String(cedula).trim().toLowerCase()
+        );
+        horasOcupadasBD = citasPodologo
+          .map(d => d.hora_12 ? d.hora_12.trim().toUpperCase() : null)
+          .filter(Boolean);
+      } else {
+        horasOcupadasBD = data.horas_ocupadas || [];
+      }
     } else {
       horasOcupadasBD = [];
     }
