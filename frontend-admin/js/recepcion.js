@@ -15,8 +15,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
   } else {
-    const rol = Number(currentUser.fk_rol_id || currentUser.rolId);
-    if (rol !== 3 && rol !== 1) {
+    const rol = Number(currentUser.fk_rol_id || currentUser.rolId || 0);
+    const nombreRol = String(currentUser.nombre_rol || currentUser.rol || '').toLowerCase();
+    const esRecepOAdmin = rol === 3 || rol === 300 || rol === 1 || rol === 100 || nombreRol.includes('recep') || nombreRol.includes('admin');
+    if (!esRecepOAdmin) {
       AppAuth.showToast('Acceso exclusivo para Recepción. Redirigiendo a tu módulo...', 'warning');
       setTimeout(() => {
         AppAuth.redirectByRole(currentUser);

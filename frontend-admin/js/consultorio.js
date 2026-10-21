@@ -24,8 +24,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
   } else {
-    const rol = Number(currentUser.fk_rol_id || currentUser.rolId);
-    if (rol !== 4 && rol !== 1) {
+    const rol = Number(currentUser.fk_rol_id || currentUser.rolId || 0);
+    const nombreRol = String(currentUser.nombre_rol || currentUser.rol || '').toLowerCase();
+    const esPodoOAdmin = rol === 4 || rol === 400 || rol === 1 || rol === 100 || nombreRol.includes('pod') || nombreRol.includes('especialista') || nombreRol.includes('admin');
+    if (!esPodoOAdmin) {
       AppAuth.showToast('Acceso exclusivo para Podólogos. Redirigiendo a tu módulo...', 'warning');
       setTimeout(() => {
         AppAuth.redirectByRole(currentUser);

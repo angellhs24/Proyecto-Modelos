@@ -6,11 +6,12 @@ const medicoController = require('./medicoController');
 const obtenerPodologos = async (req, res) => {
   try {
     const [rows] = await db.pool.query(
-      `SELECT Cedula_podologo, Cedula_podologo AS cedula, Nombre, ape_paterno, ape_materno, 
-              TRIM(CONCAT(Nombre, ' ', ape_paterno, ' ', COALESCE(ape_materno, ''))) AS nombre_completo,
-              Telefono_pod, Telefono_pod AS telefono, Email, turno 
-       FROM Podologos 
-       ORDER BY Nombre ASC`
+      `SELECT p.Cedula_podologo, p.Cedula_podologo AS cedula, p.Nombre, p.ape_paterno, p.ape_materno, 
+              TRIM(CONCAT(p.Nombre, ' ', p.ape_paterno, ' ', COALESCE(p.ape_materno, ''))) AS nombre_completo,
+              p.Telefono_pod, p.Telefono_pod AS telefono, COALESCE(u.email, '') AS Email, COALESCE(p.Turno, 'C') AS turno 
+       FROM Podologos p
+       LEFT JOIN Usuarios u ON p.fk_usuario_id = u.Usuario_id
+       ORDER BY p.Nombre ASC`
     );
     res.json(rows);
   } catch (error) {
@@ -24,11 +25,12 @@ const obtenerPodologoPorCedula = async (req, res) => {
   const { cedula } = req.params;
   try {
     const [rows] = await db.pool.query(
-      `SELECT Cedula_podologo, Cedula_podologo AS cedula, Nombre, ape_paterno, ape_materno, 
-              TRIM(CONCAT(Nombre, ' ', ape_paterno, ' ', COALESCE(ape_materno, ''))) AS nombre_completo,
-              Telefono_pod, Telefono_pod AS telefono, Email, turno 
-       FROM Podologos 
-       WHERE Cedula_podologo = ?`,
+      `SELECT p.Cedula_podologo, p.Cedula_podologo AS cedula, p.Nombre, p.ape_paterno, p.ape_materno, 
+              TRIM(CONCAT(p.Nombre, ' ', p.ape_paterno, ' ', COALESCE(p.ape_materno, ''))) AS nombre_completo,
+              p.Telefono_pod, p.Telefono_pod AS telefono, COALESCE(u.email, '') AS Email, COALESCE(p.Turno, 'C') AS turno 
+       FROM Podologos p
+       LEFT JOIN Usuarios u ON p.fk_usuario_id = u.Usuario_id
+       WHERE p.Cedula_podologo = ?`,
       [cedula]
     );
 

@@ -149,9 +149,27 @@ const obtenerMetricas = async (req, res) => {
     });
 
     // Recepcionistas
-    const receps = store.recepcionistas || [];
-    const recepsActivos = receps.filter((r) => r.activo !== false).length;
-    const recepsBaja = receps.filter((r) => r.activo === false).length;
+    let recepsActivos = 0;
+    let recepsBaja = 0;
+    let totalReceps = 0;
+    try {
+      const [recsDb] = await db.pool.query('SELECT r.Recepcionista_id, u.activo FROM Recepcionistas r LEFT JOIN Usuarios u ON r.fk_usuario_id = u.Usuario_id');
+      if (recsDb && recsDb.length > 0) {
+        totalReceps = recsDb.length;
+        recepsActivos = recsDb.filter((r) => r.activo !== 0).length;
+        recepsBaja = recsDb.filter((r) => r.activo === 0).length;
+      } else {
+        const receps = store.recepcionistas || [];
+        totalReceps = receps.length;
+        recepsActivos = receps.filter((r) => r.activo !== false).length;
+        recepsBaja = receps.filter((r) => r.activo === false).length;
+      }
+    } catch {
+      const receps = store.recepcionistas || [];
+      totalReceps = receps.length;
+      recepsActivos = receps.filter((r) => r.activo !== false).length;
+      recepsBaja = receps.filter((r) => r.activo === false).length;
+    }
 
     // Pacientes
     const pacStats = pacientesDb[0] || { total: 0, diabeticos: 0, hipertensos: 0 };
@@ -167,7 +185,7 @@ const obtenerMetricas = async (req, res) => {
         baja: podosBaja
       },
       recepcionistas: {
-        total: receps.length,
+        total: totalReceps,
         activos: recepsActivos,
         baja: recepsBaja
       },
@@ -201,17 +219,19 @@ const obtenerPodologosAdmin = async (req, res) => {
     const metaMap = store.podologos_meta || {};
 
     const [rows] = await db.pool.query(`
-      SELECT Cedula_podologo, Nombre, ape_paterno, ape_materno, 
-             TRIM(CONCAT(Nombre, ' ', ape_paterno, ' ', COALESCE(ape_materno, ''))) AS nombre_completo,
-             Telefono_pod, Email, turno
-      FROM Podologos 
-      ORDER BY Nombre ASC
+      SELECT p.Cedula_podologo, p.Nombre, p.ape_paterno, p.ape_materno, 
+             TRIM(CONCAT(p.Nombre, ' ', p.ape_paterno, ' ', COALESCE(p.ape_materno, ''))) AS nombre_completo,
+             p.Telefono_pod, COALESCE(u.email, '') AS Email, COALESCE(p.Turno, 'C') AS turno
+      FROM Podologos p
+      LEFT JOIN Usuarios u ON p.fk_usuario_id = u.Usuario_id
+      ORDER BY p.Nombre ASC
     `);
 
     const podologos = rows.map((p) => {
       const meta = metaMap[p.Cedula_podologo] || { activo: true, fecha_alta: '2025-01-01' };
       return {
         ...p,
+        turno: meta.turno || p.turno || 'Completo',
         activo: meta.activo !== false,
         fecha_alta: meta.fecha_alta || '2025-01-01',
         notas_admin: meta.notas_admin || ''
@@ -258,18 +278,19 @@ const crearPodologoAdmin = async (req, res) => {
       ? rawPass
       : await bcrypt.hash(rawPass, 10);
 
-    // 2. Insertar en tabla MySQL Podologos
+    // 2. Insertar en tabla MySQL Podologos (sin columna turno en DDL)
     await db.pool.query(
-      `INSERT INTO Podologos (Cedula_podologo, Nombre, ape_paterno, ape_materno, Telefono_pod, Email, Password_hash, turno)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [cedula, nombre, apeP, apeM, tel, correo, passHash, turnoVal]
+      `INSERT INTO Podologos (Cedula_podologo, Nombre, ape_paterno, ape_materno, Telefono_pod, Email, Password_hash)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [cedula, nombre, apeP, apeM, tel, correo, passHash]
     );
 
-    // 2. Guardar estado activo en store de admin
+    // 2. Guardar estado activo y turno en store de admin
     const store = leerAdminStore();
     if (!store.podologos_meta) store.podologos_meta = {};
     store.podologos_meta[cedula] = {
       activo: true,
+      turno: turnoVal,
       fecha_alta: new Date().toISOString().split('T')[0],
       notas_admin: 'Registrado desde Panel de Administración'
     };
@@ -341,11 +362,18 @@ const actualizarPodologoAdmin = async (req, res) => {
            ape_paterno = COALESCE(?, ape_paterno),
            ape_materno = ?,
            Telefono_pod = COALESCE(?, Telefono_pod),
-           Email = COALESCE(?, Email),
-           turno = COALESCE(?, turno)
+           Email = COALESCE(?, Email)
        WHERE Cedula_podologo = ?`,
-      [Nombre, ape_paterno, ape_materno || null, Telefono_pod, Email, turno, cedula]
+      [Nombre, ape_paterno, ape_materno || null, Telefono_pod, Email, cedula]
     );
+
+    if (turno) {
+      const store = leerAdminStore();
+      if (!store.podologos_meta) store.podologos_meta = {};
+      if (!store.podologos_meta[cedula]) store.podologos_meta[cedula] = {};
+      store.podologos_meta[cedula].turno = turno;
+      guardarAdminStore(store);
+    }
 
     res.json({ mensaje: 'Datos del podólogo actualizados exitosamente' });
   } catch (error) {
@@ -360,6 +388,30 @@ const actualizarPodologoAdmin = async (req, res) => {
 const obtenerRecepcionistasAdmin = async (req, res) => {
   try {
     const store = leerAdminStore();
+    try {
+      const [rows] = await db.pool.query(`
+        SELECT r.Recepcionista_id AS id, r.Recepcionista_id, r.Nombre AS nombre, r.ape_paterno, r.ape_materno,
+               r.Telefono AS telefono, COALESCE(u.email, '') AS email, r.fk_clinica_id, 
+               COALESCE(c.Nombre, 'DIF Lomas de Tecámac') AS clinica_nombre,
+               COALESCE(u.activo, 1) = 1 AS activo,
+               'Matutino (8:00 - 15:00)' AS turno
+        FROM Recepcionistas r
+        LEFT JOIN Usuarios u ON r.fk_usuario_id = u.Usuario_id
+        LEFT JOIN Clinicas c ON r.fk_clinica_id = c.Clinica_id
+        ORDER BY r.Nombre ASC
+      `);
+      if (rows && rows.length > 0) {
+        const metaMap = store.recepcionistas_meta || {};
+        const lista = rows.map(r => ({
+          ...r,
+          turno: metaMap[r.Recepcionista_id]?.turno || r.turno || 'Matutino (8:00 - 15:00)',
+          activo: metaMap[r.Recepcionista_id]?.activo !== undefined ? metaMap[r.Recepcionista_id].activo : r.activo
+        }));
+        return res.json(lista);
+      }
+    } catch (dbErr) {
+      console.warn('Fallback a store en recepcionistas:', dbErr.message);
+    }
     res.json(store.recepcionistas || []);
   } catch (error) {
     console.error('Error al obtener recepcionistas:', error);

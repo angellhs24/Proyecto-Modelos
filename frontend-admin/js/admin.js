@@ -14,12 +14,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.location.href = 'login.html';
       return;
     }
-  } else if (Number(currentUser.fk_rol_id || currentUser.rolId) !== 1) {
-    AppAuth.showToast('Acceso exclusivo para Administradores. Redirigiendo a tu módulo...', 'warning');
-    setTimeout(() => {
-      AppAuth.redirectByRole(currentUser);
-    }, 1000);
-    return;
+  } else {
+    const rol = Number(currentUser.fk_rol_id || currentUser.rolId || 0);
+    const nombreRol = String(currentUser.nombre_rol || currentUser.rol || '').toLowerCase();
+    const esAdmin = rol === 1 || rol === 100 || nombreRol.includes('admin');
+
+    if (!esAdmin) {
+      AppAuth.showToast('Acceso exclusivo para Administradores. Redirigiendo a tu módulo...', 'warning');
+      setTimeout(() => {
+        AppAuth.redirectByRole(currentUser);
+      }, 1000);
+      return;
+    }
   }
 
   actualizarUIAdmin(currentUser);
@@ -64,13 +70,19 @@ function actualizarUIAdmin(user) {
   if (!user) return;
   const nameEl = document.getElementById('admin-display-name');
   const avatarEl = document.getElementById('admin-avatar-initials');
+  const roleEl = document.getElementById('admin-role-text');
 
-  const nombre = user.nombre || user.perfil?.Nombre || 'Lic. Roberto';
-  const ape = user.ape_paterno || user.perfil?.ape_paterno || 'Méndez';
+  const nombre = user.nombre || user.perfil?.Nombre || 'Lic. Angel';
+  const ape = user.ape_paterno || user.perfil?.ape_paterno || 'Hernández';
   const nombreCompleto = `${nombre} ${ape}`.trim();
 
   if (nameEl) nameEl.textContent = nombreCompleto;
-  if (avatarEl) avatarEl.textContent = `${nombre[0] || 'A'}${ape[0] || 'D'}`;
+  if (avatarEl) {
+    const p1 = (user.nombre || user.perfil?.Nombre || 'Angel').replace(/^Lic\.\s*/i, '').trim()[0] || 'A';
+    const p2 = (user.ape_paterno || user.perfil?.ape_paterno || 'Hernández').trim()[0] || 'H';
+    avatarEl.textContent = `${p1}${p2}`.toUpperCase();
+  }
+  if (roleEl) roleEl.textContent = 'Rol ID: 1 · Administrador General';
 }
 
 /**

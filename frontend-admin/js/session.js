@@ -55,6 +55,12 @@ function getToken() {
  */
 function saveSession(usuario, token) {
   if (usuario) {
+    const rolNorm = (usuario.fk_rol_id === 100 || usuario.rolId === 100 || String(usuario.nombre_rol || usuario.rol || '').toLowerCase().includes('admin')) ? 1
+                  : (usuario.fk_rol_id === 300 || usuario.rolId === 300 || String(usuario.nombre_rol || usuario.rol || '').toLowerCase().includes('recep')) ? 3
+                  : (usuario.fk_rol_id === 400 || usuario.rolId === 400 || String(usuario.nombre_rol || usuario.rol || '').toLowerCase().includes('pod')) ? 4
+                  : Number(usuario.fk_rol_id || usuario.rolId || 1);
+    usuario.fk_rol_id = rolNorm;
+    usuario.rolId = rolNorm;
     localStorage.setItem(SESSION_KEY, JSON.stringify(usuario));
   }
   // Se remueve el token de localStorage para proteger contra robo por XSS
@@ -73,11 +79,13 @@ function redirectByRole(usuario) {
     return;
   }
   const rol = Number(usuario.fk_rol_id || usuario.rolId || usuario.rol || 4);
-  if (rol === 1) {
+  const rolNombre = String(usuario.nombre_rol || usuario.rol || '').toLowerCase();
+
+  if (rol === 1 || rol === 100 || rolNombre.includes('admin')) {
     window.location.href = 'admin.html';
-  } else if (rol === 3) {
+  } else if (rol === 3 || rol === 300 || rolNombre.includes('recep')) {
     window.location.href = 'recepcion.html';
-  } else if (rol === 4) {
+  } else if (rol === 4 || rol === 400 || rolNombre.includes('pod') || rolNombre.includes('especialista')) {
     window.location.href = 'consultorio.html';
   } else {
     window.location.href = 'consultorio.html';
@@ -118,7 +126,19 @@ function checkAuthGuard(allowedRoles = []) {
     return null;
   }
   const rol = Number(user.fk_rol_id || user.rolId || user.rol || 0);
-  if (allowedRoles.length > 0 && !allowedRoles.includes(rol)) {
+  const nombreRol = String(user.nombre_rol || user.rol || '').toLowerCase();
+  
+  // Normalizar equivalencias de roles (1 y 100 Admin, 3 y 300 Recepción, 4 y 400 Podólogo)
+  const rolNormalizado = (rol === 100 || nombreRol.includes('admin')) ? 1
+                       : (rol === 300 || nombreRol.includes('recep')) ? 3
+                       : (rol === 400 || nombreRol.includes('pod') || nombreRol.includes('especialista')) ? 4
+                       : rol;
+
+  const esPermitido = allowedRoles.length === 0 || 
+                      allowedRoles.includes(rol) || 
+                      allowedRoles.includes(rolNormalizado);
+
+  if (!esPermitido) {
     console.warn(`🛡️ [RBAC Guard] Rol ${rol} no autorizado para esta vista (requerido: ${allowedRoles.join(',')}). Derivando a su portal...`);
     redirectByRole(user);
     return null;

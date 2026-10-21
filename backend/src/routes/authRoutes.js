@@ -9,8 +9,10 @@ router.post('/login', authController.login);
 // Logout de usuario (invalida cookie HttpOnly)
 router.post('/logout', authController.logout);
 
-// Recuperar contraseña
+// Recuperación de contraseña en 3 pasos con token y código de 6 dígitos
 router.post('/recuperar-password', authController.recuperarPassword);
+router.post('/verificar-codigo', authController.verificarCodigoRecuperacion);
+router.post('/restablecer-password', authController.restablecerPassword);
 
 // Información del usuario autenticado
 router.get('/me', verificarAutenticacion, authController.obtenerPerfilActual);

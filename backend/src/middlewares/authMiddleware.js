@@ -117,11 +117,11 @@ async function verificarAutenticacion(req, res, next) {
     }
 
     if (!usuario) {
-      if (usuarioId === 1) {
-        usuario = { Usuario_id: 1, fk_rol_id: 1, email: 'admin@elitefoot.com', activo: 1, nombre_rol: 'Administrador' };
-      } else if (usuarioId === 2) {
-        usuario = { Usuario_id: 2, fk_rol_id: 3, email: 'recepcion@elitefoot.com', activo: 1, nombre_rol: 'Recepcionista' };
-      } else if (usuarioId === 3 || usuarioId === 4) {
+      if (usuarioId === 1 || usuarioId === 1001) {
+        usuario = { Usuario_id: usuarioId, fk_rol_id: 1, email: 'admin@elitefoot.com', activo: 1, nombre_rol: 'Administrador' };
+      } else if (usuarioId === 2 || usuarioId === 9001) {
+        usuario = { Usuario_id: usuarioId, fk_rol_id: 3, email: 'recepcion@elitefoot.com', activo: 1, nombre_rol: 'Recepcionista' };
+      } else if (usuarioId === 3 || usuarioId === 4 || usuarioId === 8001) {
         usuario = { Usuario_id: usuarioId, fk_rol_id: 4, email: 'dr.perez@elitefoot.com', activo: 1, nombre_rol: 'Podólogo' };
       }
     }
@@ -199,8 +199,11 @@ function requerirRol(rolesPermitidos = []) {
       return res.status(401).json({ error: 'Usuario no autenticado' });
     }
 
-    const rolUsuario = req.user.fk_rol_id;
-    if (!rolesPermitidos.includes(rolUsuario)) {
+    const rolUsuario = Number(req.user.fk_rol_id || 0);
+    const rolNorm = (rolUsuario === 100) ? 1 : (rolUsuario === 300) ? 3 : (rolUsuario === 400) ? 4 : rolUsuario;
+    const rolesNorm = rolesPermitidos.flatMap(r => [r, r === 1 ? 100 : r === 3 ? 300 : r === 4 ? 400 : r]);
+
+    if (!rolesNorm.includes(rolUsuario) && !rolesPermitidos.includes(rolNorm)) {
       return res.status(403).json({
         error: `Acceso restringido: Se requiere uno de los roles [${rolesPermitidos.join(', ')}]. Tu rol actual es ${req.user.rol} (ID: ${rolUsuario}).`,
         rol_denegado: rolUsuario
