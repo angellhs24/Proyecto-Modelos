@@ -23,6 +23,12 @@
       "notas_admin": "Registrado desde Panel de Administración",
       "fecha_modificacion": "2026-10-15",
       "motivo_baja": null
+    },
+    "D-1234": {
+      "activo": true,
+      "turno": "V",
+      "fecha_alta": "2026-10-21",
+      "notas_admin": "Registrado desde Panel de Administración"
     }
   },
   "recepcionistas": [
