@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   configurarEventosClinicas();
   configurarEventosPacientes();
   configurarEventosAvisos();
+  configurarEventosBajaDefinitiva();
 });
 
 // Variables de Estado en Memoria
@@ -62,6 +63,8 @@ let recepcionistaEnEdicion = null;
 let clinicaEnEdicion = null;
 let pacienteEnEdicion = null;
 let accionEstadoPendiente = null; // { tipo: 'podologo' | 'recepcionista' | 'clinica', id: ..., activoActual: ... }
+let accionBajaDefinitivaPendiente = null; // { tipo: 'podologo' | 'recepcionista' | 'clinica', id: ..., nombre: ... }
+let fraseRequeridaBajaDefinitiva = '';
 
 /**
  * Actualiza el chip del administrador en el encabezado
@@ -266,24 +269,28 @@ function renderPodologosGrid(podologos) {
           </div>
         </div>
 
-        <div class="staff-actions">
-          <button class="btn btn-secondary" style="padding: 0.45rem 0.75rem; font-size: 0.82rem;" onclick="editarPodologo('${escapeHtml(p.Cedula_podologo)}')">
+        <div class="staff-actions" style="display: flex; gap: 6px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" style="padding: 0.45rem 0.65rem; font-size: 0.80rem;" onclick="editarPodologo('${escapeHtml(p.Cedula_podologo)}')">
             <i class="fa-solid fa-pen-to-square"></i> Editar
           </button>
 
           ${
             estaActivo
               ? `
-              <button class="btn-toggle-baja danger" onclick="confirmarCambioEstadoPodologo('${escapeHtml(p.Cedula_podologo)}', true)">
-                <i class="fa-solid fa-user-xmark"></i> Dar de Baja
+              <button class="btn-toggle-baja danger" style="padding: 0.45rem 0.65rem; font-size: 0.80rem;" onclick="confirmarCambioEstadoPodologo('${escapeHtml(p.Cedula_podologo)}', true)">
+                <i class="fa-solid fa-pause"></i> Pausar
               </button>
             `
               : `
-              <button class="btn-toggle-baja success" onclick="confirmarCambioEstadoPodologo('${escapeHtml(p.Cedula_podologo)}', false)">
-                <i class="fa-solid fa-user-check"></i> Reactivar
+              <button class="btn-toggle-baja success" style="padding: 0.45rem 0.65rem; font-size: 0.80rem;" onclick="confirmarCambioEstadoPodologo('${escapeHtml(p.Cedula_podologo)}', false)">
+                <i class="fa-solid fa-play"></i> Reactivar
               </button>
             `
           }
+
+          <button class="btn-toggle-baja danger" style="padding: 0.45rem 0.65rem; font-size: 0.80rem; background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.35);" onclick="abrirModalBajaDefinitiva('podologo', '${escapeHtml(p.Cedula_podologo)}', '${escapeHtml(p.Nombre)} ${escapeHtml(p.ape_paterno)}')">
+            <i class="fa-solid fa-trash-can"></i> Baja Definitiva
+          </button>
         </div>
       </div>
     `;
@@ -531,24 +538,28 @@ function renderRecepcionistasGrid(recepcionistas) {
           }
         </div>
 
-        <div class="staff-actions">
-          <button class="btn btn-secondary" style="padding: 0.45rem 0.75rem; font-size: 0.82rem;" onclick="editarRecepcionista(${r.id})">
+        <div class="staff-actions" style="display: flex; gap: 6px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" style="padding: 0.45rem 0.65rem; font-size: 0.80rem;" onclick="editarRecepcionista('${escapeHtml(String(r.Recepcionista_id || r.id))}')">
             <i class="fa-solid fa-pen-to-square"></i> Editar
           </button>
 
           ${
             estaActiva
               ? `
-              <button class="btn-toggle-baja danger" onclick="confirmarCambioEstadoRecepcionista(${r.id}, true)">
-                <i class="fa-solid fa-user-xmark"></i> Dar de Baja
+              <button class="btn-toggle-baja danger" style="padding: 0.45rem 0.65rem; font-size: 0.80rem;" onclick="confirmarCambioEstadoRecepcionista('${escapeHtml(String(r.Recepcionista_id || r.id))}', true)">
+                <i class="fa-solid fa-pause"></i> Pausar
               </button>
             `
               : `
-              <button class="btn-toggle-baja success" onclick="confirmarCambioEstadoRecepcionista(${r.id}, false)">
-                <i class="fa-solid fa-user-check"></i> Reactivar
+              <button class="btn-toggle-baja success" style="padding: 0.45rem 0.65rem; font-size: 0.80rem;" onclick="confirmarCambioEstadoRecepcionista('${escapeHtml(String(r.Recepcionista_id || r.id))}', false)">
+                <i class="fa-solid fa-play"></i> Reactivar
               </button>
             `
           }
+
+          <button class="btn-toggle-baja danger" style="padding: 0.45rem 0.65rem; font-size: 0.80rem; background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.35);" onclick="abrirModalBajaDefinitiva('recepcionista', '${escapeHtml(String(r.Recepcionista_id || r.id))}', '${escapeHtml(r.nombre)} ${escapeHtml(r.ape_paterno)}')">
+            <i class="fa-solid fa-trash-can"></i> Baja Definitiva
+          </button>
         </div>
       </div>
     `;
@@ -699,6 +710,127 @@ function configurarEventosRecepcionistas() {
   });
 }
 
+/**
+ * Abre el Modal de Confirmación de Baja Definitiva con Verificación estilo GitHub
+ */
+function abrirModalBajaDefinitiva(tipo, id, nombre) {
+  accionBajaDefinitivaPendiente = { tipo, id, nombre };
+
+  // Construir frase de confirmación requerida: ej. "dar de baja definitiva podologo Dra. Jacqueline"
+  const tipoLabel = tipo === 'podologo' ? 'podologo' : (tipo === 'recepcionista' ? 'recepcionista' : 'clinica');
+  fraseRequeridaBajaDefinitiva = `dar de baja definitiva ${tipoLabel} ${nombre}`.replace(/\s+/g, ' ').trim();
+
+  const msgEl = document.getElementById('modal-baja-definitiva-mensaje');
+  const fraseEl = document.getElementById('texto-frase-requerida');
+  const input = document.getElementById('input-confirmar-baja-definitiva');
+  const btn = document.getElementById('btn-ejecutar-baja-definitiva');
+  const hint = document.getElementById('baja-definitiva-hint');
+
+  if (msgEl) {
+    msgEl.innerHTML = `¿Confirmas que deseas dar de <strong>BAJA DEFINITIVA</strong> a <strong>${escapeHtml(nombre)}</strong>?<br>Esta acción eliminará permanentemente su registro en la base de datos y su cuenta de usuario.`;
+  }
+  if (fraseEl) {
+    fraseEl.textContent = fraseRequeridaBajaDefinitiva;
+  }
+  if (input) {
+    input.value = '';
+  }
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = '0.45';
+    btn.style.cursor = 'not-allowed';
+    btn.style.boxShadow = 'none';
+    btn.innerHTML = `<i class="fa-solid fa-trash-can"></i> Dar de Baja Definitiva`;
+  }
+  if (hint) {
+    hint.innerHTML = `<i class="fa-solid fa-lock"></i> El botón de eliminación se habilitará únicamente al coincidir la frase exacta.`;
+    hint.style.color = '#64748b';
+  }
+
+  abrirModal('modal-baja-definitiva');
+  setTimeout(() => input?.focus(), 150);
+}
+
+/**
+ * Configura los eventos del Modal de Baja Definitiva (Validación reactiva en tiempo real)
+ */
+function configurarEventosBajaDefinitiva() {
+  const input = document.getElementById('input-confirmar-baja-definitiva');
+  const btn = document.getElementById('btn-ejecutar-baja-definitiva');
+  const hint = document.getElementById('baja-definitiva-hint');
+
+  input?.addEventListener('input', () => {
+    if (!fraseRequeridaBajaDefinitiva) return;
+    const val = input.value.trim().toLowerCase();
+    const target = fraseRequeridaBajaDefinitiva.trim().toLowerCase();
+
+    if (val === target) {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      btn.style.boxShadow = '0 0 14px rgba(220, 38, 38, 0.45)';
+      if (hint) {
+        hint.innerHTML = `<i class="fa-solid fa-unlock" style="color: #16a34a;"></i> ¡Frase correcta! Ya puedes proceder a la eliminación.`;
+        hint.style.color = '#16a34a';
+      }
+    } else {
+      btn.disabled = true;
+      btn.style.opacity = '0.45';
+      btn.style.cursor = 'not-allowed';
+      btn.style.boxShadow = 'none';
+      if (hint) {
+        hint.innerHTML = `<i class="fa-solid fa-lock"></i> El botón de eliminación se habilitará únicamente al coincidir la frase exacta.`;
+        hint.style.color = '#64748b';
+      }
+    }
+  });
+
+  btn?.addEventListener('click', async () => {
+    if (!accionBajaDefinitivaPendiente) return;
+    const { tipo, id } = accionBajaDefinitivaPendiente;
+
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Eliminando permanentemente...`;
+
+    let res;
+    if (tipo === 'podologo') {
+      res = await AppAuth.fetchApi(`/api/admin/podologos/${encodeURIComponent(id)}`, { method: 'DELETE' });
+      if (res.ok) {
+        AppAuth.showToast(res.data?.mensaje || 'Podólogo dado de baja definitiva', 'success');
+        cerrarModal('modal-baja-definitiva');
+        await cargarPodologos();
+        await cargarMetricas();
+      } else {
+        AppAuth.showToast(res.data?.error || 'Error al eliminar podólogo', 'error');
+      }
+    } else if (tipo === 'recepcionista') {
+      res = await AppAuth.fetchApi(`/api/admin/recepcionistas/${encodeURIComponent(id)}`, { method: 'DELETE' });
+      if (res.ok) {
+        AppAuth.showToast(res.data?.mensaje || 'Recepcionista dada de baja definitiva', 'success');
+        cerrarModal('modal-baja-definitiva');
+        await cargarRecepcionistas();
+        await cargarMetricas();
+      } else {
+        AppAuth.showToast(res.data?.error || 'Error al eliminar recepcionista', 'error');
+      }
+    } else if (tipo === 'clinica') {
+      res = await AppAuth.fetchApi(`/api/admin/clinicas/${encodeURIComponent(id)}`, { method: 'DELETE' });
+      if (res.ok) {
+        AppAuth.showToast(res.data?.mensaje || 'Sede clínica eliminada definitivamente', 'success');
+        cerrarModal('modal-baja-definitiva');
+        await cargarClinicas();
+        await cargarMetricas();
+      } else {
+        AppAuth.showToast(res.data?.error || 'Error al eliminar sede clínica', 'error');
+      }
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fa-solid fa-trash-can"></i> Dar de Baja Definitiva`;
+    accionBajaDefinitivaPendiente = null;
+  });
+}
+
 function abrirModalNuevaRecepcionista() {
   recepcionistaEnEdicion = null;
   const form = document.getElementById('form-recepcionista');
@@ -833,23 +965,27 @@ function renderClinicasGrid(clinicas) {
           </div>
         </div>
 
-        <div class="staff-actions">
-          <button class="btn btn-secondary" style="padding: 0.45rem 0.75rem; font-size: 0.82rem;" onclick="editarClinica(${c.Clinica_id})">
-            <i class="fa-solid fa-pen-to-square"></i> Editar Sede
+        <div class="staff-actions" style="display: flex; gap: 6px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" style="padding: 0.45rem 0.65rem; font-size: 0.80rem;" onclick="editarClinica(${c.Clinica_id})">
+            <i class="fa-solid fa-pen-to-square"></i> Editar
           </button>
           ${
             estaActiva
               ? `
-              <button class="btn-toggle-baja danger" onclick="confirmarCambioEstadoClinica(${c.Clinica_id}, true)">
-                <i class="fa-solid fa-ban"></i> Dar de Baja
+              <button class="btn-toggle-baja danger" style="padding: 0.45rem 0.65rem; font-size: 0.80rem;" onclick="confirmarCambioEstadoClinica(${c.Clinica_id}, true)">
+                <i class="fa-solid fa-ban"></i> Pausar
               </button>
             `
               : `
-              <button class="btn-toggle-baja success" onclick="confirmarCambioEstadoClinica(${c.Clinica_id}, false)">
-                <i class="fa-solid fa-check"></i> Reactivar Sede
+              <button class="btn-toggle-baja success" style="padding: 0.45rem 0.65rem; font-size: 0.80rem;" onclick="confirmarCambioEstadoClinica(${c.Clinica_id}, false)">
+                <i class="fa-solid fa-check"></i> Reactivar
               </button>
             `
           }
+
+          <button class="btn-toggle-baja danger" style="padding: 0.45rem 0.65rem; font-size: 0.80rem; background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.35);" onclick="abrirModalBajaDefinitiva('clinica', '${c.Clinica_id}', '${escapeHtml(c.Nombre)}')">
+            <i class="fa-solid fa-trash-can"></i> Baja Definitiva
+          </button>
         </div>
       </div>
     `;

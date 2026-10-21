@@ -999,16 +999,137 @@ const actualizarClinicaAdmin = async (req, res) => {
   }
 };
 
+// --------------------------------------------------------------------------
+// 7. BAJA DEFINITIVA IRREVERSIBLE (PODÓLOGOS, RECEPCIONISTAS, CLÍNICAS)
+// --------------------------------------------------------------------------
+const eliminarPodologoDefinitivo = async (req, res) => {
+  const { cedula } = req.params;
+
+  try {
+    // 1. Obtener fk_usuario_id
+    const [podos] = await db.pool.query('SELECT fk_usuario_id FROM Podologos WHERE Cedula_podologo = ?', [cedula]);
+    const usuarioId = podos[0]?.fk_usuario_id;
+
+    // 2. Limpiar consultas dependientes si existen para no violar restricciones de FK
+    try {
+      await db.pool.query(`
+        DELETE FROM Tratamientos WHERE fk_consulta_id IN 
+        (SELECT Consulta_id FROM Consultas WHERE fk_cedula_podologo = ?)
+      `, [cedula]);
+      await db.pool.query(`
+        DELETE FROM Diagnosticos WHERE fk_consulta_id IN 
+        (SELECT Consulta_id FROM Consultas WHERE fk_cedula_podologo = ?)
+      `, [cedula]);
+      await db.pool.query('DELETE FROM Consultas WHERE fk_cedula_podologo = ?', [cedula]);
+    } catch (e) {
+      console.warn('Aviso limpieza consultas asociadas al podólogo:', e.message);
+    }
+
+    // 3. Eliminar podólogo de Podologos
+    await db.pool.query('DELETE FROM Podologos WHERE Cedula_podologo = ?', [cedula]);
+
+    // 4. Eliminar usuario asociado en Usuarios
+    if (usuarioId) {
+      await db.pool.query('DELETE FROM Usuarios WHERE Usuario_id = ?', [usuarioId]);
+    }
+
+    // 5. Limpiar de admin_store.json
+    const store = leerAdminStore();
+    if (store.podologos_meta && store.podologos_meta[cedula]) {
+      delete store.podologos_meta[cedula];
+      guardarAdminStore(store);
+    }
+
+    res.json({ mensaje: `Podólogo con cédula ${cedula} dado de baja definitiva exitosamente` });
+  } catch (error) {
+    console.error('Error al dar de baja definitiva podólogo:', error);
+    res.status(500).json({ error: 'Error al dar de baja definitiva: ' + error.message });
+  }
+};
+
+const eliminarRecepcionistaDefinitivo = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // 1. Obtener fk_usuario_id
+    const [recs] = await db.pool.query(
+      'SELECT fk_usuario_id FROM Recepcionistas WHERE Recepcionista_id = ? OR Recepcionista_id LIKE ?',
+      [id, `%${id}%`]
+    );
+    const usuarioId = recs[0]?.fk_usuario_id;
+
+    // 2. Eliminar de Recepcionistas
+    await db.pool.query('DELETE FROM Recepcionistas WHERE Recepcionista_id = ? OR Recepcionista_id LIKE ?', [id, `%${id}%`]);
+
+    // 3. Eliminar usuario asociado
+    if (usuarioId) {
+      await db.pool.query('DELETE FROM Usuarios WHERE Usuario_id = ?', [usuarioId]);
+    }
+
+    // 4. Limpiar del store
+    const store = leerAdminStore();
+    let receps = store.recepcionistas || [];
+    store.recepcionistas = receps.filter(
+      (r) => String(r.id) !== String(id) && String(r.Recepcionista_id) !== String(id)
+    );
+    guardarAdminStore(store);
+
+    res.json({ mensaje: 'Recepcionista dada de baja definitiva exitosamente' });
+  } catch (error) {
+    console.error('Error al dar de baja definitiva recepcionista:', error);
+    res.status(500).json({ error: 'Error al dar de baja definitiva: ' + error.message });
+  }
+};
+
+const eliminarClinicaDefinitivo = async (req, res) => {
+  const { id } = req.params;
+  const clinicaId = parseInt(id, 10);
+
+  try {
+    // 1. Limpiar consultas asociadas si existen
+    try {
+      await db.pool.query(`
+        DELETE FROM Tratamientos WHERE fk_consulta_id IN 
+        (SELECT Consulta_id FROM Consultas WHERE fk_clinica_id = ?)
+      `, [clinicaId]);
+      await db.pool.query(`
+        DELETE FROM Diagnosticos WHERE fk_consulta_id IN 
+        (SELECT Consulta_id FROM Consultas WHERE fk_clinica_id = ?)
+      `, [clinicaId]);
+      await db.pool.query('DELETE FROM Consultas WHERE fk_clinica_id = ?', [clinicaId]);
+    } catch (e) {
+      console.warn('Aviso limpieza consultas clínica:', e.message);
+    }
+
+    // 2. Limpiar recepcionistas asignadas a la clínica
+    try {
+      await db.pool.query('DELETE FROM Recepcionistas WHERE fk_clinica_id = ?', [clinicaId]);
+    } catch (e) {
+      console.warn('Aviso limpieza recepcionistas clínica:', e.message);
+    }
+
+    // 3. Eliminar clínica
+    await db.pool.query('DELETE FROM Clinicas WHERE Clinica_id = ?', [clinicaId]);
+
+    res.json({ mensaje: `Sede clínica #${clinicaId} eliminada definitivamente del sistema` });
+  } catch (error) {
+    console.error('Error al dar de baja definitiva clínica:', error);
+    res.status(500).json({ error: 'Error al dar de baja definitiva: ' + error.message });
+  }
+};
+
 module.exports = {
   obtenerMetricas,
   obtenerPodologosAdmin,
   crearPodologoAdmin,
   cambiarEstadoPodologo,
   actualizarPodologoAdmin,
+  eliminarPodologoDefinitivo,
   obtenerRecepcionistasAdmin,
   crearRecepcionistaAdmin,
   cambiarEstadoRecepcionista,
   actualizarRecepcionistaAdmin,
+  eliminarRecepcionistaDefinitivo,
   obtenerPacientesAdmin,
   actualizarPacienteAdmin,
   enviarAvisoPaciente,
@@ -1018,5 +1139,6 @@ module.exports = {
   obtenerClinicasAdmin,
   crearClinicaAdmin,
   cambiarEstadoClinica,
-  actualizarClinicaAdmin
+  actualizarClinicaAdmin,
+  eliminarClinicaDefinitivo
 };
