@@ -9,6 +9,9 @@ if (!process.env.DB_USER || !process.env.DB_PASSWORD) {
   process.exit(1); // Detiene la aplicación si no hay credenciales seguras
 }
 
+const isCloudDb = process.env.DB_SSL === 'true' || 
+  (process.env.DB_HOST && process.env.DB_HOST !== 'localhost' && process.env.DB_HOST !== '127.0.0.1');
+
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -18,7 +21,8 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  dateStrings: true
+  dateStrings: true,
+  ssl: isCloudDb ? { minVersion: 'TLSv1.2', rejectUnauthorized: true } : undefined
 });
 
 // Verificar conexión al iniciar
