@@ -117,17 +117,7 @@ async function verificarAutenticacion(req, res, next) {
     }
 
     if (!usuario) {
-      if (usuarioId === 1) {
-        usuario = { Usuario_id: 1, fk_rol_id: 1, email: 'admin@elitefoot.com', activo: 1, nombre_rol: 'Administrador' };
-      } else if (usuarioId === 2) {
-        usuario = { Usuario_id: 2, fk_rol_id: 3, email: 'recepcion@elitefoot.com', activo: 1, nombre_rol: 'Recepcionista' };
-      } else if (usuarioId === 3 || usuarioId === 4) {
-        usuario = { Usuario_id: usuarioId, fk_rol_id: 4, email: 'dr.perez@elitefoot.com', activo: 1, nombre_rol: 'Podólogo' };
-      }
-    }
-
-    if (!usuario) {
-      return res.status(401).json({ error: 'Usuario no encontrado en el sistema.' });
+      return res.status(401).json({ error: 'Usuario no encontrado en el sistema o sesión inválida.', requiere_login: true });
     }
 
     if (!usuario.activo) {
@@ -141,7 +131,7 @@ async function verificarAutenticacion(req, res, next) {
       fk_rol_id: usuario.fk_rol_id,
       email: usuario.email,
       rol: usuario.nombre_rol,
-      nombre_completo: usuario.fk_rol_id === 1 ? 'Administrador General' : (usuario.fk_rol_id === 3 ? 'María López' : 'Dr. Carlos Pérez')
+      nombre_completo: usuario.nombre_rol || 'Usuario'
     };
 
     // Si es Recepcionista (Rol ID: 3), cargar datos de la tabla Recepcionistas
@@ -263,7 +253,7 @@ function bloquearTablasClinicasParaRecepcionista(req, res, next) {
         accion_realizada: `[BLOQUEO DE SEGURIDAD RBAC] Intento denegado de acceso a tablas clínicas: ${req.method} ${req.originalUrl}`,
         tabla_afectada: 'Seguridad_RBAC',
         direccion_ip: ip
-      }).catch(() => {});
+      }).catch(() => { });
 
       return res.status(403).json({
         error: 'ACCESO DENEGADO (RBAC - Violación de Seguridad Crítica): El rol de Recepcionista (Rol ID: 3) tiene estrictamente prohibido consultar o manipular las tablas Diagnósticos, Tratamientos, Recetas y Detalles_Mapa_Podologico por normativa de confidencialidad de datos de salud.',
@@ -310,7 +300,7 @@ function bloquearPagosInventarioParaPodologo(req, res, next) {
           accion_realizada: `[BLOQUEO DE SEGURIDAD RBAC] Intento denegado de modificación financiera/inventario: ${req.method} ${req.originalUrl}`,
           tabla_afectada: 'Seguridad_RBAC',
           direccion_ip: ip
-        }).catch(() => {});
+        }).catch(() => { });
 
         return res.status(403).json({
           error: 'ACCESO DENEGADO (RBAC - Violación de Seguridad Crítica): El rol de Podólogo (Rol ID: 4) tiene estrictamente prohibido realizar operaciones de inserción o modificación (INSERT/UPDATE) en las tablas Pagos e Inventario.',

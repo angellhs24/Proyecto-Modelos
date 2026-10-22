@@ -33,8 +33,9 @@ const medicoRoutes = require('./routes/medicoRoutes');
 const devRoutes = require('./routes/devRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
-// Middleware de auditoría automática
+// Middleware de auditoría automática y control estricto de caché
 const { auditoriaAutomaticaMiddleware } = require('./middlewares/auditoriaMiddleware');
+const { prevenirCache } = require('./middlewares/cacheControlMiddleware');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -91,28 +92,31 @@ app.get(['/', '/clinica', '/inicio'], (req, res) => {
   res.sendFile(path.join(landingSrcPath, 'index.html'));
 });
 
+// Middleware global anti-caché para todos los endpoints de API
+app.use('/api', prevenirCache);
+
 // 2. Portal de acceso / Login del personal (Admin, Podólogo, Recepcionista)
 app.get(['/login', '/login.html'], (req, res) => {
   res.sendFile(path.join(adminPath, 'login.html'));
 });
 
-// 3. Paneles del personal clínico y administrativo
-app.get(['/admin', '/admin.html'], (req, res) => {
+// 3. Paneles del personal clínico y administrativo (Inyección estricta de no-caché)
+app.get(['/admin', '/admin.html'], prevenirCache, (req, res) => {
   res.sendFile(path.join(adminPath, 'admin.html'));
 });
-app.get(['/recepcion', '/recepcion.html'], (req, res) => {
+app.get(['/recepcion', '/recepcion.html'], prevenirCache, (req, res) => {
   res.sendFile(path.join(adminPath, 'recepcion.html'));
 });
-app.get(['/consultorio', '/consultorio.html'], (req, res) => {
+app.get(['/consultorio', '/consultorio.html'], prevenirCache, (req, res) => {
   res.sendFile(path.join(adminPath, 'consultorio.html'));
 });
-app.get(['/inventario', '/inventario.html'], (req, res) => {
+app.get(['/inventario', '/inventario.html'], prevenirCache, (req, res) => {
   res.sendFile(path.join(adminPath, 'inventario.html'));
 });
-app.get(['/caja', '/caja.html', '/cobros', '/cobros.html'], (req, res) => {
+app.get(['/caja', '/caja.html', '/cobros', '/cobros.html'], prevenirCache, (req, res) => {
   res.sendFile(path.join(adminPath, 'caja.html'));
 });
-app.get(['/login-dev', '/login-dev.html'], (req, res) => {
+app.get(['/login-dev', '/login-dev.html'], prevenirCache, (req, res) => {
   res.sendFile(path.join(adminPath, 'login-dev.html'));
 });
 
@@ -120,10 +124,29 @@ app.get(['/login-dev', '/login-dev.html'], (req, res) => {
 // Servir archivos estáticos (CSS, JS, imágenes)
 // ============================================================================
 app.use(express.static(landingSrcPath));
-app.use(express.static(adminPath, { index: false }));
+app.use(express.static(adminPath, {
+  index: false,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      res.setHeader('Surrogate-Control', 'no-store');
+    }
+  }
+}));
 app.use('/landing', express.static(landingSrcPath));
 app.use('/public', express.static(landingPublicPath));
-app.use('/frontend-admin', express.static(adminPath));
+app.use('/frontend-admin', express.static(adminPath, {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      res.setHeader('Surrogate-Control', 'no-store');
+    }
+  }
+}));
 app.use('/frontend-landing', express.static(landingBasePath));
 
 // Rutas RBAC y Panel de Administración
