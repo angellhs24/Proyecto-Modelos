@@ -284,7 +284,25 @@ async function login(req, res) {
       path: '/'
     });
 
-    const rolNorm = (usuario.fk_rol_id === 100) ? 1 : (usuario.fk_rol_id === 300) ? 3 : (usuario.fk_rol_id === 400) ? 4 : usuario.fk_rol_id;
+    const rolNorm = (usuario.fk_rol_id === 100 || usuario.fk_rol_id === 1) ? 1
+                  : (usuario.fk_rol_id === 300 || usuario.fk_rol_id === 3) ? 3
+                  : (usuario.fk_rol_id === 400 || usuario.fk_rol_id === 4) ? 4
+                  : Number(usuario.fk_rol_id);
+
+    function obtenerTituloProfesional(nombre) {
+      const n = String(nombre || '').trim().toLowerCase();
+      const primerNombre = n.split(' ')[0];
+      const nombresFemeninos = ['kiara', 'maribel', 'jacqueline', 'camila', 'maria', 'maría', 'rosa', 'ana', 'patricia', 'laura', 'sofia', 'sofía', 'elena', 'carmen', 'lucia', 'lucía', 'paola', 'andrea', 'fernanda', 'daniela', 'valeria'];
+      if (nombresFemeninos.includes(primerNombre) || primerNombre.endsWith('a')) {
+        return 'Dra.';
+      }
+      return 'Dr.';
+    }
+
+    const titulo = esPodo ? obtenerTituloProfesional(perfil.Nombre) : '';
+    const nombreCompleto = esPodo
+      ? `${titulo} ${perfil.Nombre || ''} ${perfil.ape_paterno || ''} ${perfil.ape_materno || ''}`.trim()
+      : `${perfil.Nombre || ''} ${perfil.ape_paterno || ''}`.trim();
 
     res.json({
       mensaje: 'Inicio de sesión exitoso',
@@ -298,6 +316,14 @@ async function login(req, res) {
         codigo_rol: usuario.fk_rol_id,
         rol: usuario.nombre_rol,
         nombre_rol: usuario.nombre_rol,
+        nombre: perfil.Nombre,
+        Nombre: perfil.Nombre,
+        ape_paterno: perfil.ape_paterno,
+        ape_materno: perfil.ape_materno,
+        titulo: titulo,
+        nombre_completo: nombreCompleto,
+        cedula: perfil.Cedula_podologo,
+        Cedula_podologo: perfil.Cedula_podologo,
         perfil
       }
     });

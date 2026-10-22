@@ -36,12 +36,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  // Refrescar perfil completo y actualizado desde el backend
+  try {
+    const perfilRes = await AppAuth.fetchApi('/api/auth/me');
+    if (perfilRes.ok && perfilRes.data?.usuario) {
+      currentUser = { ...currentUser, ...perfilRes.data.usuario };
+      AppAuth.saveSession(currentUser);
+    }
+  } catch (e) {
+    console.warn('No se pudo refrescar perfil desde /api/auth/me:', e);
+  }
+
   actualizarUIPodologo(currentUser);
 
   // 2. Control de Pestañas Material 3
   inicializarNavegacionTabs();
 
-  // 3. Cargar Agenda Personal
+  // 3. Cargar Agenda Personal y Pacientes Asignados
   await cargarAgendaPersonal();
 
   // 4. Configurar Eventos
@@ -60,7 +71,20 @@ let vistaPieActual = 'plantar'; // 'plantar' | 'dorsal'
 let zonaSeleccionadaActual = null;
 
 /**
- * Actualiza el chip de perfil del médico
+ * Determina el prefijo respetuoso (Dra. o Dr.) según el nombre
+ */
+function obtenerTituloProfesional(nombre) {
+  const n = String(nombre || '').trim().toLowerCase();
+  const primerNombre = n.split(' ')[0];
+  const nombresFemeninos = ['kiara', 'maribel', 'jacqueline', 'camila', 'maria', 'maría', 'rosa', 'ana', 'patricia', 'laura', 'sofia', 'sofía', 'elena', 'carmen', 'lucia', 'lucía', 'paola', 'andrea', 'fernanda', 'daniela', 'valeria'];
+  if (nombresFemeninos.includes(primerNombre) || primerNombre.endsWith('a')) {
+    return 'Dra.';
+  }
+  return 'Dr.';
+}
+
+/**
+ * Actualiza el chip de perfil del médico y el saludo personalizado dinámico
  */
 function actualizarUIPodologo(user) {
   if (!user) return;
@@ -68,26 +92,44 @@ function actualizarUIPodologo(user) {
   const roleEl = document.getElementById('podo-role-text');
   const cedulaIndicador = document.getElementById('cedula-sesion-indicador');
   const avatarEl = document.getElementById('podo-avatar-initials');
+  const greetingTitle = document.getElementById('podo-greeting-title');
+  const greetingSub = document.getElementById('podo-greeting-subtitle');
 
-  const nombre = user.nombre || user.perfil?.Nombre || 'Carlos';
-  const ape = user.ape_paterno || user.perfil?.ape_paterno || 'Pérez';
-  const cedula = user.cedula || user.Cedula_podologo || user.perfil?.Cedula_podologo || 'CED12345678';
+  const nombre = user.nombre || user.Nombre || user.perfil?.Nombre || '';
+  const ape = user.ape_paterno || user.perfil?.ape_paterno || '';
+  const cedula = user.cedula || user.Cedula_podologo || user.perfil?.Cedula_podologo || '';
+  const titulo = user.titulo || obtenerTituloProfesional(nombre);
 
-  if (nameEl) nameEl.textContent = `Dr. ${nombre} ${ape}`.trim();
-  if (roleEl) roleEl.textContent = `Cédula: ${cedula} • Rol ID: 4`;
-  if (cedulaIndicador) cedulaIndicador.textContent = cedula;
-  if (avatarEl) avatarEl.textContent = `${nombre[0] || 'C'}${ape[0] || 'P'}`;
+  const nombreDisplay = nombre ? `${titulo} ${nombre} ${ape}`.trim() : 'Especialista en Podología';
+  const nombreCorto = nombre ? `${titulo} ${nombre}`.trim() : 'Especialista';
+
+  if (nameEl) nameEl.textContent = nombreDisplay;
+  if (roleEl) roleEl.textContent = cedula ? `Cédula: ${cedula} · Rol ID: 4` : 'Consultorio Podológico';
+  if (cedulaIndicador) cedulaIndicador.textContent = cedula || 'Activa en Sistema';
+
+  // Iniciales para el avatar
+  const inicial1 = (nombre[0] || 'D').toUpperCase();
+  const inicial2 = (ape[0] || (nombre[1] || 'P')).toUpperCase();
+  if (avatarEl) avatarEl.textContent = `${inicial1}${inicial2}`;
+
+  // Saludo dinámico personalizado en la agenda
+  if (greetingTitle) {
+    greetingTitle.textContent = `¡Hola, ${nombreCorto}! 👋`;
+  }
+  if (greetingSub) {
+    greetingSub.textContent = `Agenda personal de consultas asignadas a tu cédula profesional (${cedula || 'Registrada'}), control de turnos e inicio de atención clínica.`;
+  }
 }
 
 /**
- * Manejo de pestañas Material 3
+ * Manejo de pestañas Material 3 con auto-apertura de expedientes
  */
 function inicializarNavegacionTabs() {
   const tabBtns = document.querySelectorAll('.nav-tab-btn');
   const tabPanes = document.querySelectorAll('.tab-pane');
 
   tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const targetId = btn.getAttribute('data-tab');
 
       tabBtns.forEach(b => b.classList.remove('active'));
@@ -96,6 +138,18 @@ function inicializarNavegacionTabs() {
       btn.classList.add('active');
       const targetPane = document.getElementById(targetId);
       if (targetPane) targetPane.classList.add('active');
+
+      // Si se abre Expediente y aún no se ha cargado un paciente, pero hay citas en la agenda, auto-cargar el primero
+      if (targetId === 'tab-expediente' && !pacienteActivo && misCitasCache.length > 0) {
+        await cargarExpedientePaciente(misCitasCache[0].fk_no_expediente);
+      }
+
+      // Si se abre Mapa Podológico y no hay consulta activa, enlazar con la primera consulta de la agenda
+      if (targetId === 'tab-mapa-podologico' && !consultaActiva && misCitasCache.length > 0) {
+        consultaActiva = misCitasCache[0];
+        actualizarIndicadorMapa(consultaActiva);
+        await cargarMapaConsulta(consultaActiva.Consulta_id);
+      }
     });
   });
 }
@@ -127,8 +181,43 @@ async function cargarAgendaPersonal() {
     misCitasCache = res.data;
     renderTablaAgendaPersonal(res.data);
     actualizarKPIsAgendaPersonal(res.data);
+    poblarSelectoresPacientes(res.data);
   } else {
     tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--color-danger); padding: 1.5rem;">Error al cargar la agenda personal del podólogo</td></tr>`;
+  }
+}
+
+function poblarSelectoresPacientes(citas) {
+  const selectExp = document.getElementById('select-paciente-agenda-expediente');
+  const selectMap = document.getElementById('select-paciente-agenda-mapa');
+
+  if (selectExp) {
+    const prevVal = selectExp.value;
+    selectExp.innerHTML = '<option value="">-- Seleccionar paciente de mi agenda --</option>' +
+      citas.map(c => `
+        <option value="${escapeHtml(c.fk_no_expediente)}" data-consulta="${escapeHtml(c.Consulta_id)}">
+          ${escapeHtml(c.paciente_nombre)} (Exp #${escapeHtml(c.fk_no_expediente)} · Cita: ${escapeHtml(c.Consulta_id)})
+        </option>
+      `).join('');
+    if (prevVal) selectExp.value = prevVal;
+  }
+
+  if (selectMap) {
+    const prevVal = selectMap.value;
+    selectMap.innerHTML = '<option value="">-- Seleccionar paciente de mi agenda --</option>' +
+      citas.map(c => `
+        <option value="${escapeHtml(c.Consulta_id)}" data-exp="${escapeHtml(c.fk_no_expediente)}">
+          ${escapeHtml(c.paciente_nombre)} (Cita: ${escapeHtml(c.Consulta_id)} · Exp #${escapeHtml(c.fk_no_expediente)})
+        </option>
+      `).join('');
+    if (prevVal) selectMap.value = prevVal;
+  }
+}
+
+function actualizarIndicadorMapa(cita) {
+  const ind = document.getElementById('mapa-paciente-indicador');
+  if (ind && cita) {
+    ind.innerHTML = `Paciente activo: <strong>${escapeHtml(cita.paciente_nombre)}</strong> (Exp: #${escapeHtml(cita.fk_no_expediente)} · Consulta: <code>${escapeHtml(cita.Consulta_id)}</code>)`;
   }
 }
 
@@ -152,6 +241,7 @@ function renderTablaAgendaPersonal(citas) {
       'En espera': 'badge-atencion',
       'En atención': 'badge-atencion',
       'Finalizada': 'badge-finalizada',
+      'Completada': 'badge-finalizada',
       'Cancelada': 'badge-cancelada'
     }[c.estado] || 'badge-programada';
 
@@ -201,7 +291,7 @@ function actualizarKPIsAgendaPersonal(citas) {
   if (kpiTotal) kpiTotal.textContent = citas.length;
   if (kpiEspera) kpiEspera.textContent = citas.filter(c => c.estado === 'Programada' || c.estado === 'En espera').length;
   if (kpiAtencion) kpiAtencion.textContent = citas.filter(c => c.estado === 'En atención').length;
-  if (kpiFin) kpiFin.textContent = citas.filter(c => c.estado === 'Finalizada').length;
+  if (kpiFin) kpiFin.textContent = citas.filter(c => c.estado === 'Finalizada' || c.estado === 'Completada').length;
 }
 
 function configurarEventosAgendaPersonal() {
@@ -235,6 +325,12 @@ window.iniciarAtencionConsulta = async (consultaId) => {
   if (!cita) return;
 
   consultaActiva = cita;
+
+  const selectExp = document.getElementById('select-paciente-agenda-expediente');
+  const selectMap = document.getElementById('select-paciente-agenda-mapa');
+  if (selectExp) selectExp.value = String(cita.fk_no_expediente);
+  if (selectMap) selectMap.value = String(cita.Consulta_id);
+  actualizarIndicadorMapa(cita);
 
   // Cambiar estado a 'En atención' si estaba programada
   if (cita.estado === 'Programada' || cita.estado === 'En espera') {
@@ -359,6 +455,11 @@ async function cargarExpedientePaciente(expediente) {
   document.getElementById('ant-patologicos').value = pacienteActivo.Antecedentes_patologicos || '';
   document.getElementById('ant-notas').value = pacienteActivo.Notas || '';
 
+  const selectExp = document.getElementById('select-paciente-agenda-expediente');
+  if (selectExp && expediente) {
+    selectExp.value = String(expediente);
+  }
+
   // Cargar tablas secundarias de la consulta activa
   if (consultaActiva) {
     await Promise.all([
@@ -382,10 +483,49 @@ window.toggleAcordeon = (headerEl) => {
 };
 
 function configurarEventosExpediente() {
+  // Selector rápido de paciente de mi agenda
+  document.getElementById('select-paciente-agenda-expediente')?.addEventListener('change', async (e) => {
+    const exp = e.target.value;
+    if (exp) {
+      const cita = misCitasCache.find(c => String(c.fk_no_expediente) === String(exp));
+      if (cita) {
+        consultaActiva = cita;
+        const selectMap = document.getElementById('select-paciente-agenda-mapa');
+        if (selectMap) selectMap.value = cita.Consulta_id;
+        actualizarIndicadorMapa(cita);
+        await cargarMapaConsulta(cita.Consulta_id);
+      }
+      await cargarExpedientePaciente(exp);
+    }
+  });
+
+  // Selector en Mapa Podológico
+  document.getElementById('select-paciente-agenda-mapa')?.addEventListener('change', async (e) => {
+    const consultaId = e.target.value;
+    if (consultaId) {
+      const cita = misCitasCache.find(c => String(c.Consulta_id) === String(consultaId));
+      if (cita) {
+        consultaActiva = cita;
+        actualizarIndicadorMapa(cita);
+        const selectExp = document.getElementById('select-paciente-agenda-expediente');
+        if (selectExp) selectExp.value = String(cita.fk_no_expediente);
+        await cargarMapaConsulta(consultaId);
+        await cargarExpedientePaciente(cita.fk_no_expediente);
+      }
+    }
+  });
+
   // Búsqueda manual de expediente
   document.getElementById('btn-cargar-expediente-manual')?.addEventListener('click', () => {
     const exp = document.getElementById('input-buscar-expediente').value;
     if (exp) cargarExpedientePaciente(exp);
+  });
+
+  document.getElementById('input-buscar-expediente')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      const exp = document.getElementById('input-buscar-expediente').value;
+      if (exp) cargarExpedientePaciente(exp);
+    }
   });
 
   // Guardar Somatometría
@@ -884,8 +1024,13 @@ function configurarMapaPodologicoInteractivo() {
     e.preventDefault();
 
     if (!consultaActiva) {
-      AppAuth.showToast('Primero debes iniciar o seleccionar una consulta activa en la Agenda', 'warning');
-      return;
+      if (misCitasCache.length > 0) {
+        consultaActiva = misCitasCache[0];
+        actualizarIndicadorMapa(consultaActiva);
+      } else {
+        AppAuth.showToast('Primero debes seleccionar un paciente o consulta activa en el selector superior', 'warning');
+        return;
+      }
     }
 
     const zonaPie = document.getElementById('mapa-zona-pie-valor').value;

@@ -44,17 +44,12 @@
           </div>
         </div>
 
-        <!-- Botón para alternar a Administración (Rol Admin) -->
-        <a href="/admin.html" class="role-switch-btn" title="Ir al Panel de Administración">
-          <i class="fa-solid fa-shield-halved" style="color: #6366f1;"></i>
-          <span>Panel Admin</span>
+        <!-- Botón para ir al portal web de la clínica -->
+        <a href="/" class="role-switch-btn" title="Ir al Portal de la Clínica">
+          <i class="fa-solid fa-globe" style="color: #0d9488;"></i>
+          <span>Portal Clínica</span>
         </a>
-
-        <!-- Botón para alternar a Recepción (Rol Recepcionista) -->
-        <a href="/recepcion.html" class="role-switch-btn" title="Ir a la interfaz de Recepción">
-          <i class="fa-solid fa-calendar-days" style="color: #2563eb;"></i>
-          <span>Recepción</span>
-        </a>
+        <span data-rol-permitido="admin" style="display: none;" aria-hidden="true"></span>
 
         <!-- Botón Cerrar Sesión -->
         <button type="button" class="role-switch-btn btn-logout" onclick="AppAuth.logout()" title="Cerrar Sesión Segura">
@@ -78,7 +73,7 @@
         <i class="fa-solid fa-shoe-prints"></i>
         <span>Mapa Podológico Interactivo</span>
       </button>
-      <button class="nav-tab-btn" data-tab="tab-seguridad-podo" id="tab-btn-seguridad">
+      <button class="nav-tab-btn" data-tab="tab-seguridad-podo" id="tab-btn-seguridad" style="display: none !important;">
         <i class="fa-solid fa-shield-halved"></i>
         <span>Auditoría de Seguridad RBAC</span>
       </button>
@@ -130,8 +125,8 @@
         
         <!-- Showroom Header -->
         <div class="admin-showroom-header">
-          <h1 class="admin-showroom-title">Agenda Personal del Especialista</h1>
-          <p class="admin-showroom-sub">
+          <h1 class="admin-showroom-title" id="podo-greeting-title">Agenda Personal del Especialista</h1>
+          <p class="admin-showroom-sub" id="podo-greeting-subtitle">
             Citas asignadas a tu cédula profesional, control de turnos en consultorio e inicio de atención clínica.
           </p>
         </div>
@@ -258,10 +253,19 @@
           </div>
         </div>
 
-        <div class="admin-toolbar">
-          <div style="display: flex; align-items: center; gap: 12px; flex: 1; flex-wrap: wrap;">
-            <label class="form-label" style="margin-bottom: 0;">Buscar Expediente:</label>
-            <input type="number" id="input-buscar-expediente" class="form-control" placeholder="Número de Expediente (ej. 2026101101)" style="max-width: 320px;">
+        <div class="admin-toolbar" style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 280px;">
+            <label class="form-label" style="margin-bottom: 0; font-weight: 600; white-space: nowrap;">
+              <i class="fa-solid fa-user-check" style="color: #0d9488;"></i> Paciente de mi Agenda:
+            </label>
+            <select id="select-paciente-agenda-expediente" class="form-select" style="max-width: 360px;">
+              <option value="">-- Seleccionar paciente de mi agenda --</option>
+            </select>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 280px;">
+            <label class="form-label" style="margin-bottom: 0; white-space: nowrap;">O buscar No. Exp:</label>
+            <input type="number" id="input-buscar-expediente" class="form-control" placeholder="Número de Expediente (ej. 2025350001)" style="max-width: 240px;">
             <button id="btn-cargar-expediente-manual" class="btn btn-secondary">
               <i class="fa-solid fa-magnifying-glass"></i> Cargar Ficha
             </button>
@@ -569,6 +573,16 @@
           </p>
         </div>
 
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px; background: #ffffff; padding: 12px 18px; border-radius: 14px; border: 1px solid #e2e8f0; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+          <label class="form-label" style="margin-bottom: 0; font-weight: 600; white-space: nowrap;">
+            <i class="fa-solid fa-user-doctor" style="color: #7c3aed;"></i> Paciente a Explorar:
+          </label>
+          <select id="select-paciente-agenda-mapa" class="form-select" style="max-width: 360px;">
+            <option value="">-- Seleccionar paciente de mi agenda --</option>
+          </select>
+          <span id="mapa-paciente-indicador" style="font-size: 0.88rem; color: #64748b; font-weight: 500;"></span>
+        </div>
+
         <div class="foot-map-container">
           <!-- Tablero del Mapa Anatómico -->
           <div class="foot-map-board">
@@ -726,9 +740,9 @@
       </section>
 
       <!-- =====================================================================
-           PESTAÑA 4: AUDITORÍA DE SEGURIDAD RBAC (Validación en Vivo)
+           PESTAÑA 4: AUDITORÍA DE SEGURIDAD RBAC (OCULTA EN UI)
            ===================================================================== -->
-      <section id="tab-seguridad-podo" class="tab-pane">
+      <section id="tab-seguridad-podo" class="tab-pane" style="display: none !important;">
         <div class="card">
           <div class="card-header">
             <div>

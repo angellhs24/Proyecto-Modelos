@@ -875,8 +875,11 @@
 
         if (result.ok && result.usuario) {
           const u = result.usuario;
-          showToast(`Acceso verificado. Bienvenido(a) ${u.perfil?.Nombre || u.email}.`);
-          setTimeout(() => AppAuth.redirectByRole(u), 500);
+          const nombre = u.nombre || u.Nombre || u.perfil?.Nombre || '';
+          const titulo = u.titulo || ((nombre.toLowerCase().startsWith('kiara') || nombre.toLowerCase().startsWith('maribel') || nombre.toLowerCase().startsWith('jacqueline')) ? 'Dra.' : (nombre ? 'Dr.' : ''));
+          const saludo = nombre ? `${titulo ? titulo + ' ' : ''}${nombre}`.trim() : u.email;
+          showToast(`¡Hola, ${saludo}! Acceso concedido.`);
+          setTimeout(() => AppAuth.redirectByRole(u), 600);
         } else {
           loginErrorText.textContent = result.error || 'Credenciales no autorizadas.';
           loginError.classList.add('active');

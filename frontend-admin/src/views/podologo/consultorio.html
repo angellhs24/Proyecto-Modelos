@@ -41,17 +41,12 @@
           </div>
         </div>
 
-        <!-- Botón para alternar a Administración (Rol Admin) -->
-        <a href="/admin.html" class="role-switch-btn" title="Ir al Panel de Administración">
-          <i class="fa-solid fa-shield-halved" style="color: #38bdf8;"></i>
-          <span>Panel Admin</span>
+        <!-- Botón para ir al portal web de la clínica -->
+        <a href="/" class="role-switch-btn portal-btn" title="Ir al Portal de la Clínica">
+          <i class="fa-solid fa-globe" style="color: #0d9488;"></i>
+          <span>Portal Clínica</span>
         </a>
-
-        <!-- Botón para alternar a Recepción (Rol Recepcionista) -->
-        <a href="/recepcion.html" class="role-switch-btn" title="Ir a la interfaz de Recepción">
-          <i class="fa-solid fa-cash-register"></i>
-          <span>Recepción Clínica</span>
-        </a>
+        <span data-rol-permitido="admin" style="display: none;" aria-hidden="true"></span>
 
         <!-- Botón Cerrar Sesión -->
         <button type="button" class="role-switch-btn btn-logout" onclick="AppAuth.logout()" title="Cerrar Sesión Segura" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5;">
@@ -75,7 +70,7 @@
         <i class="fa-solid fa-shoe-prints"></i>
         <span>Mapa Podológico Interactivo</span>
       </button>
-      <button class="nav-tab-btn accent" data-tab="tab-seguridad-podo" id="tab-btn-seguridad">
+      <button class="nav-tab-btn accent" data-tab="tab-seguridad-podo" id="tab-btn-seguridad" style="display: none !important;">
         <i class="fa-solid fa-shield-halved"></i>
         <span>Auditoría de Seguridad RBAC</span>
       </button>
