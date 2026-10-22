@@ -708,56 +708,70 @@ const obtenerPacientesAdmin = async (req, res) => {
 
 const actualizarPacienteAdmin = async (req, res) => {
   const { no_expediente } = req.params;
-  const {
-    Nombres,
-    ape_paterno,
-    ape_materno,
-    telefono,
-    Fecha_nacimiento,
-    Sexo,
-    Calzado,
-    Calle_direccion,
-    Municipio,
-    Ocupacion,
-    es_diabetico,
-    es_hipertenso,
-    Antecedentes_patologicos,
-    Notas
-  } = req.body;
+
+  const nombres = req.body.Nombres || req.body.nombres;
+  const apePaterno = req.body.ape_paterno || req.body.apePaterno;
+  const apeMaterno = req.body.ape_materno !== undefined ? req.body.ape_materno : req.body.apeMaterno;
+  const telefono = req.body.telefono;
+  const fechaNac = req.body.Fecha_nacimiento || req.body.fecha_nacimiento || req.body.fechaNacimiento;
+  const sexo = req.body.Sexo || req.body.sexo;
+  const calzado = req.body.Calzado !== undefined ? req.body.Calzado : req.body.calzado;
+  const calle = req.body.Calle_direccion !== undefined ? req.body.Calle_direccion : (req.body.calle_direccion !== undefined ? req.body.calle_direccion : req.body.direccion);
+  const mun = req.body.Municipio !== undefined ? req.body.Municipio : req.body.municipio;
+  const ocupacion = req.body.Ocupacion !== undefined ? req.body.Ocupacion : req.body.ocupacion;
+  const antPat = req.body.Antecedentes_patologicos !== undefined ? req.body.Antecedentes_patologicos : req.body.antecedentes_patologicos;
+  const notas = req.body.Notas !== undefined ? req.body.Notas : (req.body.notas !== undefined ? req.body.notas : req.body.notas_alergias);
+
+  function parseBooleanLike(val) {
+    if (val === null || val === undefined) return null;
+    if (typeof val === 'boolean') return val ? 1 : 0;
+    if (typeof val === 'number') return val === 1 ? 1 : 0;
+    if (typeof val === 'string') {
+      const str = val.trim().toLowerCase();
+      return (str === '1' || str === 'true' || str === 'si' || str === 's' || str === 't') ? 1 : 0;
+    }
+    return Boolean(val) ? 1 : 0;
+  }
+
+  const rawDiab = req.body.es_diabetico !== undefined ? req.body.es_diabetico : (req.body.Es_diabetico !== undefined ? req.body.Es_diabetico : req.body.esDiabetico);
+  const rawHiper = req.body.es_hipertenso !== undefined ? req.body.es_hipertenso : (req.body.Es_hipertenso !== undefined ? req.body.Es_hipertenso : req.body.esHipertenso);
+
+  const diabVal = parseBooleanLike(rawDiab);
+  const hiperVal = parseBooleanLike(rawHiper);
 
   try {
     await db.pool.query(
       `UPDATE Pacientes
        SET Nombres = COALESCE(?, Nombres),
            ape_paterno = COALESCE(?, ape_paterno),
-           ape_materno = ?,
+           ape_materno = COALESCE(?, ape_materno),
            telefono = COALESCE(?, telefono),
-           Fecha_nacimiento = ?,
+           Fecha_nacimiento = COALESCE(?, Fecha_nacimiento),
            Sexo = COALESCE(?, Sexo),
-           Calzado = ?,
-           Calle_direccion = ?,
-           Municipio = ?,
-           Ocupacion = ?,
-           es_diabetico = ?,
-           es_hipertenso = ?,
-           Antecedentes_patologicos = ?,
-           Notas = ?
+           Calzado = COALESCE(?, Calzado),
+           Calle_direccion = COALESCE(?, Calle_direccion),
+           Municipio = COALESCE(?, Municipio),
+           Ocupacion = COALESCE(?, Ocupacion),
+           es_diabetico = COALESCE(?, es_diabetico),
+           es_hipertenso = COALESCE(?, es_hipertenso),
+           Antecedentes_patologicos = COALESCE(?, Antecedentes_patologicos),
+           Notas = COALESCE(?, Notas)
        WHERE No_expediente = ?`,
       [
-        Nombres,
-        ape_paterno,
-        ape_materno || null,
-        telefono,
-        Fecha_nacimiento || null,
-        Sexo,
-        Calzado ? parseFloat(Calzado) : null,
-        Calle_direccion || null,
-        Municipio || null,
-        Ocupacion || null,
-        es_diabetico ? 1 : 0,
-        es_hipertenso ? 1 : 0,
-        Antecedentes_patologicos || null,
-        Notas || null,
+        nombres || null,
+        apePaterno || null,
+        apeMaterno !== undefined ? apeMaterno : null,
+        telefono || null,
+        fechaNac || null,
+        sexo || null,
+        calzado !== undefined && calzado !== null ? parseFloat(calzado) : null,
+        calle || null,
+        mun || null,
+        ocupacion || null,
+        diabVal,
+        hiperVal,
+        antPat || null,
+        notas || null,
         no_expediente
       ]
     );

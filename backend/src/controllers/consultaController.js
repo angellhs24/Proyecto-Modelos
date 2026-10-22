@@ -357,13 +357,28 @@ const crearConsulta = async (req, res) => {
     const apePaterno = req.body.ape_paterno || req.body.apellidos || parsed.apePaterno || 'Sin Apellido';
     const apeMaterno = req.body.ape_materno !== undefined ? req.body.ape_materno : (parsed.apeMaterno || null);
     const tel = req.body.telefono || req.body.paciente_telefono || null;
-    const fechaNac = req.body.Fecha_nacimiento || req.body.fecha_nacimiento || null;
-    const calle = req.body.Calle_direccion || req.body.calle_direccion || null;
-    const mun = req.body.Municipio || req.body.municipio || null;
+    const fechaNac = req.body.Fecha_nacimiento || req.body.fecha_nacimiento || req.body.fechaNacimiento || null;
+    const calle = req.body.Calle_direccion || req.body.calle_direccion || req.body.direccion || req.body.calle || req.body.domicilio || null;
+    const mun = req.body.Municipio || req.body.municipio || req.body.ciudad || req.body.Ciudad || 'Tecámac';
     const ocup = req.body.Ocupacion || req.body.ocupacion || null;
     const antPat = req.body.Antecedentes_patologicos || req.body.antecedentes_patologicos || null;
-    const diab = req.body.es_diabetico ? 1 : 0;
-    const hiper = req.body.es_hipertenso ? 1 : 0;
+
+    function parseBoolOrZero(val) {
+      if (val === null || val === undefined) return 0;
+      if (typeof val === 'boolean') return val ? 1 : 0;
+      if (typeof val === 'number') return val === 1 ? 1 : 0;
+      if (typeof val === 'string') {
+        const s = val.trim().toLowerCase();
+        return (s === '1' || s === 'true' || s === 'si' || s === 's' || s === 't') ? 1 : 0;
+      }
+      return 0;
+    }
+
+    const rawDiab = req.body.es_diabetico !== undefined ? req.body.es_diabetico : (req.body.Es_diabetico !== undefined ? req.body.Es_diabetico : req.body.esDiabetico);
+    const rawHiper = req.body.es_hipertenso !== undefined ? req.body.es_hipertenso : (req.body.Es_hipertenso !== undefined ? req.body.Es_hipertenso : req.body.esHipertenso);
+
+    const diab = parseBoolOrZero(rawDiab);
+    const hiper = parseBoolOrZero(rawHiper);
     const notas = req.body.Notas || req.body.notas || req.body.motivo || req.body.notas_alergias || null;
     const sexoRaw = req.body.sexo || req.body.Sexo || null;
     const sexoChar = sexoRaw ? (String(sexoRaw).trim().toUpperCase().startsWith('M') ? 'M' : (String(sexoRaw).trim().toUpperCase().startsWith('F') ? 'F' : 'O')) : null;

@@ -461,7 +461,7 @@ async function buscarExpediente(expedienteDirecto) {
   );
 
   // Si no está en memoria local o faltan datos, consultar directamente al backend MySQL
-  if (!paciente || !paciente.Calle_direccion) {
+  if (!paciente || (!paciente.Calle_direccion && !paciente.calle_direccion)) {
     try {
       let res = await fetch(`${API_BASE_URL}/pacientes/${encodeURIComponent(query)}`);
       if (res.ok) {
@@ -555,7 +555,7 @@ async function buscarExpedienteConsulta(expedienteDirecto) {
   );
 
   // Si no está en memoria local o faltan datos, buscar en MySQL por endpoint exacto o por búsqueda
-  if (!paciente || !paciente.Calle_direccion) {
+  if (!paciente || (!paciente.Calle_direccion && !paciente.calle_direccion)) {
     try {
       let res = await fetch(`${API_BASE_URL}/pacientes/${encodeURIComponent(query)}`);
       if (res.ok) {

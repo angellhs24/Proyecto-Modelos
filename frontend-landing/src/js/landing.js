@@ -356,6 +356,16 @@ function configurarInputsReactivos() {
     bookingState.esHipertenso = e.target.checked;
   });
 
+  const inputDir = document.getElementById('booking-direccion');
+  inputDir?.addEventListener('input', (e) => {
+    bookingState.direccion = e.target.value.trim();
+  });
+
+  const inputMun = document.getElementById('booking-municipio');
+  inputMun?.addEventListener('input', (e) => {
+    bookingState.municipio = e.target.value.trim();
+  });
+
   // Enter en búsqueda de expediente
   const inputExp = document.getElementById('booking-input-expediente');
   inputExp?.addEventListener('keydown', (e) => {
@@ -931,6 +941,8 @@ async function buscarExpedientePaciente() {
   bookingState.telefono = '';
   bookingState.fechaNacimiento = '';
   bookingState.edadCalculada = null;
+  bookingState.direccion = '';
+  bookingState.municipio = 'Tecámac';
   bookingState.esDiabetico = false;
   bookingState.esHipertenso = false;
 
@@ -939,27 +951,59 @@ async function buscarExpedientePaciente() {
     if (res.ok) {
       const p = await res.json();
       bookingState.pacienteEncontrado = true;
-      bookingState.expediente = p.No_expediente || termino;
+      bookingState.expediente = p.No_expediente || p.expediente || termino;
 
       // Autocompletar datos del paciente
-      if (inputNombres) inputNombres.value = p.Nombres || '';
-      if (inputApePaterno) inputApePaterno.value = p.ape_paterno || '';
-      if (inputApeMaterno) inputApeMaterno.value = p.ape_materno || '';
-      const nomCompleto = p.nombre_completo || `${p.Nombres || ''} ${p.ape_paterno || ''} ${p.ape_materno || ''}`.trim();
+      if (inputNombres) inputNombres.value = p.Nombres || p.nombres || '';
+      if (inputApePaterno) inputApePaterno.value = p.ape_paterno || p.apePaterno || p.apellidos || '';
+      if (inputApeMaterno) inputApeMaterno.value = p.ape_materno || p.apeMaterno || '';
+      const nomCompleto = p.nombre_completo || `${p.Nombres || p.nombres || ''} ${p.ape_paterno || p.apePaterno || ''} ${p.ape_materno || p.apeMaterno || ''}`.trim();
       if (inputNombre) inputNombre.value = nomCompleto;
       if (inputTel) inputTel.value = p.telefono || '';
-      if (inputDir) inputDir.value = p.Calle_direccion || p.direccion || '';
-      if (inputMun) inputMun.value = p.Municipio || p.municipio || 'Tecámac';
 
-      bookingState.nombres = p.Nombres || '';
-      bookingState.apePaterno = p.ape_paterno || '';
-      bookingState.apeMaterno = p.ape_materno || '';
+      // CALLE / DIRECCIÓN (Soporta calle_direccion, Calle_direccion, direccion, calle, domicilio)
+      const dirVal = p.calle_direccion || p.Calle_direccion || p.direccion || p.calle || p.domicilio || '';
+      if (inputDir) inputDir.value = dirVal;
+      bookingState.direccion = dirVal;
+
+      // MUNICIPIO (Soporta Municipio, municipio, ciudad, Ciudad, alcaldia, Alcaldia)
+      const munVal = p.Municipio || p.municipio || p.ciudad || p.Ciudad || p.alcaldia || p.Alcaldia || 'Tecámac';
+      if (inputMun) inputMun.value = munVal;
+      bookingState.municipio = munVal;
+
+      bookingState.nombres = p.Nombres || p.nombres || '';
+      bookingState.apePaterno = p.ape_paterno || p.apePaterno || '';
+      bookingState.apeMaterno = p.ape_materno || p.apeMaterno || '';
       bookingState.nombre = nomCompleto;
       bookingState.telefono = p.telefono || '';
 
       // FECHA DE NACIMIENTO Y EDAD CALCULADA
-      if (p.Fecha_nacimiento) {
-        const fechaNacFormatted = String(p.Fecha_nacimiento).split('T')[0].trim();
+      const rawFechaNac = p.fecha_nacimiento || p.Fecha_nacimiento || p.fechaNacimiento || null;
+      if (rawFechaNac) {
+        let fechaNacFormatted = '';
+        if (rawFechaNac instanceof Date) {
+          const y = rawFechaNac.getFullYear();
+          const m = String(rawFechaNac.getMonth() + 1).padStart(2, '0');
+          const d = String(rawFechaNac.getDate()).padStart(2, '0');
+          fechaNacFormatted = `${y}-${m}-${d}`;
+        } else {
+          const s = String(rawFechaNac).trim();
+          if (s.includes('T')) {
+            fechaNacFormatted = s.split('T')[0].trim();
+          } else if (s.includes('/')) {
+            const parts = s.split('/');
+            if (parts.length === 3) {
+              if (parts[0].length === 4) {
+                fechaNacFormatted = `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+              } else if (parts[2].length === 4) {
+                fechaNacFormatted = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+              }
+            }
+          } else {
+            fechaNacFormatted = s.slice(0, 10);
+          }
+        }
+
         if (inputFechaNac) {
           inputFechaNac.value = fechaNacFormatted;
         }
@@ -978,8 +1022,9 @@ async function buscarExpedientePaciente() {
 
       // SEXO CLÍNICO
       let sexoDetectado = 'Femenino';
-      if (p.Sexo) {
-        const sRaw = String(p.Sexo).trim().toUpperCase();
+      const rawSexo = p.Sexo || p.sexo;
+      if (rawSexo) {
+        const sRaw = String(rawSexo).trim().toUpperCase();
         if (sRaw === 'M' || sRaw.startsWith('MASC') || sRaw === 'H' || sRaw.startsWith('HOMB')) {
           sexoDetectado = 'Masculino';
         } else if (sRaw === 'F' || sRaw.startsWith('FEM') || sRaw.startsWith('MUJ')) {
@@ -991,8 +1036,25 @@ async function buscarExpedientePaciente() {
       seleccionarSexo(sexoDetectado);
 
       // ALERTAS MÉDICAS (DIABÉTICO / HIPERTENSO)
-      const isDiab = Boolean(p.es_diabetico === 1 || p.es_diabetico === '1' || p.es_diabetico === true);
-      const isHiper = Boolean(p.es_hipertenso === 1 || p.es_hipertenso === '1' || p.es_hipertenso === true);
+      function parseBooleanLike(val) {
+        if (val === null || val === undefined) return false;
+        if (typeof val === 'boolean') return val;
+        if (typeof val === 'number') return val === 1;
+        if (typeof val === 'string') {
+          const s = val.trim().toLowerCase();
+          return s === '1' || s === 'true' || s === 'si' || s === 's' || s === 't';
+        }
+        if (typeof val === 'object' && val.type === 'Buffer' && Array.isArray(val.data)) {
+          return val.data.length > 0 && val.data[0] === 1;
+        }
+        return false;
+      }
+
+      const rawDiab = p.es_diabetico !== undefined ? p.es_diabetico : (p.Es_diabetico !== undefined ? p.Es_diabetico : (p.esDiabetico !== undefined ? p.esDiabetico : p.diabetico));
+      const rawHiper = p.es_hipertenso !== undefined ? p.es_hipertenso : (p.Es_hipertenso !== undefined ? p.Es_hipertenso : (p.esHipertenso !== undefined ? p.esHipertenso : p.hipertenso));
+
+      const isDiab = parseBooleanLike(rawDiab);
+      const isHiper = parseBooleanLike(rawHiper);
 
       if (checkDiab) checkDiab.checked = isDiab;
       if (checkHiper) checkHiper.checked = isHiper;
@@ -1039,6 +1101,8 @@ function resetearFormularioPaciente() {
   bookingState.telefono = '';
   bookingState.fechaNacimiento = '';
   bookingState.edadCalculada = null;
+  bookingState.direccion = '';
+  bookingState.municipio = 'Tecámac';
   bookingState.esDiabetico = false;
   bookingState.esHipertenso = false;
 

@@ -153,7 +153,8 @@ const obtenerPacienteContactoPorExpediente = async (req, res) => {
     const [rows] = await db.pool.query(
       `SELECT No_expediente, Nombres, ape_paterno, ape_materno,
               TRIM(CONCAT(Nombres, ' ', ape_paterno, ' ', COALESCE(ape_materno, ''))) AS nombre_completo,
-              telefono, Fecha_nacimiento, Sexo, Calle_direccion, Municipio, Ocupacion, Fecha_registro
+              telefono, Fecha_nacimiento, Sexo, Calle_direccion, Municipio, Ocupacion,
+              es_diabetico, es_hipertenso, Antecedentes_patologicos, Notas, Fecha_registro
        FROM Pacientes
        WHERE No_expediente = ?`,
       [expediente]
@@ -163,7 +164,29 @@ const obtenerPacienteContactoPorExpediente = async (req, res) => {
       return res.status(404).json({ error: 'Paciente no encontrado' });
     }
 
-    res.json(rows[0]);
+    const p = rows[0];
+    const rawFechaNac = p.Fecha_nacimiento || p.fecha_nacimiento || null;
+    const fechaNacFormatted = rawFechaNac ? String(rawFechaNac).split('T')[0].trim() : null;
+    const calleDir = p.Calle_direccion || p.calle_direccion || p.direccion || '';
+    const mun = p.Municipio || p.municipio || 'Tecámac';
+    const isDiab = Boolean(p.es_diabetico === 1 || p.es_diabetico === '1' || p.es_diabetico === true || p.es_diabetico === 'true');
+    const isHiper = Boolean(p.es_hipertenso === 1 || p.es_hipertenso === '1' || p.es_hipertenso === true || p.es_hipertenso === 'true');
+
+    res.json({
+      ...p,
+      expediente: p.No_expediente,
+      fecha_nacimiento: fechaNacFormatted,
+      Fecha_nacimiento: fechaNacFormatted,
+      calle_direccion: calleDir,
+      Calle_direccion: calleDir,
+      direccion: calleDir,
+      Municipio: mun,
+      municipio: mun,
+      es_diabetico: isDiab ? 1 : 0,
+      es_hipertenso: isHiper ? 1 : 0,
+      esDiabetico: isDiab,
+      esHipertenso: isHiper
+    });
   } catch (error) {
     console.error('Error al obtener paciente:', error);
     res.status(500).json({ error: 'Error al consultar el paciente' });
