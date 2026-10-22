@@ -253,29 +253,48 @@ CREATE TABLE IF NOT EXISTS Bitacora_Auditoria (
 -- 6. DATOS SEMILLA (SEED DATA)
 -- -------------------------------------------------------------
 
-INSERT INTO Roles (nombre_rol) VALUES 
-('Admin'), 
-('Cliente'), 
-('Recepcionista'), 
-('Podologo');
+INSERT INTO Roles (Rol_id, nombre_rol) VALUES 
+(1, 'Admin'), 
+(2, 'Cliente'), 
+(3, 'Recepcionista'), 
+(4, 'Podologo')
+ON DUPLICATE KEY UPDATE nombre_rol = VALUES(nombre_rol);
 
-INSERT INTO Usuarios (fk_rol_id, email, password_hash) VALUES 
-(1, 'admin@elitefoot.com', 'hash_simulado_admin123'),
-(2, 'cliente_juan@gmail.com', 'hash_simulado_cliente123'),
-(3, 'recepcion@elitefoot.com', 'hash_simulado_recep123'),
-(4, 'dr.perez@elitefoot.com', 'hash_simulado_podo123');
+INSERT INTO Clinicas (Clinica_id, Nombre, Calle_clinica, Municipio_clinica, Telefono, Activa) VALUES 
+(1, 'Elite Foot Care - Sucursal Centro', 'Av. Principal 123', 'Ecatepec', '5512345678', TRUE),
+(14, 'DIF Lomas de Tecámac', 'Av. Constitución', 'Tecámac', '5560229842', TRUE),
+(28, 'Casa Héroes Tecámac', 'Av. Felipe Villanueva', 'Tecámac', '5515311359', TRUE),
+(35, 'Casa Adulto Mayor Flores', 'Av. Las Flores', 'Tecámac', '5559388260', TRUE)
+ON DUPLICATE KEY UPDATE Nombre = VALUES(Nombre);
 
-INSERT INTO Clinicas (Nombre, Calle_clinica, Municipio_clinica, Telefono) VALUES 
-('Elite Foot Care - Sucursal Centro', 'Av. Principal 123', 'Ecatepec', '5512345678');
+INSERT INTO Usuarios (Usuario_id, fk_rol_id, email, password_hash, activo) VALUES 
+(1, 1, 'admin@elitefoot.com', '$2b$10$hPjW.1R83Fz3g3M5jV6cpe4B6g5KzX4bV5g3F.1R83Fz3g3M5jV6c', TRUE),
+(2, 2, 'cliente_juan@gmail.com', '$2b$10$C82a7X.1R83Fz3g3M5jV6cpe4B6g5KzX4bV5g3F.1R83Fz3g3M5jV', TRUE),
+(3, 3, 'recepcion@elitefoot.com', '$2b$10$R93b8Y.1R83Fz3g3M5jV6cpe4B6g5KzX4bV5g3F.1R83Fz3g3M5jV', TRUE),
+(4, 4, 'dr.perez@elitefoot.com', '$2b$10$dY8m1X.1R83Fz3g3M5jV6cpe4B6g5KzX4bV5g3F.1R83Fz3g3M5jV', TRUE),
+(5, 1, 'luisangelhs2610@gmail.com', '$2b$10$nNpC0bjghw40KIVFancI7.ejE1cc3KA9qYlNGgiZSL3Z3pzqyZ/BK', TRUE),
+(6, 3, 'kiarapink27@gmail.com', '$2b$10$/vaQVqW0EnXeL/mcNpkZJ.dxoQujtEABnFSONLdCLBm1zRxq9.0IG', TRUE),
+(7, 3, 'luiscudu59@gmail.com', '$2b$10$hqGnEle6bork7KhC9nEQke8AtKLLwGQYyP0l/D73jSkxgmJ7YYi3u', TRUE),
+(8, 3, 'sebastianpalaciosherra@gmail.com', '$2b$10$qqRJitZusUdioug3kigWsea2NeoVed9O6j6ByhpuXmZ5YH3JG4p4i', TRUE),
+(9, 3, 'camilavazquezvelazquez@gmail.com', '$2b$10$.1/L9AGtD0BWGYfghnjdN.2BXDuIzq9sbr3Jx3aJOy27m268vEAy2', TRUE)
+ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), activo = VALUES(activo);
 
-INSERT INTO Recepcionistas (fk_usuario_id, fk_clinica_id, Nombre, ape_paterno, Telefono) VALUES 
-(3, 1, 'María', 'López', '5587654321');
+INSERT INTO Recepcionistas (Recepcionista_id, fk_usuario_id, fk_clinica_id, Nombre, ape_paterno, Telefono) VALUES 
+(1, 3, 1, 'María', 'López', '5587654321'),
+(2, 6, 28, 'Kiara', 'Pink', '5511223344'),
+(3, 7, 14, 'Luis', 'Cudu', '5511223344'),
+(4, 8, 35, 'Sebastian', 'Palacios', '5511223344'),
+(5, 9, 28, 'Camila', 'Vázquez', '5511223344')
+ON DUPLICATE KEY UPDATE fk_clinica_id = VALUES(fk_clinica_id), Nombre = VALUES(Nombre);
 
 INSERT INTO Podologos (Cedula_podologo, fk_usuario_id, Nombre, ape_paterno, ape_materno, Telefono_pod) VALUES 
-('CED12345678', 4, 'Carlos', 'Pérez', 'García', '5599887766');
+('CED12345678', 4, 'Carlos', 'Pérez', 'García', '5599887766')
+ON DUPLICATE KEY UPDATE Nombre = VALUES(Nombre);
 
 INSERT INTO Pacientes (No_expediente, fk_usuario_id, Nombres, ape_paterno, ape_materno, Fecha_nacimiento, Sexo, Fecha_registro) VALUES 
-(2026101101, 2, 'Juan', 'Martínez', 'Hernández', '1985-05-15', 'M', CURDATE());
+(2026101101, 2, 'Juan', 'Martínez', 'Hernández', '1985-05-15', 'M', CURDATE())
+ON DUPLICATE KEY UPDATE Nombres = VALUES(Nombres);
 
 INSERT INTO Consultas (Consulta_id, fk_no_expediente, fk_clinica_id, fk_cedula_podologo, fecha_hora, estado, motivo_o_notas) VALUES 
-('CNS-001', 2026101101, 1, 'CED12345678', '2026-10-15 10:00:00', 'Programada', 'Dolor en uña del pie derecho');
+('CNS-001', 2026101101, 1, 'CED12345678', '2026-10-15 10:00:00', 'Programada', 'Dolor en uña del pie derecho')
+ON DUPLICATE KEY UPDATE estado = VALUES(estado);

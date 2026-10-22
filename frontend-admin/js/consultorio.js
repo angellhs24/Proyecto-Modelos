@@ -771,7 +771,7 @@ async function cargarRecetasConsulta(consultaId) {
   `;
 
   const res = await AppAuth.fetchApi(`/api/recetas/consulta/${consultaId}`);
-  
+
   // La API puede retornar un objeto directo de la receta o un array
   let recetas = [];
   if (res.ok && res.data) {

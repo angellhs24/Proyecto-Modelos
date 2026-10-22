@@ -85,22 +85,32 @@ function redirectByRole(usuario) {
 }
 
 /**
- * Limpiar sesión: Destruye la cookie HttpOnly en el backend y redirige al login
+ * Limpiar sesión: Destruye la cookie HttpOnly en el backend y limpia el almacenamiento local.
+ * Utiliza replace() para evitar que el usuario vuelva a ingresar con el botón "Atrás".
  */
 async function logout() {
+  try {
+    await fetch(`${getApiBaseUrl()}/api/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (err) {
+    console.warn('Advertencia al destruir cookie en /api/auth/logout:', err);
+  }
+
   try {
     await fetch(`${getApiBaseUrl()}/api/logout`, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' }
     });
-  } catch (err) {
-    console.warn('Advertencia al destruir cookie en /api/logout:', err);
-  }
+  } catch (e) {}
+
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(TOKEN_KEY);
   sessionStorage.clear();
-  window.location.href = 'login.html';
+  window.location.replace('login.html');
 }
 
 /**
@@ -288,6 +298,22 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 window.escapeHtml = escapeHtml;
+
+// Detección y bloqueo estricto de retroceso (bfcache / botón Atrás del navegador)
+if (typeof window !== 'undefined') {
+  window.addEventListener('pageshow', (event) => {
+    const isLoginPage = window.location.pathname.endsWith('login.html') || window.location.pathname.endsWith('/login');
+    if (!isLoginPage) {
+      const user = getCurrentUser();
+      // Si la página viene de la caché del navegador o no hay sesión en almacenamiento local
+      if (!user || event.persisted) {
+        if (!user) {
+          window.location.replace('login.html');
+        }
+      }
+    }
+  });
+}
 
 // Exportar globalmente para scripts Vanilla JS
 window.AppAuth = {

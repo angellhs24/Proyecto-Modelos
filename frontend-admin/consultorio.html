@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Elite Foot Care | Consultorio Podológico (Rol ID: 4)</title>
-  
+
   <!-- Tipografía Dialog: DM Sans & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
   <!-- Font Awesome Icons 6.5.2 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  
+
   <!-- Unified Clinical Design System -->
   <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/consultorio.css">
 </head>
+
 <body>
   <div class="app-container">
-    
+
     <!-- =========================================================================
          HEADER FLOATING PILL BAR (Showroom Clean Design)
          ========================================================================= -->
@@ -44,20 +48,9 @@
           </div>
         </div>
 
-        <!-- Botón para alternar a Administración (Rol Admin) -->
-        <a href="/admin.html" class="role-switch-btn" title="Ir al Panel de Administración">
-          <i class="fa-solid fa-shield-halved" style="color: #6366f1;"></i>
-          <span>Panel Admin</span>
-        </a>
-
-        <!-- Botón para alternar a Recepción (Rol Recepcionista) -->
-        <a href="/recepcion.html" class="role-switch-btn" title="Ir a la interfaz de Recepción">
-          <i class="fa-solid fa-calendar-days" style="color: #2563eb;"></i>
-          <span>Recepción</span>
-        </a>
-
         <!-- Botón Cerrar Sesión -->
-        <button type="button" class="role-switch-btn btn-logout" onclick="AppAuth.logout()" title="Cerrar Sesión Segura">
+        <button type="button" class="role-switch-btn btn-logout" onclick="AppAuth.logout()"
+          title="Cerrar Sesión Segura">
           <i class="fa-solid fa-arrow-right-from-bracket"></i>
           <span>Salir</span>
         </button>
@@ -127,7 +120,7 @@
            PESTAÑA 1: AGENDA PERSONAL DEL PODÓLOGO (Solo citas asignadas a su cédula)
            ===================================================================== -->
       <section id="tab-agenda-personal" class="tab-pane active">
-        
+
         <!-- Showroom Header -->
         <div class="admin-showroom-header">
           <h1 class="admin-showroom-title">Agenda Personal del Especialista</h1>
@@ -141,8 +134,10 @@
           <div class="security-alert-icon" style="color: #7c3aed;"><i class="fa-solid fa-user-doctor"></i></div>
           <div class="security-alert-content">
             <strong>Filtro Estricto de Agenda Personal (Rol ID: 4 · Podólogo):</strong>
-            Por aislamiento RBAC, solo se muestran las consultas médicas donde el campo <code>fk_cedula_podologo</code> coincide 
-            con la cédula del podólogo autenticado (<strong id="cedula-sesion-indicador">CED12345678</strong>). No es posible visualizar citas de otros especialistas.
+            Por aislamiento RBAC, solo se muestran las consultas médicas donde el campo <code>fk_cedula_podologo</code>
+            coincide
+            con la cédula del podólogo autenticado (<strong id="cedula-sesion-indicador">CED12345678</strong>). No es
+            posible visualizar citas de otros especialistas.
           </div>
         </div>
 
@@ -248,12 +243,12 @@
            PESTAÑA 2: EXPEDIENTE CLÍNICO
            ===================================================================== -->
       <section id="tab-expediente" class="tab-pane">
-        
+
         <div id="sin-paciente-alerta" class="security-alert-box warning" style="margin-bottom: 24px;">
           <div class="security-alert-icon"><i class="fa-solid fa-circle-exclamation" style="color: #f59e0b;"></i></div>
           <div class="security-alert-content">
             <strong>Selecciona un paciente en la Agenda Personal:</strong>
-            Para revisar o registrar notas clínicas, diagnósticos o recetas, haz clic en el botón 
+            Para revisar o registrar notas clínicas, diagnósticos o recetas, haz clic en el botón
             <strong>"Atender Paciente"</strong> en la Agenda Personal, o busca un expediente a continuación.
           </div>
         </div>
@@ -261,7 +256,8 @@
         <div class="admin-toolbar">
           <div style="display: flex; align-items: center; gap: 12px; flex: 1; flex-wrap: wrap;">
             <label class="form-label" style="margin-bottom: 0;">Buscar Expediente:</label>
-            <input type="number" id="input-buscar-expediente" class="form-control" placeholder="Número de Expediente (ej. 2026101101)" style="max-width: 320px;">
+            <input type="number" id="input-buscar-expediente" class="form-control"
+              placeholder="Número de Expediente (ej. 2026101101)" style="max-width: 320px;">
             <button id="btn-cargar-expediente-manual" class="btn btn-secondary">
               <i class="fa-solid fa-magnifying-glass"></i> Cargar Ficha
             </button>
@@ -272,7 +268,8 @@
           <!-- 1. Acordeón: Somatometría y Exploración Física -->
           <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAcordeon(this)">
-              <h3><i class="fa-solid fa-weight-scale" style="color: #2563eb;"></i> Somatometría y Biomecánica de la Consulta</h3>
+              <h3><i class="fa-solid fa-weight-scale" style="color: #2563eb;"></i> Somatometría y Biomecánica de la
+                Consulta</h3>
               <i class="fa-solid fa-chevron-down"></i>
             </div>
             <div class="accordion-body">
@@ -311,7 +308,8 @@
 
                 <div class="form-group">
                   <label class="form-label">Observaciones Físicas y Biomecánicas</label>
-                  <textarea id="exp-observaciones" class="form-control" rows="3" placeholder="Hiperlaxitud, puntos dolorosos a la palpación de la fascia, apoyo plantar asimétrico..."></textarea>
+                  <textarea id="exp-observaciones" class="form-control" rows="3"
+                    placeholder="Hiperlaxitud, puntos dolorosos a la palpación de la fascia, apoyo plantar asimétrico..."></textarea>
                 </div>
 
                 <button type="submit" class="btn btn-primary">
@@ -324,21 +322,26 @@
           <!-- 2. Acordeón: Antecedentes Clínicos del Paciente -->
           <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAcordeon(this)">
-              <h3><i class="fa-solid fa-heart-pulse" style="color: #ef4444;"></i> Antecedentes Patológicos del Paciente</h3>
+              <h3><i class="fa-solid fa-heart-pulse" style="color: #ef4444;"></i> Antecedentes Patológicos del Paciente
+              </h3>
               <i class="fa-solid fa-chevron-down"></i>
             </div>
             <div class="accordion-body">
               <form id="form-antecedentes-paciente">
                 <div class="form-grid-2" style="margin-bottom: 16px;">
-                  <div style="display: flex; align-items: center; gap: 10px; background: #fef2f2; border: 1px solid rgba(239, 68, 68, 0.25); padding: 14px 16px; border-radius: var(--radius-cardinner);">
+                  <div
+                    style="display: flex; align-items: center; gap: 10px; background: #fef2f2; border: 1px solid rgba(239, 68, 68, 0.25); padding: 14px 16px; border-radius: var(--radius-cardinner);">
                     <input type="checkbox" id="ant-diabetico" style="width: 18px; height: 18px;">
-                    <label for="ant-diabetico" style="font-weight: 600; color: #991b1b; cursor: pointer; font-size: 0.9rem;">
+                    <label for="ant-diabetico"
+                      style="font-weight: 600; color: #991b1b; cursor: pointer; font-size: 0.9rem;">
                       <i class="fa-solid fa-triangle-exclamation"></i> Paciente Diabético (Riesgo de Pie Diabético)
                     </label>
                   </div>
-                  <div style="display: flex; align-items: center; gap: 10px; background: #fffbeb; border: 1px solid rgba(245, 158, 11, 0.25); padding: 14px 16px; border-radius: var(--radius-cardinner);">
+                  <div
+                    style="display: flex; align-items: center; gap: 10px; background: #fffbeb; border: 1px solid rgba(245, 158, 11, 0.25); padding: 14px 16px; border-radius: var(--radius-cardinner);">
                     <input type="checkbox" id="ant-hipertenso" style="width: 18px; height: 18px;">
-                    <label for="ant-hipertenso" style="font-weight: 600; color: #92400e; cursor: pointer; font-size: 0.9rem;">
+                    <label for="ant-hipertenso"
+                      style="font-weight: 600; color: #92400e; cursor: pointer; font-size: 0.9rem;">
                       <i class="fa-solid fa-heart-pulse"></i> Paciente Hipertenso
                     </label>
                   </div>
@@ -351,13 +354,15 @@
                   </div>
                   <div class="form-group">
                     <label class="form-label">Antecedentes Patológicos y Alergias</label>
-                    <textarea id="ant-patologicos" class="form-control" rows="2" placeholder="Alergias a medicamentos tópicos, neuropatías previas, problemas circulatorios..."></textarea>
+                    <textarea id="ant-patologicos" class="form-control" rows="2"
+                      placeholder="Alergias a medicamentos tópicos, neuropatías previas, problemas circulatorios..."></textarea>
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label class="form-label">Notas Clínicas Confidenciales del Especialista</label>
-                  <textarea id="ant-notas" class="form-control" rows="3" placeholder="Evolución clínica, estilo de vida, recomendaciones podológicas..."></textarea>
+                  <textarea id="ant-notas" class="form-control" rows="3"
+                    placeholder="Evolución clínica, estilo de vida, recomendaciones podológicas..."></textarea>
                 </div>
 
                 <button type="submit" class="btn btn-primary">
@@ -370,15 +375,18 @@
           <!-- 3. Acordeón: Diagnósticos Podológicos -->
           <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAcordeon(this)">
-              <h3><i class="fa-solid fa-microscope" style="color: #7c3aed;"></i> Diagnósticos Podológicos de la Consulta</h3>
+              <h3><i class="fa-solid fa-microscope" style="color: #7c3aed;"></i> Diagnósticos Podológicos de la Consulta
+              </h3>
               <i class="fa-solid fa-chevron-down"></i>
             </div>
             <div class="accordion-body">
-              <form id="form-nuevo-diagnostico" style="margin-bottom: 20px; background: var(--color-fog); padding: 18px 20px; border-radius: var(--radius-cardinner); border: 1px solid var(--color-ash-border);">
+              <form id="form-nuevo-diagnostico"
+                style="margin-bottom: 20px; background: var(--color-fog); padding: 18px 20px; border-radius: var(--radius-cardinner); border: 1px solid var(--color-ash-border);">
                 <div class="form-grid-2">
                   <div class="form-group">
                     <label class="form-label">Padecimiento / Diagnóstico <span style="color: #ef4444;">*</span></label>
-                    <input type="text" id="diag-padecimiento" class="form-control" placeholder="Ej. Onicocriptosis bilateral, Fascitis plantar, Heloma interdigital" required>
+                    <input type="text" id="diag-padecimiento" class="form-control"
+                      placeholder="Ej. Onicocriptosis bilateral, Fascitis plantar, Heloma interdigital" required>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Tipo de Diagnóstico</label>
@@ -392,17 +400,20 @@
 
                 <div style="display: flex; gap: 20px; margin-bottom: 14px; align-items: center;">
                   <span class="form-label" style="margin-bottom: 0;">Lateralidad Afectada:</span>
-                  <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-graphite); font-size: 0.88rem;">
+                  <label
+                    style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-graphite); font-size: 0.88rem;">
                     <input type="checkbox" id="diag-pie-izq"> Pie Izquierdo
                   </label>
-                  <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-graphite); font-size: 0.88rem;">
+                  <label
+                    style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-graphite); font-size: 0.88rem;">
                     <input type="checkbox" id="diag-pie-der"> Pie Derecho
                   </label>
                 </div>
 
                 <div class="form-group">
                   <label class="form-label">Detalles Adicionales del Diagnóstico</label>
-                  <input type="text" id="diag-detalles" class="form-control" placeholder="Estadio I con tejido de granulación leve...">
+                  <input type="text" id="diag-detalles" class="form-control"
+                    placeholder="Estadio I con tejido de granulación leve...">
                 </div>
 
                 <button type="submit" class="btn btn-primary">
@@ -422,7 +433,10 @@
                     </tr>
                   </thead>
                   <tbody id="tabla-diagnosticos-body">
-                    <tr><td colspan="5" style="text-align: center; color: var(--color-stone); padding: 1.5rem;">Sin diagnósticos registrados en esta consulta.</td></tr>
+                    <tr>
+                      <td colspan="5" style="text-align: center; color: var(--color-stone); padding: 1.5rem;">Sin
+                        diagnósticos registrados en esta consulta.</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -432,35 +446,43 @@
           <!-- 4. Acordeón: Tratamientos Podológicos -->
           <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAcordeon(this)">
-              <h3><i class="fa-solid fa-kit-medical" style="color: #059669;"></i> Tratamientos y Procedimientos Podológicos</h3>
+              <h3><i class="fa-solid fa-kit-medical" style="color: #059669;"></i> Tratamientos y Procedimientos
+                Podológicos</h3>
               <i class="fa-solid fa-chevron-down"></i>
             </div>
             <div class="accordion-body">
-              <form id="form-nuevo-tratamiento" style="margin-bottom: 20px; background: var(--color-fog); padding: 18px 20px; border-radius: var(--radius-cardinner); border: 1px solid var(--color-ash-border);">
+              <form id="form-nuevo-tratamiento"
+                style="margin-bottom: 20px; background: var(--color-fog); padding: 18px 20px; border-radius: var(--radius-cardinner); border: 1px solid var(--color-ash-border);">
                 <div class="form-grid-2">
                   <div class="form-group">
                     <label class="form-label">Procedimiento / Servicio <span style="color: #ef4444;">*</span></label>
-                    <input type="text" id="trat-procedimiento" class="form-control" placeholder="Ej. Quiropodia Integral, Matricectomía Química parcial, Desbridamiento de heloma" required>
+                    <input type="text" id="trat-procedimiento" class="form-control"
+                      placeholder="Ej. Quiropodia Integral, Matricectomía Química parcial, Desbridamiento de heloma"
+                      required>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Frecuencia / Periodicidad</label>
-                    <input type="text" id="trat-frecuencia" class="form-control" placeholder="Ej. Sesión cada 21 días / Dosis única">
+                    <input type="text" id="trat-frecuencia" class="form-control"
+                      placeholder="Ej. Sesión cada 21 días / Dosis única">
                   </div>
                 </div>
 
                 <div style="display: flex; gap: 20px; margin-bottom: 14px; align-items: center;">
                   <span class="form-label" style="margin-bottom: 0;">Lateralidad Tratada:</span>
-                  <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-graphite); font-size: 0.88rem;">
+                  <label
+                    style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-graphite); font-size: 0.88rem;">
                     <input type="checkbox" id="trat-pie-izq"> Pie Izquierdo
                   </label>
-                  <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-graphite); font-size: 0.88rem;">
+                  <label
+                    style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--color-graphite); font-size: 0.88rem;">
                     <input type="checkbox" id="trat-pie-der"> Pie Derecho
                   </label>
                 </div>
 
                 <div class="form-group">
                   <label class="form-label">Técnica y Tratamiento Aplicado</label>
-                  <textarea id="trat-aplicado" class="form-control" rows="2" placeholder="Asepsia con clorhexidina, fresado de hiperqueratosis con micromotor, curación oclusiva..."></textarea>
+                  <textarea id="trat-aplicado" class="form-control" rows="2"
+                    placeholder="Asepsia con clorhexidina, fresado de hiperqueratosis con micromotor, curación oclusiva..."></textarea>
                 </div>
 
                 <button type="submit" class="btn btn-success">
@@ -480,7 +502,10 @@
                     </tr>
                   </thead>
                   <tbody id="tabla-tratamientos-body">
-                    <tr><td colspan="5" style="text-align: center; color: var(--color-stone); padding: 1.5rem;">Sin tratamientos registrados en esta consulta.</td></tr>
+                    <tr>
+                      <td colspan="5" style="text-align: center; color: var(--color-stone); padding: 1.5rem;">Sin
+                        tratamientos registrados en esta consulta.</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -491,19 +516,26 @@
                5. MÓDULO DE RECETA MÉDICA DIGITAL (LIGHT MINIMALIST / CORPORATIVO)
                Tarjeta Blanca Pura (#ffffff) · Bordes 24px · Sombra Sutil
                ===================================================================== -->
-          <div class="card card-receta-digital" style="background: #ffffff; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid rgba(0, 0, 0, 0.05); padding: 30px; margin-bottom: 24px;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid var(--color-ash-border); padding-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+          <div class="card card-receta-digital"
+            style="background: #ffffff; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid rgba(0, 0, 0, 0.05); padding: 30px; margin-bottom: 24px;">
+            <div
+              style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid var(--color-ash-border); padding-bottom: 16px; flex-wrap: wrap; gap: 12px;">
               <div style="display: flex; align-items: center; gap: 14px;">
-                <div style="width: 44px; height: 44px; border-radius: 12px; background: #fff7ed; color: #f69251; display: grid; place-items: center; font-size: 1.35rem; box-shadow: 0 2px 8px rgba(246, 146, 81, 0.15);">
+                <div
+                  style="width: 44px; height: 44px; border-radius: 12px; background: #fff7ed; color: #f69251; display: grid; place-items: center; font-size: 1.35rem; box-shadow: 0 2px 8px rgba(246, 146, 81, 0.15);">
                   <i class="fa-solid fa-prescription"></i>
                 </div>
                 <div>
-                  <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--color-carbon); margin: 0;">Prescripción Médica Digital (Receta PDF)</h3>
-                  <p style="font-size: 0.85rem; color: var(--color-stone); margin-top: 2px;">Elite Foot Care • Formato oficial membretado con validez clínica y firma médica</p>
+                  <h3
+                    style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--color-carbon); margin: 0;">
+                    Prescripción Médica Digital (Receta PDF)</h3>
+                  <p style="font-size: 0.85rem; color: var(--color-stone); margin-top: 2px;">Elite Foot Care • Formato
+                    oficial membretado con validez clínica y firma médica</p>
                 </div>
               </div>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 6px 14px; border-radius: 9999px; font-weight: 600; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
+                <span
+                  style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; padding: 6px 14px; border-radius: 9999px; font-weight: 600; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
                   <i class="fa-solid fa-user-doctor"></i> Exclusivo Podólogo (Rol ID: 4)
                 </span>
               </div>
@@ -512,19 +544,24 @@
             <form id="form-nueva-receta">
               <!-- Indicaciones Generales -->
               <div class="form-group" style="margin-bottom: 20px;">
-                <label class="form-label" style="font-weight: 600; color: var(--color-graphite); font-size: 0.88rem; display: flex; align-items: center; gap: 6px;">
-                  <i class="fa-solid fa-notes-medical" style="color: #6366f1;"></i> Indicaciones Generales y Cuidados del Paciente
+                <label class="form-label"
+                  style="font-weight: 600; color: var(--color-graphite); font-size: 0.88rem; display: flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid fa-notes-medical" style="color: #6366f1;"></i> Indicaciones Generales y Cuidados
+                  del Paciente
                 </label>
-                <textarea id="receta-indicaciones" class="form-control" rows="2" placeholder="Lavado diario con jabón neutro, secado exhaustivo de espacios interdigitales, cambio de calcetines de algodón 2 veces al día, no caminar descalzo..."></textarea>
+                <textarea id="receta-indicaciones" class="form-control" rows="2"
+                  placeholder="Lavado diario con jabón neutro, secado exhaustivo de espacios interdigitales, cambio de calcetines de algodón 2 veces al día, no caminar descalzo..."></textarea>
               </div>
 
               <!-- Lista Dinámica de Medicamentos -->
               <div style="margin-bottom: 22px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                  <label class="form-label" style="font-weight: 600; color: var(--color-graphite); font-size: 0.9rem; margin: 0; display: flex; align-items: center; gap: 6px;">
+                  <label class="form-label"
+                    style="font-weight: 600; color: var(--color-graphite); font-size: 0.9rem; margin: 0; display: flex; align-items: center; gap: 6px;">
                     <i class="fa-solid fa-pills" style="color: #f69251;"></i> Medicamentos y Fármacos Prescritos
                   </label>
-                  <button type="button" id="btn-agregar-medicamento-dinamico" class="btn btn-secondary btn-sm" style="border-radius: 9999px; font-size: 0.82rem; padding: 6px 16px; background: #fafafa; border: 1px solid var(--color-ash-border); cursor: pointer;">
+                  <button type="button" id="btn-agregar-medicamento-dinamico" class="btn btn-secondary btn-sm"
+                    style="border-radius: 9999px; font-size: 0.82rem; padding: 6px 16px; background: #fafafa; border: 1px solid var(--color-ash-border); cursor: pointer;">
                     <i class="fa-solid fa-plus" style="color: #f69251;"></i> Agregar otro medicamento
                   </button>
                 </div>
@@ -536,16 +573,20 @@
               </div>
 
               <!-- Botón Primario de Acción Tangerine Cálido -->
-              <div style="display: flex; justify-content: flex-end; align-items: center; gap: 14px; padding-top: 18px; border-top: 1px solid var(--color-ash-border);">
-                <button type="submit" id="btn-emitir-receta-submit" class="btn-tangerine" style="background: #f69251; color: #ffffff; border: none; border-radius: 12px; font-weight: 600; padding: 12px 28px; cursor: pointer; box-shadow: 0 4px 14px rgba(246, 146, 81, 0.28); font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+              <div
+                style="display: flex; justify-content: flex-end; align-items: center; gap: 14px; padding-top: 18px; border-top: 1px solid var(--color-ash-border);">
+                <button type="submit" id="btn-emitir-receta-submit" class="btn-tangerine"
+                  style="background: #f69251; color: #ffffff; border: none; border-radius: 12px; font-weight: 600; padding: 12px 28px; cursor: pointer; box-shadow: 0 4px 14px rgba(246, 146, 81, 0.28); font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
                   <i class="fa-solid fa-file-circle-check"></i> Emitir Receta
                 </button>
               </div>
             </form>
 
             <!-- Historial de Recetas Emitidas para esta consulta -->
-            <div id="seccion-recetas-emitidas" style="margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--color-ash-border);">
-              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--color-graphite); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <div id="seccion-recetas-emitidas"
+              style="margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--color-ash-border);">
+              <h4
+                style="font-size: 0.95rem; font-weight: 700; color: var(--color-graphite); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-clock-rotate-left" style="color: #64748b;"></i> Recetas Emitidas en esta Consulta
               </h4>
               <div id="lista-recetas-emitidas">
@@ -560,7 +601,7 @@
            PESTAÑA 3: MAPA PODOLÓGICO INTERACTIVO (Detalles_Mapa_Podologico)
            ===================================================================== -->
       <section id="tab-mapa-podologico" class="tab-pane">
-        
+
         <!-- Showroom Header -->
         <div class="admin-showroom-header">
           <h1 class="admin-showroom-title">Mapa Podológico Anatómico</h1>
@@ -583,7 +624,8 @@
                 </p>
               </div>
               <div class="foot-views-toggle">
-                <button class="foot-view-btn active" id="btn-vista-plantar" onclick="cambiarVistaPie('plantar')">Plantar</button>
+                <button class="foot-view-btn active" id="btn-vista-plantar"
+                  onclick="cambiarVistaPie('plantar')">Plantar</button>
                 <button class="foot-view-btn" id="btn-vista-dorsal" onclick="cambiarVistaPie('dorsal')">Dorsal</button>
               </div>
             </div>
@@ -598,28 +640,28 @@
                   <g id="pie-izq-zonas">
                     <!-- Talón / Calcáneo -->
                     <path class="foot-zone" data-pie="Pie Izquierdo" data-zona="Talón (Calcáneo)" id="izq-talon"
-                          d="M 65 240 C 65 295, 135 295, 135 240 C 135 220, 65 220, 65 240 Z" />
+                      d="M 65 240 C 65 295, 135 295, 135 240 C 135 220, 65 220, 65 240 Z" />
                     <!-- Arco Medial (Interno) -->
-                    <path class="foot-zone" data-pie="Pie Izquierdo" data-zona="Arco Medial (Interno)" id="izq-arco-medial"
-                          d="M 105 150 C 130 170, 135 220, 105 220 C 85 200, 85 165, 105 150 Z" />
+                    <path class="foot-zone" data-pie="Pie Izquierdo" data-zona="Arco Medial (Interno)"
+                      id="izq-arco-medial" d="M 105 150 C 130 170, 135 220, 105 220 C 85 200, 85 165, 105 150 Z" />
                     <!-- Arco Lateral (Externo) -->
-                    <path class="foot-zone" data-pie="Pie Izquierdo" data-zona="Arco Lateral (Externo)" id="izq-arco-lateral"
-                          d="M 65 150 C 50 180, 50 220, 65 220 C 75 200, 75 170, 65 150 Z" />
+                    <path class="foot-zone" data-pie="Pie Izquierdo" data-zona="Arco Lateral (Externo)"
+                      id="izq-arco-lateral" d="M 65 150 C 50 180, 50 220, 65 220 C 75 200, 75 170, 65 150 Z" />
                     <!-- Antepié / Metatarso -->
-                    <path class="foot-zone" data-pie="Pie Izquierdo" data-zona="Antepié / Cabezas Metatarsales" id="izq-metatarso"
-                          d="M 50 100 C 50 75, 150 75, 150 100 C 150 150, 50 150, 50 100 Z" />
+                    <path class="foot-zone" data-pie="Pie Izquierdo" data-zona="Antepié / Cabezas Metatarsales"
+                      id="izq-metatarso" d="M 50 100 C 50 75, 150 75, 150 100 C 150 150, 50 150, 50 100 Z" />
                     <!-- Hallux (Dedo 1) -->
                     <path class="foot-zone" data-pie="Pie Izquierdo" data-zona="Hallux (Dedo Gordo)" id="izq-dedo-1"
-                          d="M 120 40 C 120 15, 155 15, 155 40 C 155 70, 120 70, 120 40 Z" />
+                      d="M 120 40 C 120 15, 155 15, 155 40 C 155 70, 120 70, 120 40 Z" />
                     <!-- Dedos Menores 2 al 5 -->
                     <path class="foot-zone" data-pie="Pie Izquierdo" data-zona="Dedo 2" id="izq-dedo-2"
-                          d="M 100 48 C 100 25, 118 25, 118 48 C 118 72, 100 72, 100 48 Z" />
+                      d="M 100 48 C 100 25, 118 25, 118 48 C 118 72, 100 72, 100 48 Z" />
                     <path class="foot-zone" data-pie="Pie Izquierdo" data-zona="Dedo 3" id="izq-dedo-3"
-                          d="M 82 54 C 82 32, 98 32, 98 54 C 98 74, 82 74, 82 54 Z" />
+                      d="M 82 54 C 82 32, 98 32, 98 54 C 98 74, 82 74, 82 54 Z" />
                     <path class="foot-zone" data-pie="Pie Izquierdo" data-zona="Dedo 4" id="izq-dedo-4"
-                          d="M 66 62 C 66 42, 80 42, 80 62 C 80 78, 66 78, 66 62 Z" />
+                      d="M 66 62 C 66 42, 80 42, 80 62 C 80 78, 66 78, 66 62 Z" />
                     <path class="foot-zone" data-pie="Pie Izquierdo" data-zona="Dedo 5 (Meñique)" id="izq-dedo-5"
-                          d="M 50 72 C 50 54, 64 54, 64 72 C 64 85, 50 85, 50 72 Z" />
+                      d="M 50 72 C 50 54, 64 54, 64 72 C 64 85, 50 85, 50 72 Z" />
                   </g>
                   <!-- Marcadores dinámicos de lesiones del pie izquierdo -->
                   <g id="izq-pines-container"></g>
@@ -634,28 +676,28 @@
                   <g id="pie-der-zonas">
                     <!-- Talón / Calcáneo -->
                     <path class="foot-zone" data-pie="Pie Derecho" data-zona="Talón (Calcáneo)" id="der-talon"
-                          d="M 65 240 C 65 295, 135 295, 135 240 C 135 220, 65 220, 65 240 Z" />
+                      d="M 65 240 C 65 295, 135 295, 135 240 C 135 220, 65 220, 65 240 Z" />
                     <!-- Arco Medial (Interno) -->
-                    <path class="foot-zone" data-pie="Pie Derecho" data-zona="Arco Medial (Interno)" id="der-arco-medial"
-                          d="M 65 150 C 40 170, 35 220, 65 220 C 85 200, 85 165, 65 150 Z" />
+                    <path class="foot-zone" data-pie="Pie Derecho" data-zona="Arco Medial (Interno)"
+                      id="der-arco-medial" d="M 65 150 C 40 170, 35 220, 65 220 C 85 200, 85 165, 65 150 Z" />
                     <!-- Arco Lateral (Externo) -->
-                    <path class="foot-zone" data-pie="Pie Derecho" data-zona="Arco Lateral (Externo)" id="der-arco-lateral"
-                          d="M 135 150 C 150 180, 150 220, 135 220 C 125 200, 125 170, 135 150 Z" />
+                    <path class="foot-zone" data-pie="Pie Derecho" data-zona="Arco Lateral (Externo)"
+                      id="der-arco-lateral" d="M 135 150 C 150 180, 150 220, 135 220 C 125 200, 125 170, 135 150 Z" />
                     <!-- Antepié / Metatarso -->
-                    <path class="foot-zone" data-pie="Pie Derecho" data-zona="Antepié / Cabezas Metatarsales" id="der-metatarso"
-                          d="M 50 100 C 50 75, 150 75, 150 100 C 150 150, 50 150, 50 100 Z" />
+                    <path class="foot-zone" data-pie="Pie Derecho" data-zona="Antepié / Cabezas Metatarsales"
+                      id="der-metatarso" d="M 50 100 C 50 75, 150 75, 150 100 C 150 150, 50 150, 50 100 Z" />
                     <!-- Hallux (Dedo 1) -->
                     <path class="foot-zone" data-pie="Pie Derecho" data-zona="Hallux (Dedo Gordo)" id="der-dedo-1"
-                          d="M 45 40 C 45 15, 80 15, 80 40 C 80 70, 45 70, 45 40 Z" />
+                      d="M 45 40 C 45 15, 80 15, 80 40 C 80 70, 45 70, 45 40 Z" />
                     <!-- Dedos Menores 2 al 5 -->
                     <path class="foot-zone" data-pie="Pie Derecho" data-zona="Dedo 2" id="der-dedo-2"
-                          d="M 82 48 C 82 25, 100 25, 100 48 C 100 72, 82 72, 82 48 Z" />
+                      d="M 82 48 C 82 25, 100 25, 100 48 C 100 72, 82 72, 82 48 Z" />
                     <path class="foot-zone" data-pie="Pie Derecho" data-zona="Dedo 3" id="der-dedo-3"
-                          d="M 102 54 C 102 32, 118 32, 118 54 C 118 74, 102 74, 102 54 Z" />
+                      d="M 102 54 C 102 32, 118 32, 118 54 C 118 74, 102 74, 102 54 Z" />
                     <path class="foot-zone" data-pie="Pie Derecho" data-zona="Dedo 4" id="der-dedo-4"
-                          d="M 120 62 C 120 42, 134 42, 134 62 C 134 78, 120 78, 120 62 Z" />
+                      d="M 120 62 C 120 42, 134 42, 134 62 C 134 78, 120 78, 120 62 Z" />
                     <path class="foot-zone" data-pie="Pie Derecho" data-zona="Dedo 5 (Meñique)" id="der-dedo-5"
-                          d="M 136 72 C 136 54, 150 54, 150 72 C 150 85, 136 85, 136 72 Z" />
+                      d="M 136 72 C 136 54, 150 54, 150 72 C 150 85, 136 85, 136 72 Z" />
                   </g>
                   <!-- Marcadores dinámicos de lesiones del pie derecho -->
                   <g id="der-pines-container"></g>
@@ -666,7 +708,8 @@
 
           <!-- Panel Lateral: Formulario de Registro en Detalles_Mapa_Podologico -->
           <div class="lesion-form-panel">
-            <h3 style="font-size: 1.15rem; margin-bottom: 12px; color: var(--color-carbon); font-weight: 600; display: flex; align-items: center; gap: 8px;">
+            <h3
+              style="font-size: 1.15rem; margin-bottom: 12px; color: var(--color-carbon); font-weight: 600; display: flex; align-items: center; gap: 8px;">
               <i class="fa-solid fa-thumbtack" style="color: #f69251;"></i> Registro de Hallazgo en Mapa
             </h3>
 
@@ -701,7 +744,8 @@
 
               <div class="form-group">
                 <label class="form-label">Observaciones y Grado de Lesión</label>
-                <textarea id="mapa-observaciones" class="form-control" rows="3" placeholder="Profundidad de queratosis, eritema perilesional, maceración, dolor a la digitopresión..."></textarea>
+                <textarea id="mapa-observaciones" class="form-control" rows="3"
+                  placeholder="Profundidad de queratosis, eritema perilesional, maceración, dolor a la digitopresión..."></textarea>
               </div>
 
               <button type="submit" class="btn btn-primary" style="width: 100%;" id="btn-guardar-lesion-mapa">
@@ -711,9 +755,11 @@
 
             <!-- Lista de Lesiones Registradas en esta Consulta -->
             <div class="lesions-list-card">
-              <h4 style="font-size: 0.92rem; margin-bottom: 12px; color: var(--color-carbon); font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
+              <h4
+                style="font-size: 0.92rem; margin-bottom: 12px; color: var(--color-carbon); font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
                 <span>Hallazgos Registrados:</span>
-                <span id="badge-total-lesiones" class="status-badge badge-pendiente" style="font-size: 0.7rem;">0 lesiones</span>
+                <span id="badge-total-lesiones" class="status-badge badge-pendiente" style="font-size: 0.7rem;">0
+                  lesiones</span>
               </h4>
               <div id="lista-lesiones-registradas" style="max-height: 280px; overflow-y: auto;">
                 <p style="color: var(--color-stone); font-size: 0.85rem; text-align: center; padding: 1.5rem;">
@@ -741,7 +787,8 @@
           </div>
 
           <div class="security-alert-box danger" style="margin-bottom: 20px;">
-            <div class="security-alert-icon"><i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i></div>
+            <div class="security-alert-icon"><i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i>
+            </div>
             <div class="security-alert-content">
               <strong>Regla de Seguridad Evaluada (Rol ID: 4 · Podólogo):</strong>
               El rol de Podólogo tiene estrictamente prohibido realizar operaciones de inserción o modificación
@@ -751,8 +798,10 @@
 
           <div style="margin: 20px 0;">
             <p style="color: var(--color-graphite); font-size: 0.95rem; line-height: 1.5; margin-bottom: 16px;">
-              Presiona cualquiera de los botones a continuación para simular un intento no autorizado de realizar un cobro o modificar inventario clínico desde la sesión médica.
-              El middleware del backend (<code>bloquearPagosInventarioParaPodologo</code>) interceptará la petición POST/PUT y retornará un código <strong>403 Forbidden</strong>.
+              Presiona cualquiera de los botones a continuación para simular un intento no autorizado de realizar un
+              cobro o modificar inventario clínico desde la sesión médica.
+              El middleware del backend (<code>bloquearPagosInventarioParaPodologo</code>) interceptará la petición
+              POST/PUT y retornará un código <strong>403 Forbidden</strong>.
             </p>
 
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
@@ -767,11 +816,13 @@
             </div>
           </div>
 
-          <div id="resultado-bloqueo-podo-box" style="display: none; margin-top: 20px; background: var(--color-fog); border: 1px solid var(--color-ash-border); border-radius: var(--radius-cardinner); padding: 18px;">
+          <div id="resultado-bloqueo-podo-box"
+            style="display: none; margin-top: 20px; background: var(--color-fog); border: 1px solid var(--color-ash-border); border-radius: var(--radius-cardinner); padding: 18px;">
             <h4 style="color: #ef4444; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
               <i class="fa-solid fa-shield-halved"></i> Intercepción Exitosa por el Middleware de Seguridad RBAC
             </h4>
-            <pre id="resultado-bloqueo-podo-json" style="font-family: monospace; font-size: 0.85rem; color: #1e293b; overflow-x: auto; white-space: pre-wrap;"></pre>
+            <pre id="resultado-bloqueo-podo-json"
+              style="font-family: monospace; font-size: 0.85rem; color: #1e293b; overflow-x: auto; white-space: pre-wrap;"></pre>
           </div>
         </div>
       </section>
@@ -786,4 +837,5 @@
   <script src="js/session.js"></script>
   <script src="js/consultorio.js"></script>
 </body>
+
 </html>

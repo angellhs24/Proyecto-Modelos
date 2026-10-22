@@ -343,7 +343,7 @@ window.abrirModalEditarConsulta = (id) => {
   document.getElementById('edit-cita-id-display').value = `${consulta.Consulta_id} - ${consulta.paciente_nombre}`;
   document.getElementById('edit-cita-podologo').value = consulta.fk_cedula_podologo;
   document.getElementById('edit-cita-estado').value = consulta.estado;
-  
+
   if (consulta.fecha_hora) {
     const d = new Date(consulta.fecha_hora);
     d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
@@ -662,7 +662,7 @@ window.descargarRecetaConsulta = async function (consultaId, pacienteNombre = 'P
     AppAuth.showToast(`Consultando receta médica para folio ${consultaId}...`, 'info');
 
     const res = await AppAuth.fetchApi(`/api/recetas/consulta/${consultaId}`);
-    
+
     // Si existe la receta, abrir el PDF membretado
     let receta = null;
     if (res.ok && res.data) {

@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Elite Foot Care | Recepción Clínica (Rol ID: 3)</title>
-  
+
   <!-- Tipografía Dialog: DM Sans & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
   <!-- Font Awesome Icons 6.5.2 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  
+
   <!-- Unified Clinical Design System -->
   <link rel="stylesheet" href="css/design-system.css">
 </head>
+
 <body>
   <div class="app-container">
 
@@ -43,16 +47,6 @@
           </div>
         </div>
 
-        <!-- Accesos directos / Ghost Pills del ecosistema modular -->
-        <a href="/admin.html" class="role-switch-btn" title="Ir al Panel de Administración General">
-          <i class="fa-solid fa-shield-halved" style="color: #6366f1;"></i>
-          <span>Panel Admin</span>
-        </a>
-
-        <a href="/consultorio.html" class="role-switch-btn" title="Ir a la interfaz del Podólogo">
-          <i class="fa-solid fa-user-doctor" style="color: #7c3aed;"></i>
-          <span>Consultorio</span>
-        </a>
 
         <a href="/caja.html" class="role-switch-btn" title="Módulo de Caja y Cobros">
           <i class="fa-solid fa-cash-register" style="color: #10b981;"></i>
@@ -65,7 +59,8 @@
         </a>
 
         <!-- Botón Cerrar Sesión -->
-        <button type="button" class="role-switch-btn btn-logout" onclick="AppAuth.logout()" title="Cerrar Sesión Segura">
+        <button type="button" class="role-switch-btn btn-logout" onclick="AppAuth.logout()"
+          title="Cerrar Sesión Segura">
           <i class="fa-solid fa-arrow-right-from-bracket"></i>
           <span>Salir</span>
         </button>
@@ -240,14 +235,15 @@
            PESTAÑA 2: REGISTRO DE PACIENTES (Solo datos de contacto)
            ===================================================================== -->
       <section id="tab-pacientes" class="tab-pane">
-        
+
         <!-- Banner de Política RBAC -->
         <div class="security-alert-box" style="margin-bottom: 24px;">
           <div class="security-alert-icon"><i class="fa-solid fa-shield-halved" style="color: #10b981;"></i></div>
           <div class="security-alert-content">
             <strong>Restricción de Seguridad RBAC (Rol ID: 3 · Recepcionista):</strong>
-            Por normativa estricta de protección de datos clínicos, la recepcionista solo tiene autorización para registrar 
-            datos de contacto y filiación general. El historial médico, diabetes, hipertensión y notas patológicas 
+            Por normativa estricta de protección de datos clínicos, la recepcionista solo tiene autorización para
+            registrar
+            datos de contacto y filiación general. El historial médico, diabetes, hipertensión y notas patológicas
             están excluidos y son de uso reservado exclusivo para el Podólogo en consultorio.
           </div>
         </div>
@@ -320,7 +316,8 @@
                 </div>
               </div>
 
-              <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;" id="btn-guardar-paciente">
+              <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;"
+                id="btn-guardar-paciente">
                 <i class="fa-solid fa-user-check"></i>
                 <span>Registrar Paciente en el Sistema</span>
               </button>
@@ -338,7 +335,8 @@
                 <p class="card-subtitle">Búsqueda rápida para agendar consultas</p>
               </div>
               <div style="min-width: 220px;">
-                <input type="text" id="buscador-pacientes" class="form-control" placeholder="Buscar por nombre o exp...">
+                <input type="text" id="buscador-pacientes" class="form-control"
+                  placeholder="Buscar por nombre o exp...">
               </div>
             </div>
 
@@ -378,7 +376,8 @@
                 <span>Módulo de Cobros de Consultas</span>
               </h2>
               <p class="card-subtitle">
-                Procesamiento financiero (Firma de recepcionista: <strong id="cajera-nombre-indicador">María López [ID: 1]</strong>)
+                Procesamiento financiero (Firma de recepcionista: <strong id="cajera-nombre-indicador">María López [ID:
+                  1]</strong>)
               </p>
             </div>
             <div style="display: flex; gap: 8px;">
@@ -463,18 +462,22 @@
           </div>
 
           <div class="security-alert-box danger" style="margin-bottom: 20px;">
-            <div class="security-alert-icon"><i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i></div>
+            <div class="security-alert-icon"><i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i>
+            </div>
             <div class="security-alert-content">
               <strong>Regla de Seguridad Evaluada:</strong>
               El rol de Recepcionista (Rol ID: 3) tiene bloqueada cualquier consulta SQL a las tablas
-              <code>Diagnosticos</code>, <code>Tratamientos</code>, <code>Recetas</code> o <code>Detalles_Mapa_Podologico</code>.
+              <code>Diagnosticos</code>, <code>Tratamientos</code>, <code>Recetas</code> o
+              <code>Detalles_Mapa_Podologico</code>.
             </div>
           </div>
 
           <div style="margin: 20px 0;">
             <p style="margin-bottom: 16px; color: var(--color-graphite); font-size: 0.95rem; line-height: 1.5;">
-              Presiona el botón a continuación para simular un intento de consulta directa a las tablas médicas desde la sesión de Recepción.
-              El middleware del backend (<code>bloquearTablasClinicasParaRecepcionista</code>) interceptará la petición antes de tocar la base de datos y retornará un código <strong>403 Forbidden</strong>.
+              Presiona el botón a continuación para simular un intento de consulta directa a las tablas médicas desde la
+              sesión de Recepción.
+              El middleware del backend (<code>bloquearTablasClinicasParaRecepcionista</code>) interceptará la petición
+              antes de tocar la base de datos y retornará un código <strong>403 Forbidden</strong>.
             </p>
 
             <button id="btn-probar-bloqueo-recep" class="btn btn-danger-outline">
@@ -483,11 +486,13 @@
             </button>
           </div>
 
-          <div id="resultado-bloqueo-box" style="display: none; margin-top: 20px; background: var(--color-fog); border: 1px solid var(--color-ash-border); border-radius: var(--radius-cardinner); padding: 18px;">
+          <div id="resultado-bloqueo-box"
+            style="display: none; margin-top: 20px; background: var(--color-fog); border: 1px solid var(--color-ash-border); border-radius: var(--radius-cardinner); padding: 18px;">
             <h4 style="color: #ef4444; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
               <i class="fa-solid fa-ban"></i> Intercepción Exitosa por el Middleware de Seguridad
             </h4>
-            <pre id="resultado-bloqueo-json" style="font-family: monospace; font-size: 0.85rem; color: #1e293b; overflow-x: auto; white-space: pre-wrap;"></pre>
+            <pre id="resultado-bloqueo-json"
+              style="font-family: monospace; font-size: 0.85rem; color: #1e293b; overflow-x: auto; white-space: pre-wrap;"></pre>
           </div>
         </div>
       </section>
@@ -500,8 +505,10 @@
        ========================================================================= -->
   <dialog id="modal-agendar-consulta" class="glass-modal">
     <div class="modal-header">
-      <h3 class="modal-title"><i class="fa-solid fa-calendar-plus" style="color: var(--color-midnight-ink);"></i> Agendar Nueva Consulta</h3>
-      <button class="btn-close" onclick="document.getElementById('modal-agendar-consulta').close()"><i class="fa-solid fa-xmark"></i></button>
+      <h3 class="modal-title"><i class="fa-solid fa-calendar-plus" style="color: var(--color-midnight-ink);"></i>
+        Agendar Nueva Consulta</h3>
+      <button class="btn-close" onclick="document.getElementById('modal-agendar-consulta').close()"><i
+          class="fa-solid fa-xmark"></i></button>
     </div>
     <form id="form-agendar-consulta">
       <div class="modal-body">
@@ -534,11 +541,13 @@
 
         <div class="form-group">
           <label class="form-label">Motivo de Consulta o Notas de Agendamiento</label>
-          <textarea id="modal-cita-motivo" class="form-control" rows="3" placeholder="Ej. Valoración inicial, uña incarnada o molestia al caminar..."></textarea>
+          <textarea id="modal-cita-motivo" class="form-control" rows="3"
+            placeholder="Ej. Valoración inicial, uña incarnada o molestia al caminar..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-agendar-consulta').close()">Cancelar</button>
+        <button type="button" class="btn btn-secondary"
+          onclick="document.getElementById('modal-agendar-consulta').close()">Cancelar</button>
         <button type="submit" class="btn btn-primary" id="btn-confirmar-agendar">
           <i class="fa-solid fa-check"></i> Agendar Cita
         </button>
@@ -551,8 +560,10 @@
        ========================================================================= -->
   <dialog id="modal-editar-consulta" class="glass-modal">
     <div class="modal-header">
-      <h3 class="modal-title"><i class="fa-solid fa-calendar-check" style="color: #f59e0b;"></i> Reprogramar / Editar Consulta</h3>
-      <button class="btn-close" onclick="document.getElementById('modal-editar-consulta').close()"><i class="fa-solid fa-xmark"></i></button>
+      <h3 class="modal-title"><i class="fa-solid fa-calendar-check" style="color: #f59e0b;"></i> Reprogramar / Editar
+        Consulta</h3>
+      <button class="btn-close" onclick="document.getElementById('modal-editar-consulta').close()"><i
+          class="fa-solid fa-xmark"></i></button>
     </div>
     <form id="form-editar-consulta">
       <input type="hidden" id="edit-cita-id">
@@ -587,7 +598,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-editar-consulta').close()">Cerrar</button>
+        <button type="button" class="btn btn-secondary"
+          onclick="document.getElementById('modal-editar-consulta').close()">Cerrar</button>
         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
       </div>
     </form>
@@ -598,8 +610,10 @@
        ========================================================================= -->
   <dialog id="modal-procesar-cobro" class="glass-modal">
     <div class="modal-header">
-      <h3 class="modal-title"><i class="fa-solid fa-cash-register" style="color: #10b981;"></i> Procesar Cobro de Consulta</h3>
-      <button class="btn-close" onclick="document.getElementById('modal-procesar-cobro').close()"><i class="fa-solid fa-xmark"></i></button>
+      <h3 class="modal-title"><i class="fa-solid fa-cash-register" style="color: #10b981;"></i> Procesar Cobro de
+        Consulta</h3>
+      <button class="btn-close" onclick="document.getElementById('modal-procesar-cobro').close()"><i
+          class="fa-solid fa-xmark"></i></button>
     </div>
     <form id="form-procesar-cobro">
       <input type="hidden" id="cobro-consulta-id">
@@ -634,7 +648,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-procesar-cobro').close()">Cancelar</button>
+        <button type="button" class="btn btn-secondary"
+          onclick="document.getElementById('modal-procesar-cobro').close()">Cancelar</button>
         <button type="submit" class="btn btn-success" id="btn-confirmar-cobro">
           <i class="fa-solid fa-check-double"></i> Confirmar y Registrar Pago
         </button>
@@ -647,14 +662,17 @@
        ========================================================================= -->
   <dialog id="modal-ver-recibo" class="glass-modal">
     <div class="modal-header">
-      <h3 class="modal-title"><i class="fa-solid fa-receipt" style="color: #2563eb;"></i> Comprobante de Pago Digital</h3>
-      <button class="btn-close" onclick="document.getElementById('modal-ver-recibo').close()"><i class="fa-solid fa-xmark"></i></button>
+      <h3 class="modal-title"><i class="fa-solid fa-receipt" style="color: #2563eb;"></i> Comprobante de Pago Digital
+      </h3>
+      <button class="btn-close" onclick="document.getElementById('modal-ver-recibo').close()"><i
+          class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body" id="recibo-contenido-render">
       <!-- Se llena dinámicamente con JS -->
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-ver-recibo').close()">Cerrar</button>
+      <button type="button" class="btn btn-secondary"
+        onclick="document.getElementById('modal-ver-recibo').close()">Cerrar</button>
       <button type="button" class="btn btn-primary" onclick="window.print()">
         <i class="fa-solid fa-print"></i> Imprimir Recibo
       </button>
@@ -668,4 +686,5 @@
   <script src="js/session.js"></script>
   <script src="js/recepcion.js"></script>
 </body>
+
 </html>
