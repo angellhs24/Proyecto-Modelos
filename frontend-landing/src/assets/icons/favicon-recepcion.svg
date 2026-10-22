@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="pRecep" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb923c" />
+      <stop offset="50%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#ea580c" />
+    </linearGradient>
+    <filter id="fShadowRec" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#7c2d12" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <g filter="url(#fShadowRec)">
+    <circle cx="16" cy="10" r="5.5" fill="url(#pRecep)" />
+    <circle cx="26" cy="8" r="4.6" fill="url(#pRecep)" />
+    <circle cx="35" cy="10.5" r="3.9" fill="url(#pRecep)" />
+    <circle cx="42.5" cy="15" r="3.2" fill="url(#pRecep)" />
+    <circle cx="48.5" cy="21" r="2.6" fill="url(#pRecep)" />
+
+    <path d="M 16 19
+             C 14 19, 44 19, 45 25
+             C 45 32, 39 37, 38 42
+             C 37 47, 39 52, 40 55
+             C 40 60, 36 62, 30 62
+             C 24 62, 20 59, 20 54
+             C 20 48, 23 41, 23 35
+             C 23 29, 17 25, 16 19 Z" 
+          fill="url(#pRecep)" />
+  </g>
+
+  <!-- Calendario y Reloj de Citas Médicas Agendadas -->
+  <g filter="url(#fShadowRec)">
+    <rect x="31" y="33" width="26" height="26" rx="5" fill="#ffffff" stroke="#c2410c" stroke-width="2" />
+    <path d="M 31 38 C 31 35.2 33.2 33 36 33 H 52 C 54.8 33 57 35.2 57 38 V 40 H 31 Z" fill="#ea580c" />
+    <rect x="36" y="30.5" width="3" height="5" rx="1.5" fill="#ffffff" stroke="#c2410c" stroke-width="1" />
+    <rect x="49" y="30.5" width="3" height="5" rx="1.5" fill="#ffffff" stroke="#c2410c" stroke-width="1" />
+    <circle cx="44" cy="48" r="6.5" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8" />
+    <line x1="44" y1="48" x2="44" y2="44.5" stroke="#ea580c" stroke-width="1.6" stroke-linecap="round" />
+    <line x1="44" y1="48" x2="47.5" y2="48" stroke="#ea580c" stroke-width="1.6" stroke-linecap="round" />
+    <circle cx="44" cy="48" r="1.2" fill="#ea580c" />
+  </g>
+</svg>

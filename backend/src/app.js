@@ -119,6 +119,13 @@ app.get(['/caja', '/caja.html', '/cobros', '/cobros.html'], (req, res) => {
 app.get(['/login-dev', '/login-dev.html'], (req, res) => {
   res.sendFile(path.join(adminPath, 'login-dev.html'));
 });
+// Favicon raíz automático para navegadores (Safari, Chrome, Edge)
+app.get(['/favicon.ico', '/favicon.png'], (req, res) => {
+  res.sendFile(path.join(landingSrcPath, 'assets/icons/favicon-clinica.png'));
+});
+app.get('/favicon.svg', (req, res) => {
+  res.sendFile(path.join(landingSrcPath, 'assets/icons/favicon-clinica.svg'));
+});
 
 // ============================================================================
 // Servir archivos estáticos (CSS, JS, imágenes)

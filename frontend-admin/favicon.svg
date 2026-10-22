@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="pClinica" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="50%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <filter id="fShadow" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#022c22" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <g filter="url(#fShadow)">
+    <!-- Dedos del pie en arco armónico -->
+    <circle cx="16" cy="10" r="5.5" fill="url(#pClinica)" />
+    <circle cx="26" cy="8" r="4.6" fill="url(#pClinica)" />
+    <circle cx="35" cy="10.5" r="3.9" fill="url(#pClinica)" />
+    <circle cx="42.5" cy="15" r="3.2" fill="url(#pClinica)" />
+    <circle cx="48.5" cy="21" r="2.6" fill="url(#pClinica)" />
+
+    <!-- Planta y talón del pie -->
+    <path d="M 16 19
+             C 14 19, 44 19, 45 25
+             C 45 32, 39 37, 38 42
+             C 37 47, 39 52, 40 55
+             C 40 60, 36 62, 30 62
+             C 24 62, 20 59, 20 54
+             C 20 48, 23 41, 23 35
+             C 23 29, 17 25, 16 19 Z" 
+          fill="url(#pClinica)" />
+  </g>
+
+  <!-- Medalla circular blanca con Cruz Médica (Sello oficial Elite Foot Care) -->
+  <g filter="url(#fShadow)">
+    <circle cx="44" cy="44" r="13.5" fill="#ffffff" stroke="#059669" stroke-width="2.5" />
+    <rect x="40.5" y="36" width="7" height="16" rx="2.5" fill="#ef4444" />
+    <rect x="36" y="40.5" width="16" height="7" rx="2.5" fill="#ef4444" />
+    <circle cx="44" cy="44" r="1.5" fill="#ffffff" />
+  </g>
+</svg>

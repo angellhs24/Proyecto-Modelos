@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="pAdmin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" />
+      <stop offset="50%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#4338ca" />
+    </linearGradient>
+    <linearGradient id="pGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="50%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <filter id="fShadowAdmin" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#1e1b4b" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <g filter="url(#fShadowAdmin)">
+    <circle cx="16" cy="10" r="5.5" fill="url(#pAdmin)" />
+    <circle cx="26" cy="8" r="4.6" fill="url(#pAdmin)" />
+    <circle cx="35" cy="10.5" r="3.9" fill="url(#pAdmin)" />
+    <circle cx="42.5" cy="15" r="3.2" fill="url(#pAdmin)" />
+    <circle cx="48.5" cy="21" r="2.6" fill="url(#pAdmin)" />
+
+    <path d="M 16 19
+             C 14 19, 44 19, 45 25
+             C 45 32, 39 37, 38 42
+             C 37 47, 39 52, 40 55
+             C 40 60, 36 62, 30 62
+             C 24 62, 20 59, 20 54
+             C 20 48, 23 41, 23 35
+             C 23 29, 17 25, 16 19 Z" 
+          fill="url(#pAdmin)" />
+  </g>
+
+  <!-- Escudo Blindado RBAC con Estrella Dorada -->
+  <g filter="url(#fShadowAdmin)">
+    <path d="M 44 30 L 58 35 C 58 48, 51 57, 44 60 C 37 57, 30 48, 30 35 Z" fill="#ffffff" stroke="#f59e0b" stroke-width="2.5" />
+    <path d="M 44 33.5 L 55 37.5 C 55 47, 49 54, 44 57 C 39 54, 33 47, 33 37.5 Z" fill="#312e81" />
+    <polygon points="44,39 45.8,44 51,44 46.8,47 48.5,52 44,48.8 39.5,52 41.2,47 37,44 42.2,44" fill="url(#pGold)" />
+  </g>
+</svg>

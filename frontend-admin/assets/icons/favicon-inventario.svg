@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="pInv" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa" />
+      <stop offset="50%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <filter id="fShadowInv" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#1e3a8a" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <g filter="url(#fShadowInv)">
+    <circle cx="16" cy="10" r="5.5" fill="url(#pInv)" />
+    <circle cx="26" cy="8" r="4.6" fill="url(#pInv)" />
+    <circle cx="35" cy="10.5" r="3.9" fill="url(#pInv)" />
+    <circle cx="42.5" cy="15" r="3.2" fill="url(#pInv)" />
+    <circle cx="48.5" cy="21" r="2.6" fill="url(#pInv)" />
+
+    <path d="M 16 19
+             C 14 19, 44 19, 45 25
+             C 45 32, 39 37, 38 42
+             C 37 47, 39 52, 40 55
+             C 40 60, 36 62, 30 62
+             C 24 62, 20 59, 20 54
+             C 20 48, 23 41, 23 35
+             C 23 29, 17 25, 16 19 Z" 
+          fill="url(#pInv)" />
+  </g>
+
+  <!-- Caja de Suministros Médicos -->
+  <g filter="url(#fShadowInv)">
+    <rect x="32" y="36" width="24" height="20" rx="4" fill="#ffffff" stroke="#1d4ed8" stroke-width="2" />
+    <rect x="34" y="38" width="20" height="16" rx="3" fill="#2563eb" />
+    <!-- Cruz blanca en la caja -->
+    <rect x="42.5" y="41.5" width="3" height="9" rx="1" fill="#ffffff" />
+    <rect x="39.5" y="44.5" width="9" height="3" rx="1" fill="#ffffff" />
+  </g>
+</svg>

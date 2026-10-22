@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="pCaja" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="50%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <filter id="fShadowCaja" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#064e3b" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <g filter="url(#fShadowCaja)">
+    <circle cx="16" cy="10" r="5.5" fill="url(#pCaja)" />
+    <circle cx="26" cy="8" r="4.6" fill="url(#pCaja)" />
+    <circle cx="35" cy="10.5" r="3.9" fill="url(#pCaja)" />
+    <circle cx="42.5" cy="15" r="3.2" fill="url(#pCaja)" />
+    <circle cx="48.5" cy="21" r="2.6" fill="url(#pCaja)" />
+
+    <path d="M 16 19
+             C 14 19, 44 19, 45 25
+             C 45 32, 39 37, 38 42
+             C 37 47, 39 52, 40 55
+             C 40 60, 36 62, 30 62
+             C 24 62, 20 59, 20 54
+             C 20 48, 23 41, 23 35
+             C 23 29, 17 25, 16 19 Z" 
+          fill="url(#pCaja)" />
+  </g>
+
+  <!-- Tarjeta y Moneda de Pagos -->
+  <g filter="url(#fShadowCaja)">
+    <rect x="30" y="34" width="26" height="17" rx="3.5" fill="#ffffff" stroke="#047857" stroke-width="1.8" />
+    <rect x="30" y="38" width="26" height="4" fill="#047857" />
+    <!-- Moneda de oro -->
+    <circle cx="46" cy="50" r="8.5" fill="#f59e0b" stroke="#ffffff" stroke-width="2" />
+    <text x="46" y="54" font-size="10" font-family="sans-serif" font-weight="900" fill="#ffffff" text-anchor="middle">$</text>
+  </g>
+</svg>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="pPodo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#0369a1" />
+    </linearGradient>
+    <linearGradient id="pBlade" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="60%" stop-color="#e2e8f0" />
+      <stop offset="100%" stop-color="#94a3b8" />
+    </linearGradient>
+    <filter id="fShadowPodo" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#082f49" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <g filter="url(#fShadowPodo)">
+    <circle cx="16" cy="10" r="5.5" fill="url(#pPodo)" />
+    <circle cx="26" cy="8" r="4.6" fill="url(#pPodo)" />
+    <circle cx="35" cy="10.5" r="3.9" fill="url(#pPodo)" />
+    <circle cx="42.5" cy="15" r="3.2" fill="url(#pPodo)" />
+    <circle cx="48.5" cy="21" r="2.6" fill="url(#pPodo)" />
+
+    <path d="M 16 19
+             C 14 19, 44 19, 45 25
+             C 45 32, 39 37, 38 42
+             C 37 47, 39 52, 40 55
+             C 40 60, 36 62, 30 62
+             C 24 62, 20 59, 20 54
+             C 20 48, 23 41, 23 35
+             C 23 29, 17 25, 16 19 Z" 
+          fill="url(#pPodo)" />
+  </g>
+
+  <!-- Bisturí Podológico Quirúrgico de Precisión tratando la zona -->
+  <g filter="url(#fShadowPodo)">
+    <!-- Mango ergonómico -->
+    <path d="M 60 25 L 43 42 L 37 36 L 54 19 Z" fill="#0f172a" stroke="#ffffff" stroke-width="1.5" />
+    <line x1="52" y1="23" x2="48" y2="27" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" />
+    <line x1="56" y1="27" x2="52" y2="31" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" />
+    <!-- Hoja afilada de bisturí -->
+    <path d="M 43 42 L 27 52 C 25.5 53, 24.5 51.5, 26 50 L 37 36 Z" fill="url(#pBlade)" stroke="#ffffff" stroke-width="1.2" />
+    <circle cx="27" cy="51" r="2.2" fill="#ffffff" />
+  </g>
+</svg>
