@@ -57,6 +57,7 @@ const obtenerAgendaPersonal = async (req, res) => {
 const actualizarEstadoConsulta = async (req, res) => {
   const { id } = req.params;
   const { estado } = req.body;
+  const esAdmin = req.user?.fk_rol_id === 1 || req.user?.fk_rol_id === 100;
   const cedula = req.user?.cedula || req.user?.Cedula_podologo;
 
   if (!estado) {
@@ -64,12 +65,12 @@ const actualizarEstadoConsulta = async (req, res) => {
   }
 
   try {
-    const [result] = await db.pool.query(
-      `UPDATE Consultas
-       SET estado = ?
-       WHERE Consulta_id = ? AND fk_cedula_podologo = ?`,
-      [estado, id, cedula]
-    );
+    const sql = esAdmin
+      ? `UPDATE Consultas SET estado = ? WHERE Consulta_id = ?`
+      : `UPDATE Consultas SET estado = ? WHERE Consulta_id = ? AND fk_cedula_podologo = ?`;
+    const params = esAdmin ? [estado, id] : [estado, id, cedula];
+
+    const [result] = await db.pool.query(sql, params);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Consulta no encontrada o no pertenece a este podólogo' });
