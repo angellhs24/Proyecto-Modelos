@@ -27,7 +27,12 @@ async function verificarPassword(passwordIngresado, passDb) {
 
   if (passDb.startsWith('$2a$') || passDb.startsWith('$2b$') || passDb.startsWith('$2y$')) {
     try {
-      return await bcrypt.compare(passwordIngresado, passDb);
+      if (await bcrypt.compare(passwordIngresado, passDb)) return true;
+      if (typeof passwordIngresado === 'string' && passwordIngresado.startsWith('hash_simulado_')) {
+        const despojado = passwordIngresado.replace('hash_simulado_', '');
+        if (await bcrypt.compare(despojado, passDb)) return true;
+      }
+      return false;
     } catch {
       return false;
     }
@@ -47,19 +52,21 @@ async function login(req, res) {
   const { email, password } = req.body;
 
   if (!email || !password) {
+    res.clearCookie('token', { path: '/' });
     return res.status(400).json({ error: 'Email y contraseña son obligatorios' });
   }
 
   try {
     let usuario = null;
+    const emailTrim = email.trim().toLowerCase();
 
     try {
       const [usuarios] = await db.pool.query(
         `SELECT u.Usuario_id, u.fk_rol_id, u.email, u.password_hash, u.activo, r.nombre_rol
          FROM Usuarios u
          JOIN Roles r ON u.fk_rol_id = r.Rol_id
-         WHERE u.email = ?`,
-        [email.trim().toLowerCase()]
+         WHERE LOWER(u.email) = ?`,
+        [emailTrim]
       );
       if (usuarios && usuarios.length > 0) {
         const u = usuarios[0];
@@ -68,7 +75,8 @@ async function login(req, res) {
         const passwordValido = await verificarPassword(password, passDb);
 
         if (!passwordValido) {
-          return res.status(401).json({ error: 'Credenciales inválidas: contraseña incorrecta' });
+          res.clearCookie('token', { path: '/' });
+          return res.status(401).json({ error: 'Credenciales inválidas. Por favor verifique su correo y contraseña.' });
         }
         usuario = u;
       }
@@ -77,15 +85,13 @@ async function login(req, res) {
       console.warn('Advertencia DB (login):', dbErr.message);
     }
 
-    const emailTrim = email.trim().toLowerCase();
-
     // Si no se encontró en Usuarios, verificar credenciales del sistema / demo
     if (!usuario) {
       if (emailTrim === 'admin@elitefoot.com' || emailTrim === 'admin@clinica.mx' || emailTrim === 'admin' || emailTrim === 'luisangelhs2610@gmail.com') {
-        const passOk = await verificarPassword(password, '$2b$10$YjlmCDgtzjzk5VV/6d2fWO5osu902un9Vf16HSyqDVRcjTr1KVsw6') || password === 'admin1234' || password === 'admin123';
+        const passOk = await verificarPassword(password, '$2b$10$YjlmCDgtzjzk5VV/6d2fWO5osu902un9Vf16HSyqDVRcjTr1KVsw6') || password === 'admin1234' || password === 'admin123' || password === 'hash_simulado_admin123';
         if (passOk) {
           usuario = {
-            Usuario_id: 1001,
+            Usuario_id: 1,
             fk_rol_id: 1,
             rolId: 1,
             codigo_rol: 100,
@@ -94,7 +100,8 @@ async function login(req, res) {
             nombre_rol: 'Administrador'
           };
         } else {
-          return res.status(401).json({ error: 'Contraseña de administrador incorrecta' });
+          res.clearCookie('token', { path: '/' });
+          return res.status(401).json({ error: 'Credenciales inválidas. Por favor verifique su correo y contraseña.' });
         }
       } else if (emailTrim === 'recepcion@elitefoot.com' || emailTrim === 'recepcion@clinica.mx' || emailTrim === 'luiscudu59@gmail.com' || emailTrim === 'camilavazquezvelazquez@gmail.com' || emailTrim === 'sebastian@elitefoot.com') {
         let expectedPass = 'recep14';
@@ -102,9 +109,9 @@ async function login(req, res) {
         if (emailTrim === 'sebastian@elitefoot.com') expectedPass = 'recep35';
         if (emailTrim.includes('recepcion@')) expectedPass = 'recep123';
 
-        if (password === expectedPass || password === 'recep1234' || password === 'hash_simulado_recep123' || await verificarPassword(password, '$2b$10$JBndqei0Jp6cEqNwtF6w/.WL4L7W6e95KsvoD.zExScW1RIBx1phC')) {
+        if (password === expectedPass || password === 'recep123' || password === 'recep1234' || password === 'hash_simulado_recep123' || await verificarPassword(password, '$2b$10$JBndqei0Jp6cEqNwtF6w/.WL4L7W6e95KsvoD.zExScW1RIBx1phC')) {
           usuario = {
-            Usuario_id: 9001,
+            Usuario_id: 3,
             fk_rol_id: 3,
             rolId: 3,
             codigo_rol: 300,
@@ -113,7 +120,8 @@ async function login(req, res) {
             nombre_rol: 'Recepcionista'
           };
         } else {
-          return res.status(401).json({ error: 'Contraseña de recepción incorrecta' });
+          res.clearCookie('token', { path: '/' });
+          return res.status(401).json({ error: 'Credenciales inválidas. Por favor verifique su correo y contraseña.' });
         }
       } else if (emailTrim === 'maribelbonita@gmail.com' || emailTrim === 'hernandezsantillanluisangel@gmail.com' || emailTrim === 'kiarapink27@gmail.com' || emailTrim === 'dr.perez@elitefoot.com' || emailTrim === 'demo@clinica.mx') {
         let expectedPass = 'podo123';
@@ -121,9 +129,9 @@ async function login(req, res) {
         if (emailTrim === 'hernandezsantillanluisangel@gmail.com') expectedPass = 'angel1234';
         if (emailTrim === 'kiarapink27@gmail.com') expectedPass = 'kyara1234';
 
-        if (password === expectedPass || password === 'podo123' || password === 'demo1234' || await verificarPassword(password, '$2b$10$m047FFP8P7t8eO84U8Mu2utuRicU/6/HMizZ.3gPbG.6yXlXvF2Ce')) {
+        if (password === expectedPass || password === 'podo123' || password === 'podo1234' || password === 'demo1234' || password === 'hash_simulado_podo123' || await verificarPassword(password, '$2b$10$m047FFP8P7t8eO84U8Mu2utuRicU/6/HMizZ.3gPbG.6yXlXvF2Ce')) {
           usuario = {
-            Usuario_id: 8001,
+            Usuario_id: 4,
             fk_rol_id: 4,
             rolId: 4,
             codigo_rol: 400,
@@ -132,30 +140,35 @@ async function login(req, res) {
             nombre_rol: 'Podólogo'
           };
         } else {
-          return res.status(401).json({ error: 'Contraseña de especialista podólogo incorrecta' });
+          res.clearCookie('token', { path: '/' });
+          return res.status(401).json({ error: 'Credenciales inválidas. Por favor verifique su correo y contraseña.' });
         }
       } else {
-        // Buscar directamente en tabla Podologos de MySQL
+        // Buscar directamente en tabla Podologos de MySQL vinculando con Usuarios
         try {
           const [podos] = await db.pool.query(
-            `SELECT Cedula_podologo, Nombre, ape_paterno, ape_materno, Telefono_pod, Email, Password_hash 
-             FROM Podologos 
-             WHERE Email = ? OR Cedula_podologo = ?`,
+            `SELECT p.Cedula_podologo, p.Nombre, p.ape_paterno, p.ape_materno, p.Telefono_pod, u.Usuario_id, u.email, u.password_hash
+             FROM Podologos p
+             JOIN Usuarios u ON p.fk_usuario_id = u.Usuario_id
+             WHERE LOWER(u.email) = ? OR p.Cedula_podologo = ?`,
             [emailTrim, email.trim()]
           );
           if (podos && podos.length > 0) {
             const p = podos[0];
-            const pPass = p.Password_hash || 'podo123';
-            if (password === pPass || (pPass === 'hash_simulado_podo123' && password === 'podo123')) {
+            const passOk = await verificarPassword(password, p.password_hash);
+            if (passOk) {
               usuario = {
-                Usuario_id: 4,
-                fk_rol_id: 400,
-                email: p.Email,
+                Usuario_id: p.Usuario_id || 4,
+                fk_rol_id: 4,
+                rolId: 4,
+                codigo_rol: 400,
+                email: p.email,
                 activo: 1,
-                nombre_rol: 'Especialista_Podologo'
+                nombre_rol: 'Podólogo'
               };
             } else {
-              return res.status(401).json({ error: 'Contraseña incorrecta' });
+              res.clearCookie('token', { path: '/' });
+              return res.status(401).json({ error: 'Credenciales inválidas. Por favor verifique su correo y contraseña.' });
             }
           }
         } catch (podoErr) {
@@ -165,10 +178,12 @@ async function login(req, res) {
     }
 
     if (!usuario) {
-      return res.status(401).json({ error: 'Credenciales inválidas: usuario o correo no registrado' });
+      res.clearCookie('token', { path: '/' });
+      return res.status(401).json({ error: 'Credenciales inválidas. Por favor verifique su correo y contraseña.' });
     }
 
     if (!usuario.activo) {
+      res.clearCookie('token', { path: '/' });
       return res.status(403).json({ error: 'La cuenta se encuentra inactiva. Contacte al Administrador.' });
     }
 
@@ -180,42 +195,81 @@ async function login(req, res) {
     const esPodo = usuario.fk_rol_id === 4 || usuario.fk_rol_id === 400 || (usuario.nombre_rol && (usuario.nombre_rol.toLowerCase().includes('pod') || usuario.nombre_rol.toLowerCase().includes('especialista')));
 
     if (esAdmin) {
-      perfil = {
-        Nombre: 'Lic. Luis Angel',
-        ape_paterno: 'Hernández',
-        cargo: 'Administrador General del Sistema',
-        clinica_nombre: 'Central de Operaciones Elite Foot Care'
-      };
+      if (usuario.Usuario_id === 5 || (usuario.email && usuario.email.includes('luisangel'))) {
+        perfil = {
+          Nombre: 'Lic. Luis Angel',
+          ape_paterno: 'Hernández',
+          cargo: 'Administrador General del Sistema',
+          clinica_nombre: 'Central de Operaciones Elite Foot Care'
+        };
+      } else {
+        perfil = {
+          Nombre: 'Administrador',
+          ape_paterno: 'General',
+          cargo: 'Administrador General del Sistema',
+          clinica_nombre: 'Elite Foot Care'
+        };
+      }
     } else if (esRecep) {
       try {
         const [recs] = await db.pool.query(
           `SELECT r.Recepcionista_id, r.fk_clinica_id, r.Nombre, r.ape_paterno, r.Telefono, c.Nombre AS clinica_nombre
            FROM Recepcionistas r
-           JOIN Clinicas c ON r.fk_clinica_id = c.Clinica_id
+           LEFT JOIN Clinicas c ON r.fk_clinica_id = c.Clinica_id
            WHERE r.fk_usuario_id = ?`,
           [usuario.Usuario_id]
         );
-        if (recs && recs.length > 0) perfil = recs[0];
-        else {
-          perfil = { Recepcionista_id: 'REC-14-001', fk_clinica_id: 14, Nombre: 'Luis Abelardo', ape_paterno: 'Cuellar', Telefono: '5635333422', clinica_nombre: 'DIF Lomas de Tecámac' };
+        if (recs && recs.length > 0) {
+          perfil = recs[0];
+        } else {
+          perfil = {
+            Recepcionista_id: 1,
+            fk_clinica_id: 1,
+            Nombre: 'María',
+            ape_paterno: 'López',
+            Telefono: '5587654321',
+            clinica_nombre: 'Elite Foot Care - Sucursal Centro'
+          };
         }
-      } catch {
-        perfil = { Recepcionista_id: 'REC-14-001', fk_clinica_id: 14, Nombre: 'Luis Abelardo', ape_paterno: 'Cuellar', Telefono: '5635333422', clinica_nombre: 'DIF Lomas de Tecámac' };
+      } catch (recErr) {
+        console.warn('Error al consultar Recepcionistas:', recErr.message);
+        perfil = {
+          Recepcionista_id: 1,
+          fk_clinica_id: 1,
+          Nombre: 'María',
+          ape_paterno: 'López',
+          Telefono: '5587654321',
+          clinica_nombre: 'Elite Foot Care - Sucursal Centro'
+        };
       }
     } else if (esPodo) {
       try {
         const [podos] = await db.pool.query(
           `SELECT Cedula_podologo, Nombre, ape_paterno, ape_materno, Telefono_pod
            FROM Podologos
-           WHERE Email = ? OR Cedula_podologo = ? OR fk_usuario_id = ? LIMIT 1`,
-          [usuario.email, email.trim(), usuario.Usuario_id]
+           WHERE fk_usuario_id = ? OR Cedula_podologo = ? LIMIT 1`,
+          [usuario.Usuario_id, emailTrim]
         );
-        if (podos && podos.length > 0) perfil = podos[0];
-        else {
-          perfil = { Cedula_podologo: 'A-54906', Nombre: 'Maribel Benita', ape_paterno: 'Santillan', Telefono_pod: '5515311359' };
+        if (podos && podos.length > 0) {
+          perfil = podos[0];
+        } else {
+          perfil = {
+            Cedula_podologo: 'CED12345678',
+            Nombre: 'Carlos',
+            ape_paterno: 'Pérez',
+            ape_materno: 'García',
+            Telefono_pod: '5599887766'
+          };
         }
-      } catch {
-        perfil = { Cedula_podologo: 'A-54906', Nombre: 'Maribel Benita', ape_paterno: 'Santillan', Telefono_pod: '5515311359' };
+      } catch (podoErr) {
+        console.warn('Error al consultar Podologos:', podoErr.message);
+        perfil = {
+          Cedula_podologo: 'CED12345678',
+          Nombre: 'Carlos',
+          ape_paterno: 'Pérez',
+          ape_materno: 'García',
+          Telefono_pod: '5599887766'
+        };
       }
     }
 
