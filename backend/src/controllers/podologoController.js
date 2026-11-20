@@ -25,9 +25,11 @@ const obtenerPodologos = async (req, res) => {
       `SELECT p.Cedula_podologo, p.Cedula_podologo AS cedula, p.Nombre, p.ape_paterno, p.ape_materno, 
               TRIM(CONCAT(p.Nombre, ' ', p.ape_paterno, ' ', COALESCE(p.ape_materno, ''))) AS nombre_completo,
               p.Telefono_pod, p.Telefono_pod AS telefono, COALESCE(u.email, '') AS Email, COALESCE(p.Turno, 'C') AS turno,
+              p.fk_clinica_id, COALESCE(cl.Nombre, '') AS clinica_nombre,
               COALESCE(u.activo, 1) = 1 AS usuario_activo
        FROM Podologos p
        LEFT JOIN Usuarios u ON p.fk_usuario_id = u.Usuario_id
+       LEFT JOIN Clinicas cl ON p.fk_clinica_id = cl.Clinica_id
        ORDER BY p.Nombre ASC`
     );
 

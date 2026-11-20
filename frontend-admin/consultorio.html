@@ -42,10 +42,10 @@
       <div class="header-actions">
         <!-- Indicador de Podólogo Activo -->
         <div class="user-chip" id="user-chip-container">
-          <div class="user-avatar" id="podo-avatar-initials">CP</div>
+          <div class="user-avatar" id="podo-avatar-initials">--</div>
           <div class="user-meta">
-            <span class="user-name" id="podo-display-name">Dr. Carlos Pérez</span>
-            <span class="user-role-badge role-badge-podo" id="podo-role-text">Cédula: CED12345678 · Rol ID: 4</span>
+            <span class="user-name" id="podo-display-name">Cargando especialista...</span>
+            <span class="user-role-badge role-badge-podo" id="podo-role-text">Cédula: -- · Rol ID: 4</span>
           </div>
         </div>
 
@@ -134,16 +134,6 @@
           <p class="admin-showroom-sub" id="podo-greeting-subtitle">
             Citas asignadas a tu cédula profesional, control de turnos en consultorio e inicio de atención clínica.
           </p>
-        </div>
-
-        <!-- Banner de Política de Sesión -->
-        <div class="security-alert-box" style="margin-bottom: 24px;">
-          <div class="security-alert-icon" style="color: #7c3aed;"><i class="fa-solid fa-user-doctor"></i></div>
-          <div class="security-alert-content">
-            <strong>Filtro Estricto de Agenda Personal (Rol ID: 4 · Podólogo):</strong>
-            Por aislamiento RBAC, solo se muestran las consultas médicas donde el campo <code>fk_cedula_podologo</code> coincide 
-            con la cédula del podólogo autenticado (<strong id="cedula-sesion-indicador">CED12345678</strong>). No es posible visualizar citas de otros especialistas.
-          </div>
         </div>
 
         <!-- Tarjetas KPI -->
@@ -802,7 +792,7 @@
   <div id="toast-container"></div>
 
   <!-- Scripts Vanilla JS -->
-  <script src="js/session.js?v=20261021"></script>
-  <script src="js/consultorio.js?v=20261021"></script>
+  <script src="js/session.js?v=20261119"></script>
+  <script src="js/consultorio.js?v=20261119"></script>
 </body>
 </html>

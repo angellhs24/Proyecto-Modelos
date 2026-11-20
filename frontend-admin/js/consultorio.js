@@ -36,6 +36,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  actualizarUIPodologo(currentUser);
+
   // Refrescar perfil completo y actualizado desde el backend
   try {
     const perfilRes = await AppAuth.fetchApi('/api/auth/me');
@@ -98,10 +100,14 @@ function actualizarUIPodologo(user) {
   const nombre = user.nombre || user.Nombre || user.perfil?.Nombre || '';
   const ape = user.ape_paterno || user.perfil?.ape_paterno || '';
   const cedula = user.cedula || user.Cedula_podologo || user.perfil?.Cedula_podologo || '';
-  const titulo = user.titulo || obtenerTituloProfesional(nombre);
+  const titulo = user.titulo || obtenerTituloProfesional(nombre || user.nombre_completo || '');
 
-  const nombreDisplay = nombre ? `${titulo} ${nombre} ${ape}`.trim() : 'Especialista en Podología';
-  const nombreCorto = nombre ? `${titulo} ${nombre}`.trim() : 'Especialista';
+  const nombreDisplay = nombre
+    ? `${titulo} ${nombre} ${ape}`.trim()
+    : (user.nombre_completo || 'Especialista en Podología');
+  const nombreCorto = nombre
+    ? `${titulo} ${nombre}`.trim()
+    : (user.nombre_completo || 'Especialista');
 
   if (nameEl) nameEl.textContent = nombreDisplay;
   if (roleEl) roleEl.textContent = cedula ? `Cédula: ${cedula} · Rol ID: 4` : 'Consultorio Podológico';

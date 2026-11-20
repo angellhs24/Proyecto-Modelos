@@ -245,10 +245,11 @@ async function login(req, res) {
     } else if (esPodo) {
       try {
         const [podos] = await db.pool.query(
-          `SELECT Cedula_podologo, Nombre, ape_paterno, ape_materno, Telefono_pod
-           FROM Podologos
-           WHERE fk_usuario_id = ? OR Cedula_podologo = ? LIMIT 1`,
-          [usuario.Usuario_id, emailTrim]
+          `SELECT p.Cedula_podologo, p.Nombre, p.ape_paterno, p.ape_materno, p.Telefono_pod
+           FROM Podologos p
+           LEFT JOIN Usuarios u ON p.fk_usuario_id = u.Usuario_id
+           WHERE p.fk_usuario_id = ? OR p.Cedula_podologo = ? OR LOWER(u.email) = ? LIMIT 1`,
+          [usuario.Usuario_id, emailTrim, emailTrim]
         );
         if (podos && podos.length > 0) {
           perfil = podos[0];

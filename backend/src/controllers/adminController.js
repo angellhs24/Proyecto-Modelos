@@ -222,9 +222,11 @@ const obtenerPodologosAdmin = async (req, res) => {
       SELECT p.Cedula_podologo, p.Nombre, p.ape_paterno, p.ape_materno, 
              TRIM(CONCAT(p.Nombre, ' ', p.ape_paterno, ' ', COALESCE(p.ape_materno, ''))) AS nombre_completo,
              p.Telefono_pod, COALESCE(u.email, '') AS Email, COALESCE(p.Turno, 'C') AS turno,
+             p.fk_clinica_id, COALESCE(cl.Nombre, 'Sin clínica asignada') AS clinica_nombre,
              COALESCE(u.activo, 1) = 1 AS usuario_activo
       FROM Podologos p
       LEFT JOIN Usuarios u ON p.fk_usuario_id = u.Usuario_id
+      LEFT JOIN Clinicas cl ON p.fk_clinica_id = cl.Clinica_id
       ORDER BY p.Nombre ASC
     `);
 
@@ -258,7 +260,8 @@ const crearPodologoAdmin = async (req, res) => {
     email,
     Password_hash,
     password,
-    turno
+    turno,
+    fk_clinica_id
   } = req.body;
 
   const cedula = (Cedula_podologo || '').trim();
@@ -269,9 +272,11 @@ const crearPodologoAdmin = async (req, res) => {
   const correo = (Email || email || '').trim().toLowerCase();
   const rawPass = Password_hash || password || 'podo123';
   const turnoVal = (turno || 'C').slice(0, 1).toUpperCase();
+  const turnoSql = ['M', 'V', 'C'].includes(turnoVal) ? turnoVal : 'C';
+  const clinicaId = fk_clinica_id ? parseInt(fk_clinica_id, 10) : null;
 
-  if (!cedula || !nombre || !apeP || !correo) {
-    return res.status(400).json({ error: 'Cédula, nombre, apellido paterno y correo electrónico son obligatorios' });
+  if (!cedula || !nombre || !apeP || !correo || !clinicaId) {
+    return res.status(400).json({ error: 'Cédula, nombre, apellido paterno, correo electrónico y clínica asignada son obligatorios' });
   }
 
   try {
@@ -296,15 +301,16 @@ const crearPodologoAdmin = async (req, res) => {
 
     // 3. Insertar en tabla MySQL Podologos
     await db.pool.query(
-      `INSERT INTO Podologos (Cedula_podologo, fk_usuario_id, Nombre, ape_paterno, ape_materno, Telefono_pod, Turno)
-       VALUES (?, ?, ?, ?, ?, ?, ?)
+      `INSERT INTO Podologos (Cedula_podologo, fk_usuario_id, fk_clinica_id, Nombre, ape_paterno, ape_materno, Telefono_pod, Turno)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE
+         fk_clinica_id = VALUES(fk_clinica_id),
          Nombre = VALUES(Nombre),
          ape_paterno = VALUES(ape_paterno),
          ape_materno = VALUES(ape_materno),
          Telefono_pod = VALUES(Telefono_pod),
          Turno = VALUES(Turno)`,
-      [cedula, usuarioId, nombre, apeP, apeM, tel, turnoVal]
+      [cedula, usuarioId, clinicaId, nombre, apeP, apeM, tel, turnoSql]
     );
 
     // 4. Guardar estado activo y turno en store de admin
@@ -388,10 +394,12 @@ const cambiarEstadoPodologo = async (req, res) => {
 
 const actualizarPodologoAdmin = async (req, res) => {
   const { cedula } = req.params;
-  const { Nombre, ape_paterno, ape_materno, Telefono_pod, Email, turno } = req.body;
+  const { Nombre, ape_paterno, ape_materno, Telefono_pod, Email, turno, fk_clinica_id } = req.body;
 
   try {
     const turnoVal = turno ? turno.slice(0, 1).toUpperCase() : null;
+    const turnoSql = turnoVal ? (['M', 'V', 'C'].includes(turnoVal) ? turnoVal : 'C') : null;
+    const clinicaId = fk_clinica_id ? parseInt(fk_clinica_id, 10) : null;
 
     await db.pool.query(
       `UPDATE Podologos 
@@ -399,9 +407,10 @@ const actualizarPodologoAdmin = async (req, res) => {
            ape_paterno = COALESCE(?, ape_paterno),
            ape_materno = ?,
            Telefono_pod = COALESCE(?, Telefono_pod),
-           Turno = COALESCE(?, Turno)
+           Turno = COALESCE(?, Turno),
+           fk_clinica_id = COALESCE(?, fk_clinica_id)
        WHERE Cedula_podologo = ?`,
-      [Nombre, ape_paterno, ape_materno || null, Telefono_pod, turnoVal, cedula]
+      [Nombre, ape_paterno, ape_materno || null, Telefono_pod, turnoSql, clinicaId, cedula]
     );
 
     if (Email) {
@@ -633,9 +642,23 @@ const actualizarRecepcionistaAdmin = async (req, res) => {
         turno: turno || receps[index].turno,
         clinica_nombre: clinica_nombre || receps[index].clinica_nombre
       };
-      store.recepcionistas = receps;
-      guardarAdminStore(store);
+    } else {
+      receps.push({
+        id,
+        Recepcionista_id: id,
+        nombre: nombre ? nombre.trim() : '',
+        ape_paterno: ape_paterno ? ape_paterno.trim() : '',
+        ape_materno: ape_materno ? ape_materno.trim() : '',
+        email: email ? email.trim().toLowerCase() : '',
+        telefono: telefono ? telefono.trim() : '',
+        fk_clinica_id: fk_clinica_id ? parseInt(fk_clinica_id, 10) : null,
+        turno: turno || 'Matutino (8:00 - 15:00)',
+        clinica_nombre: clinica_nombre || '',
+        activo: true
+      });
     }
+    store.recepcionistas = receps;
+    guardarAdminStore(store);
 
     res.json({ mensaje: 'Datos de recepcionista actualizados exitosamente' });
   } catch (error) {
@@ -647,6 +670,74 @@ const actualizarRecepcionistaAdmin = async (req, res) => {
 // --------------------------------------------------------------------------
 // 4. GESTIÓN Y MODIFICACIÓN DE PACIENTES / CLIENTES
 // --------------------------------------------------------------------------
+function normalizarPacienteAdmin(p) {
+  if (!p) return p;
+
+  const rawFechaNac = p.fecha_nacimiento ?? p.Fecha_nacimiento ?? p.fechaNacimiento ?? null;
+  let fechaNacFormatted = null;
+  if (rawFechaNac) {
+    if (rawFechaNac instanceof Date) {
+      const y = rawFechaNac.getFullYear();
+      const m = String(rawFechaNac.getMonth() + 1).padStart(2, '0');
+      const d = String(rawFechaNac.getDate()).padStart(2, '0');
+      fechaNacFormatted = `${y}-${m}-${d}`;
+    } else {
+      const s = String(rawFechaNac).trim();
+      fechaNacFormatted = s.includes('T') ? s.split('T')[0].trim() : s.slice(0, 10);
+    }
+  }
+
+  const parseBoolBit = (val) => {
+    if (val === null || val === undefined) return 0;
+    if (typeof val === 'boolean') return val ? 1 : 0;
+    if (typeof val === 'number') return val === 1 ? 1 : 0;
+    if (typeof val === 'string') {
+      const str = val.trim().toLowerCase();
+      return (str === '1' || str === 'true' || str === 'si' || str === 's' || str === 't') ? 1 : 0;
+    }
+    if (Buffer.isBuffer(val)) return val.length > 0 && val[0] === 1 ? 1 : 0;
+    if (typeof val === 'object' && val.type === 'Buffer' && Array.isArray(val.data)) {
+      return val.data.length > 0 && val.data[0] === 1 ? 1 : 0;
+    }
+    return Boolean(val) ? 1 : 0;
+  };
+
+  const calleDir = p.calle_direccion ?? p.Calle_direccion ?? p.direccion ?? null;
+  const calz = p.calzado ?? p.Calzado ?? null;
+  const ocup = p.ocupacion ?? p.Ocupacion ?? null;
+  const mun = p.Municipio ?? p.municipio ?? null;
+  const sexo = p.Sexo ?? p.sexo ?? null;
+  const antPat = p.Antecedentes_patologicos ?? p.antecedentes_patologicos ?? null;
+  const notas = p.Notas ?? p.notas ?? p.notas_alergias ?? null;
+  const diab = parseBoolBit(p.es_diabetico ?? p.Es_diabetico);
+  const hiper = parseBoolBit(p.es_hipertenso ?? p.Es_hipertenso);
+  const exp = p.No_expediente ?? p.expediente;
+
+  return {
+    ...p,
+    No_expediente: exp,
+    expediente: exp,
+    fecha_nacimiento: fechaNacFormatted,
+    Fecha_nacimiento: fechaNacFormatted,
+    Sexo: sexo,
+    sexo,
+    calzado: calz,
+    Calzado: calz,
+    calle_direccion: calleDir,
+    Calle_direccion: calleDir,
+    Municipio: mun,
+    municipio: mun,
+    ocupacion: ocup,
+    Ocupacion: ocup,
+    es_diabetico: diab,
+    es_hipertenso: hiper,
+    Antecedentes_patologicos: antPat,
+    antecedentes_patologicos: antPat,
+    Notas: notas,
+    notas_alergias: notas
+  };
+}
+
 const obtenerPacientesAdmin = async (req, res) => {
   const { q, condicion } = req.query;
 
@@ -657,7 +748,7 @@ const obtenerPacientesAdmin = async (req, res) => {
              p.No_expediente AS expediente,
              p.Notas AS notas_alergias,
              CASE 
-               WHEN p.Fecha_nacimiento IS NOT NULL THEN TIMESTAMPDIFF(YEAR, p.Fecha_nacimiento, CURDATE())
+               WHEN p.fecha_nacimiento IS NOT NULL THEN TIMESTAMPDIFF(YEAR, p.fecha_nacimiento, CURDATE())
                ELSE NULL 
              END AS edad,
              (SELECT COUNT(*) FROM Consultas c WHERE c.fk_no_expediente = p.No_expediente) AS total_consultas,
@@ -694,7 +785,7 @@ const obtenerPacientesAdmin = async (req, res) => {
 
       // Si no existe, conservarlo
       if (!mapPacientesUnicos.has(clave)) {
-        mapPacientesUnicos.set(clave, p);
+        mapPacientesUnicos.set(clave, normalizarPacienteAdmin(p));
       }
     });
 
@@ -706,19 +797,48 @@ const obtenerPacientesAdmin = async (req, res) => {
   }
 };
 
+const obtenerPacientePorExpedienteAdmin = async (req, res) => {
+  const { no_expediente } = req.params;
+
+  try {
+    const [rows] = await db.pool.query(
+      `SELECT p.*,
+              TRIM(CONCAT(p.Nombres, ' ', p.ape_paterno, ' ', COALESCE(p.ape_materno, ''))) AS nombre_completo,
+              p.No_expediente AS expediente,
+              p.Notas AS notas_alergias,
+              CASE
+                WHEN p.fecha_nacimiento IS NOT NULL THEN TIMESTAMPDIFF(YEAR, p.fecha_nacimiento, CURDATE())
+                ELSE NULL
+              END AS edad
+       FROM Pacientes p
+       WHERE p.No_expediente = ?`,
+      [no_expediente]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Paciente no encontrado' });
+    }
+
+    res.json(normalizarPacienteAdmin(rows[0]));
+  } catch (error) {
+    console.error('Error al obtener paciente admin:', error);
+    res.status(500).json({ error: 'Error al consultar los datos del paciente' });
+  }
+};
+
 const actualizarPacienteAdmin = async (req, res) => {
   const { no_expediente } = req.params;
 
-  const nombres = req.body.Nombres || req.body.nombres;
-  const apePaterno = req.body.ape_paterno || req.body.apePaterno;
+  const nombres = req.body.Nombres !== undefined ? req.body.Nombres : req.body.nombres;
+  const apePaterno = req.body.ape_paterno !== undefined ? req.body.ape_paterno : req.body.apePaterno;
   const apeMaterno = req.body.ape_materno !== undefined ? req.body.ape_materno : req.body.apeMaterno;
   const telefono = req.body.telefono;
-  const fechaNac = req.body.Fecha_nacimiento || req.body.fecha_nacimiento || req.body.fechaNacimiento;
-  const sexo = req.body.Sexo || req.body.sexo;
-  const calzado = req.body.Calzado !== undefined ? req.body.Calzado : req.body.calzado;
-  const calle = req.body.Calle_direccion !== undefined ? req.body.Calle_direccion : (req.body.calle_direccion !== undefined ? req.body.calle_direccion : req.body.direccion);
+  const fechaNac = req.body.fecha_nacimiento !== undefined ? req.body.fecha_nacimiento : (req.body.Fecha_nacimiento !== undefined ? req.body.Fecha_nacimiento : req.body.fechaNacimiento);
+  const sexo = req.body.Sexo !== undefined ? req.body.Sexo : req.body.sexo;
+  const calzado = req.body.calzado !== undefined ? req.body.calzado : req.body.Calzado;
+  const calle = req.body.calle_direccion !== undefined ? req.body.calle_direccion : (req.body.Calle_direccion !== undefined ? req.body.Calle_direccion : req.body.direccion);
   const mun = req.body.Municipio !== undefined ? req.body.Municipio : req.body.municipio;
-  const ocupacion = req.body.Ocupacion !== undefined ? req.body.Ocupacion : req.body.ocupacion;
+  const ocupacion = req.body.ocupacion !== undefined ? req.body.ocupacion : req.body.Ocupacion;
   const antPat = req.body.Antecedentes_patologicos !== undefined ? req.body.Antecedentes_patologicos : req.body.antecedentes_patologicos;
   const notas = req.body.Notas !== undefined ? req.body.Notas : (req.body.notas !== undefined ? req.body.notas : req.body.notas_alergias);
 
@@ -739,41 +859,78 @@ const actualizarPacienteAdmin = async (req, res) => {
   const diabVal = parseBooleanLike(rawDiab);
   const hiperVal = parseBooleanLike(rawHiper);
 
+  const updates = [];
+  const params = [];
+
+  if (nombres !== undefined) {
+    updates.push('Nombres = ?');
+    params.push(nombres === null ? null : String(nombres).trim());
+  }
+  if (apePaterno !== undefined) {
+    updates.push('ape_paterno = ?');
+    params.push(apePaterno === null ? null : String(apePaterno).trim());
+  }
+  if (apeMaterno !== undefined) {
+    updates.push('ape_materno = ?');
+    params.push(apeMaterno === null || String(apeMaterno).trim() === '' ? null : String(apeMaterno).trim());
+  }
+  if (telefono !== undefined) {
+    updates.push('telefono = ?');
+    params.push(telefono === null ? null : String(telefono).trim());
+  }
+  if (fechaNac !== undefined) {
+    updates.push('fecha_nacimiento = ?');
+    params.push(fechaNac === null || String(fechaNac).trim() === '' ? null : String(fechaNac).trim().slice(0, 10));
+  }
+  if (sexo !== undefined) {
+    updates.push('Sexo = ?');
+    params.push(sexo === null || String(sexo).trim() === '' ? null : String(sexo).trim());
+  }
+  if (calzado !== undefined) {
+    const calzTrim = calzado === null ? '' : String(calzado).trim();
+    const calzNum = calzTrim === '' ? null : parseFloat(calzTrim);
+    updates.push('calzado = ?');
+    params.push(calzNum !== null && !Number.isNaN(calzNum) ? calzNum : null);
+  }
+  if (calle !== undefined) {
+    updates.push('calle_direccion = ?');
+    params.push(calle === null || String(calle).trim() === '' ? null : String(calle).trim());
+  }
+  if (mun !== undefined) {
+    updates.push('Municipio = ?');
+    params.push(mun === null || String(mun).trim() === '' ? null : String(mun).trim());
+  }
+  if (ocupacion !== undefined) {
+    updates.push('ocupacion = ?');
+    params.push(ocupacion === null || String(ocupacion).trim() === '' ? null : String(ocupacion).trim());
+  }
+  if (diabVal !== null) {
+    updates.push('es_diabetico = ?');
+    params.push(diabVal);
+  }
+  if (hiperVal !== null) {
+    updates.push('es_hipertenso = ?');
+    params.push(hiperVal);
+  }
+  if (antPat !== undefined) {
+    updates.push('Antecedentes_patologicos = ?');
+    params.push(antPat === null || String(antPat).trim() === '' ? null : String(antPat).trim());
+  }
+  if (notas !== undefined) {
+    updates.push('Notas = ?');
+    params.push(notas === null || String(notas).trim() === '' ? null : String(notas).trim());
+  }
+
+  if (updates.length === 0) {
+    return res.status(400).json({ error: 'No se proporcionaron campos para actualizar' });
+  }
+
+  params.push(no_expediente);
+
   try {
     await db.pool.query(
-      `UPDATE Pacientes
-       SET Nombres = COALESCE(?, Nombres),
-           ape_paterno = COALESCE(?, ape_paterno),
-           ape_materno = COALESCE(?, ape_materno),
-           telefono = COALESCE(?, telefono),
-           Fecha_nacimiento = COALESCE(?, Fecha_nacimiento),
-           Sexo = COALESCE(?, Sexo),
-           Calzado = COALESCE(?, Calzado),
-           Calle_direccion = COALESCE(?, Calle_direccion),
-           Municipio = COALESCE(?, Municipio),
-           Ocupacion = COALESCE(?, Ocupacion),
-           es_diabetico = COALESCE(?, es_diabetico),
-           es_hipertenso = COALESCE(?, es_hipertenso),
-           Antecedentes_patologicos = COALESCE(?, Antecedentes_patologicos),
-           Notas = COALESCE(?, Notas)
-       WHERE No_expediente = ?`,
-      [
-        nombres || null,
-        apePaterno || null,
-        apeMaterno !== undefined ? apeMaterno : null,
-        telefono || null,
-        fechaNac || null,
-        sexo || null,
-        calzado !== undefined && calzado !== null ? parseFloat(calzado) : null,
-        calle || null,
-        mun || null,
-        ocupacion || null,
-        diabVal,
-        hiperVal,
-        antPat || null,
-        notas || null,
-        no_expediente
-      ]
+      `UPDATE Pacientes SET ${updates.join(', ')} WHERE No_expediente = ?`,
+      params
     );
 
     res.json({ mensaje: 'Expediente del paciente actualizado correctamente', no_expediente });
@@ -1145,6 +1302,7 @@ module.exports = {
   actualizarRecepcionistaAdmin,
   eliminarRecepcionistaDefinitivo,
   obtenerPacientesAdmin,
+  obtenerPacientePorExpedienteAdmin,
   actualizarPacienteAdmin,
   enviarAvisoPaciente,
   obtenerHistorialAvisos,

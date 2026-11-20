@@ -436,6 +436,7 @@ function seleccionarSedeClinica(clinicaId) {
     labelHorarios.textContent = encontrada.nombre;
   }
 
+  renderizarPodologosPorClinica(encontrada.id);
   actualizarComprobante();
   consultarDisponibilidadHorariosBD();
 }
@@ -473,6 +474,65 @@ function seleccionarPodologo(cedula) {
   consultarDisponibilidadHorariosBD();
 }
 
+function renderizarPodologosPorClinica(clinicaId) {
+  const container = document.getElementById('podologos-container-lux');
+  if (!container) return;
+
+  const idClinica = parseInt(clinicaId || bookingState.clinicaId || 14, 10);
+  const podologosFiltrados = (catalogoPodologos || []).filter((p) => {
+    if (p.fk_clinica_id === null || p.fk_clinica_id === undefined) return false;
+    return parseInt(p.fk_clinica_id, 10) === idClinica;
+  });
+
+  if (podologosFiltrados.length === 0) {
+    bookingState.cedulaPodologo = '';
+    bookingState.especialista = 'Sin especialista disponible';
+    const hiddenCed = document.getElementById('booking-cedula-podologo');
+    if (hiddenCed) hiddenCed.value = '';
+    container.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; padding: 1.5rem; color: #64748b; background: rgba(241, 245, 249, 0.6); border-radius: 12px; border: 1px dashed #cbd5e1;">
+        <i class="fa-solid fa-user-doctor" style="font-size: 1.6rem; opacity: 0.45; margin-bottom: 0.4rem; display: block;"></i>
+        <p style="margin: 0; font-weight: 500;">No hay podólogos asignados a esta sede en este momento.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = podologosFiltrados.map((p, idx) => {
+    const ced = p.Cedula_podologo || p.cedula || '';
+    const nom = p.nombre_completo || `${p.Nombre || ''} ${p.ape_paterno || ''}`.trim();
+    const esMujer = (p.Nombre && (p.Nombre.startsWith('Maribel') || p.Nombre.startsWith('Kiara') || p.Nombre.startsWith('Ana') || p.Nombre.startsWith('Maria') || p.Nombre.startsWith('Jacqueline')));
+    const prefijo = esMujer ? 'Dra.' : 'Dr.';
+    const icono = esMujer ? 'fa-user-nurse' : 'fa-user-doctor';
+    const isActiva = (bookingState.cedulaPodologo ? bookingState.cedulaPodologo === ced : idx === 0);
+
+    return `
+      <div class="podologo-card-lux ${isActiva ? 'active' : ''}" 
+           data-cedula="${ced}" 
+           onclick="seleccionarPodologo('${ced}')">
+        <div class="podologo-avatar-box">
+          <i class="fa-solid ${icono}"></i>
+        </div>
+        <div class="podologo-meta">
+          <h4>${prefijo} ${nom}</h4>
+          <small>Especialista Podológico(a)</small>
+          <span class="pod-badge-cedula">Céd. ${ced}</span>
+        </div>
+        <div class="podologo-check-pill"><i class="fa-solid fa-check"></i></div>
+      </div>
+    `;
+  }).join('');
+
+  const existe = podologosFiltrados.some((p) => (p.Cedula_podologo || p.cedula) === bookingState.cedulaPodologo);
+  const podSeleccionado = existe
+    ? podologosFiltrados.find((p) => (p.Cedula_podologo || p.cedula) === bookingState.cedulaPodologo)
+    : podologosFiltrados[0];
+
+  if (podSeleccionado) {
+    seleccionarPodologo(podSeleccionado.Cedula_podologo || podSeleccionado.cedula);
+  }
+}
+
 /**
  * Carga el catálogo de Podólogos directamente desde la Base de Datos (solo activos)
  */
@@ -503,41 +563,7 @@ async function cargarCatalogoPodologos() {
     return;
   }
 
-  // Renderizar las tarjetas interactivas de podólogos activos
-  container.innerHTML = catalogoPodologos.map((p, idx) => {
-    const ced = p.Cedula_podologo || p.cedula || '';
-    const nom = p.nombre_completo || `${p.Nombre || ''} ${p.ape_paterno || ''}`.trim();
-    const esMujer = (p.Nombre && (p.Nombre.startsWith('Maribel') || p.Nombre.startsWith('Kiara') || p.Nombre.startsWith('Ana') || p.Nombre.startsWith('Maria')));
-    const prefijo = esMujer ? 'Dra.' : 'Dr.';
-    const icono = esMujer ? 'fa-user-nurse' : 'fa-user-doctor';
-    const isActiva = (bookingState.cedulaPodologo ? bookingState.cedulaPodologo === ced : idx === 0);
-
-    return `
-      <div class="podologo-card-lux ${isActiva ? 'active' : ''}" 
-           data-cedula="${ced}" 
-           onclick="seleccionarPodologo('${ced}')">
-        <div class="podologo-avatar-box">
-          <i class="fa-solid ${icono}"></i>
-        </div>
-        <div class="podologo-meta">
-          <h4>${prefijo} ${nom}</h4>
-          <small>Especialista Podológico(a)</small>
-          <span class="pod-badge-cedula">Céd. ${ced}</span>
-        </div>
-        <div class="podologo-check-pill"><i class="fa-solid fa-check"></i></div>
-      </div>
-    `;
-  }).join('');
-
-  // Sincronizar selección inicial: si el especialista actual ya no está activo, seleccionar el primero disponible
-  const existe = catalogoPodologos.some((p) => (p.Cedula_podologo || p.cedula) === bookingState.cedulaPodologo);
-  const podSeleccionado = existe
-    ? catalogoPodologos.find((p) => (p.Cedula_podologo || p.cedula) === bookingState.cedulaPodologo)
-    : catalogoPodologos[0];
-
-  if (podSeleccionado) {
-    seleccionarPodologo(podSeleccionado.Cedula_podologo || podSeleccionado.cedula);
-  }
+  renderizarPodologosPorClinica(bookingState.clinicaId || 14);
 }
 
 /**
@@ -1336,6 +1362,18 @@ async function procesarEnvioCita(event) {
   const clinicaSeleccionada = catalogoClinicas.find((c) => c.id === clinicaId) || catalogoClinicas[0];
   const cedulaPodologo = document.getElementById('booking-cedula-podologo')?.value || bookingState.cedulaPodologo || null;
   const especialistaNombre = bookingState.especialista || clinicaSeleccionada.especialista;
+  const edadCalculada = bookingState.edad || (document.getElementById('booking-edad-badge')?.textContent || '').replace(/\D/g, '') || '';
+
+  const restaurarBotonesEnvio = () => {
+    if (btnForm) {
+      btnForm.disabled = false;
+      btnForm.innerHTML = '<i class="fa-solid fa-calendar-check"></i> <span>Confirmar y Agendar Cita</span>';
+    }
+    if (btnVoucher) {
+      btnVoucher.disabled = false;
+      btnVoucher.innerHTML = '<i class="fa-solid fa-check"></i> <span>Guardar Cita</span>';
+    }
+  };
 
   // Validar si el horario seleccionado se encuentra ocupado en la base de datos
   if (Array.isArray(horasOcupadasBD) && horasOcupadasBD.some((h) => {
@@ -1401,14 +1439,22 @@ async function procesarEnvioCita(event) {
         expediente: data.no_expediente || payload.fk_no_expediente || 'Generado en clínica',
         paciente: nombreCompleto,
         sede: clinicaSeleccionada.nombre,
+        direccionSede: clinicaSeleccionada.direccion || 'Tecámac, Estado de México',
         telefonoSede: clinicaSeleccionada.telefono,
         fecha,
         hora: horaFinal,
         servicio,
-        especialista: especialistaNombre
+        especialista: especialistaNombre,
+        cedulaEspecialista: bookingState.cedulaPodologo || '',
+        telefonoPaciente: telefono || '',
+        edadPaciente: edadCalculada,
+        sexoPaciente: bookingState.sexo || sexo || '',
+        esDiabetico: Boolean(esDiabetico),
+        esHipertenso: Boolean(esHipertenso)
       });
       consultarDisponibilidadHorariosBD();
     } else if (res.status === 409) {
+      restaurarBotonesEnvio();
       alert(data.error || 'El horario seleccionado ya no se encuentra disponible. Por favor elige otro horario.');
       await consultarDisponibilidadHorariosBD();
       return;
@@ -1419,11 +1465,18 @@ async function procesarEnvioCita(event) {
         expediente: payload.fk_no_expediente || 'Registro nuevo',
         paciente: nombreCompleto,
         sede: clinicaSeleccionada.nombre,
+        direccionSede: clinicaSeleccionada.direccion || 'Tecámac, Estado de México',
         telefonoSede: clinicaSeleccionada.telefono,
         fecha,
         hora: horaFinal,
         servicio,
-        especialista: especialistaNombre
+        especialista: especialistaNombre,
+        cedulaEspecialista: bookingState.cedulaPodologo || '',
+        telefonoPaciente: telefono || '',
+        edadPaciente: edadCalculada,
+        sexoPaciente: bookingState.sexo || sexo || '',
+        esDiabetico: Boolean(esDiabetico),
+        esHipertenso: Boolean(esHipertenso)
       });
     }
   } catch (err) {
@@ -1433,33 +1486,44 @@ async function procesarEnvioCita(event) {
       expediente: payload.fk_no_expediente || 'Registro nuevo',
       paciente: nombreCompleto,
       sede: clinicaSeleccionada.nombre,
+      direccionSede: clinicaSeleccionada.direccion || 'Tecámac, Estado de México',
       telefonoSede: clinicaSeleccionada.telefono,
       fecha,
       hora: horaFinal,
       servicio,
-      especialista: especialistaNombre
+      especialista: especialistaNombre,
+      cedulaEspecialista: bookingState.cedulaPodologo || '',
+      telefonoPaciente: telefono || '',
+      edadPaciente: edadCalculada,
+      sexoPaciente: bookingState.sexo || sexo || '',
+      esDiabetico: Boolean(esDiabetico),
+      esHipertenso: Boolean(esHipertenso)
     });
   } finally {
-    if (btnForm) {
-      btnForm.disabled = false;
-      btnForm.innerHTML = '<i class="fa-solid fa-calendar-check"></i> <span>Confirmar y Agendar Cita</span>';
-    }
-    if (btnVoucher) {
-      btnVoucher.disabled = false;
-      btnVoucher.innerHTML = '<i class="fa-solid fa-check"></i> <span>Guardar Cita</span>';
-    }
+    restaurarBotonesEnvio();
   }
 }
+
+let ultimoComprobanteCita = null;
 
 /**
  * Despliega la pantalla de éxito con folio oficial y mensaje directo para WhatsApp
  */
 function mostrarConfirmacionExito(detalles) {
+  ultimoComprobanteCita = detalles;
+
   const formView = document.getElementById('booking-form-view');
   const successView = document.getElementById('booking-success-view');
 
   if (formView) formView.style.display = 'none';
-  if (successView) successView.style.display = 'block';
+  if (successView) {
+    successView.style.display = 'block';
+    successView.scrollTop = 0;
+  }
+
+  // Llevar el scroll del cuerpo del modal arriba para ver el comprobante completo en móvil
+  const modalBody = document.querySelector('.booking-modal-body-lux');
+  if (modalBody) modalBody.scrollTop = 0;
 
   document.getElementById('recibo-folio').textContent = detalles.folio;
   document.getElementById('recibo-expediente').textContent = `#${detalles.expediente}`;
@@ -1472,11 +1536,300 @@ function mostrarConfirmacionExito(detalles) {
   // Botón dinámico a WhatsApp de la sede clínica
   const btnWhatsApp = document.getElementById('btn-whatsapp-confirmacion');
   if (btnWhatsApp) {
-    const telLimpio = detalles.telefonoSede.replace(/\D/g, '');
+    const telLimpio = (detalles.telefonoSede || '').replace(/\D/g, '');
     const telMex = telLimpio.length === 10 ? `52${telLimpio}` : telLimpio;
     const msg = `¡Hola! Acabo de registrar mi cita podológica en Elite Foot Care con el Folio *${detalles.folio}* (Expediente #${detalles.expediente}) a nombre de *${detalles.paciente}* para el día *${detalles.fecha}* a las *${detalles.hora}* en la sede *${detalles.sede}* para el servicio de *${detalles.servicio}*. ¿Me podrían confirmar por favor?`;
     btnWhatsApp.href = `https://api.whatsapp.com/send?phone=${telMex}&text=${encodeURIComponent(msg)}`;
   }
+}
+
+function formatearFechaLargaES(fechaISO) {
+  if (!fechaISO) return 'Por confirmar';
+  const meses = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+  ];
+  const partes = String(fechaISO).split('-');
+  if (partes.length !== 3) return fechaISO;
+  const anio = partes[0];
+  const mesIdx = parseInt(partes[1], 10) - 1;
+  const dia = parseInt(partes[2], 10);
+  if (Number.isNaN(mesIdx) || !meses[mesIdx]) return fechaISO;
+  return `${dia} de ${meses[mesIdx]} de ${anio}`;
+}
+
+function cargarImagenDataURL(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth || 128;
+        canvas.height = img.naturalHeight || 128;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      } catch {
+        resolve(null);
+      }
+    };
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+function generarCodigoBarrasDataURL(texto) {
+  if (typeof window.JsBarcode !== 'function' || !texto) return null;
+  try {
+    const canvas = document.createElement('canvas');
+    window.JsBarcode(canvas, String(texto), {
+      format: 'CODE128',
+      lineColor: '#000000',
+      width: 2,
+      height: 46,
+      displayValue: true,
+      fontSize: 13,
+      fontOptions: 'bold',
+      margin: 4
+    });
+    return canvas.toDataURL('image/png');
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Genera y descarga un Comprobante Clínico Oficial en PDF (formato institucional)
+ */
+async function descargarComprobanteClinicoPDF() {
+  const d = ultimoComprobanteCita || {
+    folio: document.getElementById('recibo-folio')?.textContent || 'SIN-FOLIO',
+    expediente: (document.getElementById('recibo-expediente')?.textContent || '').replace(/^#/, ''),
+    paciente: document.getElementById('recibo-paciente')?.textContent || 'PACIENTE',
+    sede: document.getElementById('recibo-sede')?.textContent || 'ELITE FOOT CARE',
+    direccionSede: 'Tecámac, Estado de México',
+    telefonoSede: '',
+    fecha: (document.getElementById('recibo-fecha-hora')?.textContent || '').split('·')[0]?.trim() || '',
+    hora: (document.getElementById('recibo-fecha-hora')?.textContent || '').split('·')[1]?.trim() || '',
+    especialista: document.getElementById('recibo-especialista')?.textContent || '',
+    servicio: document.getElementById('recibo-servicio')?.textContent || ''
+  };
+
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    window.print();
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+  const pageW = doc.internal.pageSize.getWidth(); // 215.9 mm
+  const margin = 15;
+  const rightX = pageW - margin;
+
+  // 1. Encabezado Institucional (Logo izquierda, Títulos centro, Código de barras derecha)
+  const logoData = await cargarImagenDataURL('/assets/icons/favicon-clinica.png?v=2');
+  if (logoData) {
+    doc.addImage(logoData, 'PNG', margin, 12, 20, 20);
+  }
+
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.text('ELITE FOOT CARE · DIRECCIÓN DE PRESTACIONES PODOLÓGICAS', pageW / 2, 16, { align: 'center' });
+  doc.setFontSize(9);
+  doc.text('ESTADO DE MÉXICO ORIENTE · RED DE CLÍNICAS TECÁMAC', pageW / 2, 21, { align: 'center' });
+  doc.text(String(d.sede || 'SEDE CLÍNICA').toUpperCase(), pageW / 2, 26, { align: 'center' });
+  doc.setFontSize(10.5);
+  doc.text('COMPROBANTE DE CITAS', pageW / 2, 32, { align: 'center' });
+
+  // Código de barras en esquina superior derecha
+  const barcodeData = generarCodigoBarrasDataURL(d.folio);
+  if (barcodeData) {
+    doc.addImage(barcodeData, 'PNG', rightX - 48, 34, 48, 16);
+  }
+
+  // 2. Bloque de Datos de Cita y Paciente (2 columnas estilo institucional)
+  let yLeft = 44;
+  const fechaLarga = formatearFechaLargaES(d.fecha);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text('FECHA Y HORA DE LA CITA:', margin, yLeft);
+
+  doc.setFont('helvetica', 'bolditalic');
+  doc.setFontSize(10);
+  const fechaHoraTexto = `${fechaLarga}   ${d.hora || ''}`.trim();
+  doc.text(fechaHoraTexto, margin + 45, yLeft);
+  const fhWidth = doc.getTextWidth(fechaHoraTexto);
+  doc.setLineWidth(0.35);
+  doc.line(margin + 45, yLeft + 1, margin + 45 + fhWidth, yLeft + 1);
+
+  yLeft += 7;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text('TIPO DE SOLICITUD:', margin, yLeft);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Consulta Externa Podológica', margin + 35, yLeft);
+
+  yLeft += 5.5;
+  doc.setFont('helvetica', 'normal');
+  doc.text('PACIENTE:', margin, yLeft);
+  doc.setFont('helvetica', 'bold');
+  doc.text(String(d.paciente || '').toUpperCase(), margin + 20, yLeft, { maxWidth: 92 });
+
+  yLeft += 5.5;
+  doc.setFont('helvetica', 'normal');
+  doc.text(`NO. EXPEDIENTE: ${d.expediente || 'POR ASIGNAR'}`, margin, yLeft);
+  if (d.telefonoPaciente) {
+    doc.text(`TEL: ${d.telefonoPaciente}`, margin + 58, yLeft);
+  }
+
+  yLeft += 5.5;
+  const edadTxt = d.edadPaciente ? `${d.edadPaciente} años` : 'N/D';
+  const sexoRaw = String(d.sexoPaciente || '').trim().toUpperCase();
+  const sexoTxt = (sexoRaw === 'F' || sexoRaw === 'FEMENINO')
+    ? 'Femenino'
+    : (sexoRaw === 'M' || sexoRaw === 'MASCULINO')
+      ? 'Masculino'
+      : (sexoRaw === 'O' || sexoRaw === 'OTRO')
+        ? 'Otro'
+        : (d.sexoPaciente || 'N/D');
+  doc.text(`EDAD: ${edadTxt}`, margin, yLeft);
+  doc.text(`SEXO: ${sexoTxt}`, margin + 36, yLeft);
+
+  // Columna derecha (Folio, Servicio, Sede, Especialista, Condición)
+  const col2X = 118;
+  let yRight = 54;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('FOLIO DE CITA:', col2X, yRight);
+  doc.text(String(d.folio || ''), col2X + 34, yRight);
+
+  yRight += 5.5;
+  doc.text('SERVICIO SOLICITADO:', col2X, yRight);
+  yRight += 4.5;
+  doc.setFont('helvetica', 'normal');
+  doc.text(String(d.servicio || 'Consulta Podológica'), col2X, yRight, { maxWidth: rightX - col2X });
+
+  yRight += 5.5;
+  doc.setFont('helvetica', 'bold');
+  doc.text('SEDE CLÍNICA:', col2X, yRight);
+  yRight += 4.5;
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${d.sede || ''}${d.direccionSede ? ' · ' + d.direccionSede : ''}`, col2X, yRight, { maxWidth: rightX - col2X });
+
+  yRight += 7;
+  doc.setFont('helvetica', 'bold');
+  doc.text('ESPECIALISTA ASIGNADO(A):', col2X, yRight);
+  yRight += 4.5;
+  doc.setFont('helvetica', 'normal');
+  const cedTxt = d.cedulaEspecialista ? ` (Céd. ${d.cedulaEspecialista})` : '';
+  doc.text(`${d.especialista || ''}${cedTxt}`, col2X, yRight, { maxWidth: rightX - col2X });
+
+  yRight += 6;
+  doc.setFont('helvetica', 'bold');
+  doc.text('CONDICIÓN / PROTOCOLO:', col2X, yRight);
+  yRight += 4.5;
+  doc.setFont('helvetica', 'normal');
+  const conds = [];
+  if (d.esDiabetico) conds.push('Protocolo Pie Diabético');
+  if (d.esHipertenso) conds.push('Seguimiento Hipertensión');
+  doc.text(conds.length > 0 ? conds.join(' · ') : 'Valoración Podológica Estándar', col2X, yRight, { maxWidth: rightX - col2X });
+
+  // 3. Línea divisoria de recepción
+  let y = Math.max(yLeft, yRight) + 10;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text('Recibió / Generó:', margin, y);
+  doc.setFont('helvetica', 'bold');
+  doc.text('PORTAL DE CITAS ELITE FOOT CARE', margin + 34, y);
+  doc.setLineWidth(0.4);
+  doc.line(margin, y + 2, rightX, y + 2);
+
+  // 4. Sección Clínica: INDICACIONES PARA EL PACIENTE
+  y += 8;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.text('INDICACIONES PARA EL PACIENTE', pageW / 2, y, { align: 'center' });
+
+  y += 9;
+  doc.setFontSize(9);
+  doc.text('Preparación previa a la consulta:', margin, y);
+
+  y += 6;
+  doc.setFont('helvetica', 'normal');
+  const indicaciones = [
+    '1. ACUDIR CON PIES LIMPIOS Y SECOS, SIN ESMALTE EN UÑAS NI CREMAS O UNGÜENTOS EN LA ZONA.',
+    '2. PRESENTARSE CON CALZADO CÓMODO Y CERRADO DE USO HABITUAL PARA VALORACIÓN DE PISADA Y DESGASTE.',
+    '3. EN CASO DE SER PACIENTE DIABÉTICO, HIPERTENSO O TOMAR ANTICOAGULANTES, INFORMAR AL ESPECIALISTA AL INICIO.',
+    '4. SI UTILIZA PLANTILLAS ORTOPÉDICAS O ESTUDIOS PREVIOS (RADIOGRAFÍAS / LABORATORIOS), TRAERLOS A CONSULTA.',
+    '5. EN CASO DE REQUERIR CANCELACIÓN O REPROGRAMACIÓN, AVISAR CON AL MENOS 24 HORAS DE ANTICIPACIÓN.'
+  ];
+
+  indicaciones.forEach((linea) => {
+    const wrapped = doc.splitTextToSize(linea, rightX - margin);
+    doc.text(wrapped, margin, y);
+    y += wrapped.length * 4.5 + 3.5;
+  });
+
+  if (d.telefonoSede) {
+    y += 2;
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Teléfono de atención de la sede (${d.sede}): ${d.telefonoSede}`, margin, y);
+  }
+
+  // 5. Pie institucional de verificación (idéntico al formato de referencia)
+  let footerY = 225;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.text(
+    `EL DÍA DE SU CITA, FAVOR DE PASAR PRIMERO A RECEPCIÓN A DAR DE ALTA SU FOLIO,`,
+    pageW / 2,
+    footerY,
+    { align: 'center' }
+  );
+  doc.text(
+    `EN UN HORARIO DE ${d.hora || 'SU CITA'} (10 MINUTOS ANTES), GRACIAS.`,
+    pageW / 2,
+    footerY + 5,
+    { align: 'center' }
+  );
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.text(
+    'INDISPENSABLE PRESENTAR ESTE COMPROBANTE O FOLIO DE CITA PARA SU ATENCIÓN EN CLÍNICA.',
+    pageW / 2,
+    footerY + 12,
+    { align: 'center' }
+  );
+
+  footerY += 20;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9.5);
+  doc.text('DATOS VERIFICADOS:', margin, footerY);
+  doc.text('[   ] SÍ', 110, footerY);
+  doc.text('[   ] NO', 142, footerY);
+
+  footerY += 7;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.text('Observaciones:', margin, footerY);
+  doc.setLineWidth(0.25);
+  doc.line(margin, footerY + 2, rightX, footerY + 2);
+
+  footerY += 7;
+  const hoy = new Date();
+  const fechaImpresion = `${hoy.getDate()} de ${
+    ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'][hoy.getMonth()]
+  } de ${hoy.getFullYear()}`;
+  doc.text('*Si tiene dudas comunicarse a recepción de su sede clínica', margin, footerY);
+  doc.text(`Fecha de Impresión: ${fechaImpresion}`, 115, footerY);
+  doc.line(margin, footerY + 2, rightX, footerY + 2);
+
+  doc.save(`Comprobante_Cita_${d.folio || 'EliteFootCare'}.pdf`);
 }
 
 /**
@@ -2138,4 +2491,5 @@ window.inicializarHistoriasAnuncios = inicializarHistoriasAnuncios;
 window.seleccionarPodologo = seleccionarPodologo;
 window.cargarCatalogoPodologos = cargarCatalogoPodologos;
 window.consultarDisponibilidadHorariosBD = consultarDisponibilidadHorariosBD;
+window.descargarComprobanteClinicoPDF = descargarComprobanteClinicoPDF;
 

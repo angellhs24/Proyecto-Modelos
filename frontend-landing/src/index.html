@@ -23,6 +23,10 @@
   <!-- Iconos Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
+  <!-- Generación de Comprobante Clínico PDF + Código de Barras -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js" defer></script>
+
   <!-- Estilos Custom -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -1132,12 +1136,12 @@
         </div>
 
         <div class="success-actions-row-lux">
+          <button type="button" class="btn-pdf-receipt-lux" id="btn-descargar-pdf-cita" onclick="descargarComprobanteClinicoPDF()">
+            <i class="fa-solid fa-file-pdf"></i> Descargar Comprobante Clínico (PDF)
+          </button>
           <a href="#" id="btn-whatsapp-confirmacion" target="_blank" class="btn-whatsapp-action-lux">
             <i class="fa-brands fa-whatsapp"></i> Confirmar con Recepción por WhatsApp
           </a>
-          <button type="button" class="btn-print-receipt-lux" onclick="window.print()">
-            <i class="fa-solid fa-print"></i> Imprimir Comprobante
-          </button>
           <button type="button" class="btn-close-success-lux" onclick="cerrarModalAgendar()">
             Cerrar y Volver a la Página
           </button>

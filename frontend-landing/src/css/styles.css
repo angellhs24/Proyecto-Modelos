@@ -1693,7 +1693,8 @@ dialog.booking-modal-lux::backdrop {
   border-radius: 24px;
   display: flex;
   flex-direction: column;
-  max-height: 94vh;
+  max-height: 92vh;
+  max-height: 92dvh;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -1761,6 +1762,9 @@ dialog.booking-modal-lux::backdrop {
 /* Cuerpo con scroll y layout Dual Grid */
 .booking-modal-body-lux {
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
   padding: 1.75rem 2rem 2.5rem;
 }
 
@@ -2147,11 +2151,13 @@ dialog.booking-modal-lux::backdrop {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (min-width: 640px) {
   .podologos-select-grid-lux {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   }
 }
 
@@ -2166,6 +2172,9 @@ dialog.booking-modal-lux::backdrop {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .podologo-card-lux:hover {
@@ -2210,9 +2219,9 @@ dialog.booking-modal-lux::backdrop {
   color: #162418;
   margin: 0 0 2px 0;
   line-height: 1.25;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
+  padding-right: 22px;
 }
 
 .podologo-meta small {
@@ -2580,44 +2589,50 @@ dialog.booking-modal-lux::backdrop {
 /* PANTALLA DE ÉXITO */
 .booking-success-view-lux {
   text-align: center;
-  padding: 3rem 2rem 3.5rem;
-  max-width: 600px;
+  padding: 1.5rem 2rem 2rem;
+  max-width: 640px;
+  width: 100%;
   margin: 0 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
 }
 
 .success-icon-badge-lux {
-  width: 76px;
-  height: 76px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   background: #edf7ee;
   color: #16a34a;
-  font-size: 2.8rem;
+  font-size: 2.1rem;
   display: grid;
   place-items: center;
-  margin: 0 auto 1.25rem;
+  margin: 0 auto 0.85rem;
   box-shadow: 0 6px 20px rgba(22, 163, 74, 0.2);
 }
 
 .booking-success-view-lux h3 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #162418;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
 .success-desc-lux {
   color: #637765;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  margin-bottom: 1.1rem;
 }
 
 .receipt-card-lux {
   background: #ffffff;
   border: 1.5px dashed rgba(200, 90, 50, 0.35);
   border-radius: 16px;
-  padding: 1.5rem;
-  margin-bottom: 1.75rem;
+  padding: 1rem 1.35rem;
+  margin-bottom: 1.25rem;
   text-align: left;
   box-shadow: 0 4px 18px rgba(20, 39, 24, 0.04);
 }
@@ -2667,10 +2682,118 @@ dialog.booking-modal-lux::backdrop {
   font-size: 14px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   text-decoration: none;
   box-shadow: 0 4px 16px rgba(37, 211, 102, 0.3);
   transition: all 0.2s ease;
+}
+
+.btn-pdf-receipt-lux {
+  background: #162418;
+  color: #ffffff;
+  border: 1px solid #162418;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(22, 36, 24, 0.22);
+  transition: all 0.2s ease;
+}
+
+.btn-pdf-receipt-lux:hover {
+  background: #223825;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 639px) {
+  dialog.booking-modal-lux {
+    width: 96%;
+    max-width: 96vw;
+    border-radius: 18px;
+  }
+
+  .booking-modal-card-lux {
+    border-radius: 18px;
+    max-height: 94dvh;
+  }
+
+  .booking-modal-header-lux {
+    padding: 1rem 1.15rem;
+    gap: 10px;
+  }
+
+  .modal-header-titles h2 {
+    font-size: 1.2rem;
+  }
+
+  .modal-header-titles p {
+    font-size: 0.78rem;
+  }
+
+  .booking-modal-body-lux {
+    padding: 1rem 1rem 1.75rem;
+  }
+
+  .booking-success-view-lux {
+    padding: 1.25rem 0.25rem 1.75rem;
+  }
+
+  .success-icon-badge-lux {
+    width: 58px;
+    height: 58px;
+    font-size: 2rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .booking-success-view-lux h3 {
+    font-size: 1.35rem;
+    line-height: 1.25;
+  }
+
+  .success-desc-lux {
+    font-size: 0.86rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .receipt-card-lux {
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+    border-radius: 14px;
+  }
+
+  .receipt-row-lux {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 0.55rem 0;
+  }
+
+  .receipt-val-lux {
+    text-align: left;
+    word-break: break-word;
+    font-size: 0.92rem;
+  }
+
+  .success-actions-row-lux {
+    width: 100%;
+  }
+
+  .btn-pdf-receipt-lux,
+  .btn-whatsapp-action-lux,
+  .btn-print-receipt-lux,
+  .btn-close-success-lux {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    padding: 12px 16px;
+  }
 }
 
 .btn-whatsapp-action-lux:hover {

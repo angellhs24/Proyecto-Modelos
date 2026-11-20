@@ -267,6 +267,10 @@ function renderPodologosGrid(podologos) {
             <i class="fa-solid fa-clock"></i>
             <span>Turno: ${escapeHtml(turnoTexto)}</span>
           </div>
+          <div class="staff-detail-item">
+            <i class="fa-solid fa-hospital"></i>
+            <span>Sede: ${escapeHtml(p.clinica_nombre || 'Sin clínica asignada')}</span>
+          </div>
         </div>
 
         <div class="staff-actions" style="display: flex; gap: 6px; flex-wrap: wrap;">
@@ -341,6 +345,7 @@ function configurarEventosPodologos() {
     const telefono = document.getElementById('podo-telefono').value.trim();
     const email = document.getElementById('podo-email').value.trim();
     const turno = document.getElementById('podo-turno').value;
+    const fkClinica = document.getElementById('podo-clinica').value;
     const password = document.getElementById('podo-password').value.trim();
 
     if (podologoEnEdicion) {
@@ -353,7 +358,8 @@ function configurarEventosPodologos() {
           ape_materno: materno,
           Telefono_pod: telefono,
           Email: email,
-          turno
+          turno,
+          fk_clinica_id: fkClinica ? parseInt(fkClinica, 10) : null
         })
       });
 
@@ -377,6 +383,7 @@ function configurarEventosPodologos() {
           Telefono_pod: telefono,
           Email: email,
           turno,
+          fk_clinica_id: fkClinica ? parseInt(fkClinica, 10) : null,
           password: password || 'podo123'
         })
       });
@@ -424,6 +431,7 @@ function editarPodologo(cedula) {
   document.getElementById('podo-telefono').value = p.Telefono_pod || '';
   document.getElementById('podo-email').value = p.Email || '';
   document.getElementById('podo-turno').value = p.turno || 'C';
+  document.getElementById('podo-clinica').value = p.fk_clinica_id || '';
   document.getElementById('grupo-podo-password').style.display = 'none';
 
   abrirModal('modal-podologo');
@@ -1029,17 +1037,19 @@ function renderResumenClinicas(clinicas) {
 }
 
 function poblarSelectClinicasRecepcionistas(clinicas) {
-  const select = document.getElementById('recep-clinica');
-  if (!select) return;
+  ['recep-clinica', 'podo-clinica'].forEach((id) => {
+    const select = document.getElementById(id);
+    if (!select) return;
 
-  const valorActual = select.value;
-  select.innerHTML = clinicas
-    .map((c) => `<option value="${c.Clinica_id}">${escapeHtml(c.Nombre)} (Sede ${c.Clinica_id})</option>`)
-    .join('');
+    const valorActual = select.value;
+    select.innerHTML = clinicas
+      .map((c) => `<option value="${c.Clinica_id}">${escapeHtml(c.Nombre)} (Sede ${c.Clinica_id})</option>`)
+      .join('');
 
-  if (valorActual && clinicas.some((c) => String(c.Clinica_id) === String(valorActual))) {
-    select.value = valorActual;
-  }
+    if (valorActual && clinicas.some((c) => String(c.Clinica_id) === String(valorActual))) {
+      select.value = valorActual;
+    }
+  });
 }
 
 function configurarEventosClinicas() {
@@ -1321,9 +1331,12 @@ function configurarEventosPacientes() {
       ape_paterno: document.getElementById('pac-edit-paterno').value.trim(),
       ape_materno: document.getElementById('pac-edit-materno').value.trim(),
       telefono: document.getElementById('pac-edit-telefono').value.trim(),
-      Calle_direccion: document.getElementById('pac-edit-direccion').value.trim(),
+      fecha_nacimiento: document.getElementById('pac-edit-fecha-nacimiento').value,
+      Sexo: document.getElementById('pac-edit-sexo').value,
+      ocupacion: document.getElementById('pac-edit-ocupacion').value.trim(),
+      calle_direccion: document.getElementById('pac-edit-direccion').value.trim(),
       Municipio: document.getElementById('pac-edit-municipio').value.trim(),
-      Calzado: document.getElementById('pac-edit-calzado').value,
+      calzado: document.getElementById('pac-edit-calzado').value,
       es_diabetico: document.getElementById('pac-edit-diabetico').checked,
       es_hipertenso: document.getElementById('pac-edit-hipertenso').checked,
       Antecedentes_patologicos: document.getElementById('pac-edit-antecedentes').value.trim(),
@@ -1346,23 +1359,39 @@ function configurarEventosPacientes() {
   });
 }
 
-function abrirModalEditarPaciente(expediente) {
-  const p = listaPacientesCache.find((x) => String(x.No_expediente || x.expediente) === String(expediente));
+async function abrirModalEditarPaciente(expediente) {
+  let p = listaPacientesCache.find((x) => String(x.No_expediente || x.expediente) === String(expediente));
+
+  try {
+    const res = await AppAuth.fetchApi(`/api/admin/pacientes/${encodeURIComponent(expediente)}`);
+    if (res.ok && res.data) {
+      p = res.data;
+    }
+  } catch (e) {
+    // Fallback al cache local si falla la consulta puntual
+  }
+
   if (!p) return;
 
   pacienteEnEdicion = p;
+
+  const fechaNacRaw = p.fecha_nacimiento || p.Fecha_nacimiento || '';
+  const fechaNac = fechaNacRaw ? String(fechaNacRaw).split('T')[0] : '';
 
   document.getElementById('pac-edit-exp').value = expediente;
   document.getElementById('pac-edit-nombres').value = p.Nombres || '';
   document.getElementById('pac-edit-paterno').value = p.ape_paterno || '';
   document.getElementById('pac-edit-materno').value = p.ape_materno || '';
   document.getElementById('pac-edit-telefono').value = p.telefono || '';
-  document.getElementById('pac-edit-direccion').value = p.Calle_direccion || '';
-  document.getElementById('pac-edit-municipio').value = p.Municipio || 'Tecámac';
-  document.getElementById('pac-edit-calzado').value = p.Calzado || '';
+  document.getElementById('pac-edit-fecha-nacimiento').value = fechaNac;
+  document.getElementById('pac-edit-sexo').value = p.Sexo || p.sexo || '';
+  document.getElementById('pac-edit-ocupacion').value = p.ocupacion || p.Ocupacion || '';
+  document.getElementById('pac-edit-direccion').value = p.calle_direccion || p.Calle_direccion || '';
+  document.getElementById('pac-edit-municipio').value = p.Municipio || p.municipio || '';
+  document.getElementById('pac-edit-calzado').value = p.calzado ?? p.Calzado ?? '';
   document.getElementById('pac-edit-diabetico').checked = p.es_diabetico === 1 || p.es_diabetico === true;
   document.getElementById('pac-edit-hipertenso').checked = p.es_hipertenso === 1 || p.es_hipertenso === true;
-  document.getElementById('pac-edit-antecedentes').value = p.Antecedentes_patologicos || '';
+  document.getElementById('pac-edit-antecedentes').value = p.Antecedentes_patologicos || p.antecedentes_patologicos || '';
   document.getElementById('pac-edit-notas').value = p.Notas || p.notas_alergias || '';
 
   abrirModal('modal-editar-paciente');

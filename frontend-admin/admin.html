@@ -563,6 +563,12 @@
               <option value="C" selected>Completo / Mixto</option>
             </select>
           </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label class="form-label" for="podo-clinica">Clínica / Sede Asignada *</label>
+            <select class="form-select" id="podo-clinica" required>
+              <option value="">Cargando sedes clínicas...</option>
+            </select>
+          </div>
           <div class="form-group">
             <label class="form-label" for="podo-nombre">Nombre(s) *</label>
             <input type="text" class="form-input" id="podo-nombre" placeholder="Ej. Valeria" required>
@@ -694,6 +700,22 @@
           <div class="form-group">
             <label class="form-label" for="pac-edit-materno">Apellido Materno</label>
             <input type="text" class="form-input" id="pac-edit-materno">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pac-edit-fecha-nacimiento">Fecha de Nacimiento</label>
+            <input type="date" class="form-input" id="pac-edit-fecha-nacimiento">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pac-edit-sexo">Sexo</label>
+            <select class="form-select" id="pac-edit-sexo">
+              <option value="">Seleccionar...</option>
+              <option value="M">Masculino</option>
+              <option value="F">Femenino</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pac-edit-ocupacion">Ocupación</label>
+            <input type="text" class="form-input" id="pac-edit-ocupacion" placeholder="Ej. Estudiante, Empleado, Hogar">
           </div>
           <div class="form-group">
             <label class="form-label" for="pac-edit-calzado">Talla de Calzado (cm)</label>

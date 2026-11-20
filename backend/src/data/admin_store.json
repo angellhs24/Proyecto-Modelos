@@ -15,7 +15,8 @@
       "fecha_alta": "2025-06-01",
       "notas_admin": "Podóloga General",
       "fecha_modificacion": "2026-10-21",
-      "motivo_baja": null
+      "motivo_baja": null,
+      "turno": "M"
     },
     "TEST-9988": {
       "activo": true,
@@ -28,6 +29,14 @@
       "activo": true,
       "turno": "V",
       "fecha_alta": "2026-10-21",
+      "notas_admin": "Registrado desde Panel de Administración",
+      "fecha_modificacion": "2026-11-20",
+      "motivo_baja": null
+    },
+    "A-1234": {
+      "activo": true,
+      "turno": "C",
+      "fecha_alta": "2026-11-20",
       "notas_admin": "Registrado desde Panel de Administración"
     }
   },
@@ -71,6 +80,59 @@
       "activo": false,
       "fecha_alta": "2024-11-20",
       "motivo_baja": "Permiso temporal de maternidad"
+    },
+    {
+      "id": "REC-28-002",
+      "Recepcionista_id": "REC-28-002",
+      "nombre": "Nicol",
+      "ape_paterno": "Vazquez",
+      "ape_materno": "Velazquez",
+      "email": "camilavazquezvelazquez@gmail.com",
+      "telefono": "5578389700",
+      "fk_clinica_id": 28,
+      "turno": "Completo (9:00 - 18:00)",
+      "clinica_nombre": "Casa Héroes Tecámac (Sede 28)",
+      "activo": true
+    },
+    {
+      "id": "REC-14-001",
+      "Recepcionista_id": "REC-14-001",
+      "nombre": "Luis Abelardo",
+      "ape_paterno": "Cuellar",
+      "ape_materno": "Duran",
+      "email": "luiscudu59@gmail.com",
+      "telefono": "5635333422",
+      "fk_clinica_id": 14,
+      "turno": "Completo (9:00 - 18:00)",
+      "clinica_nombre": "DIF Lomas de Tecámac (Sede 14)",
+      "activo": true
+    },
+    {
+      "id": "REC-35-003",
+      "Recepcionista_id": "REC-35-003",
+      "nombre": "Sebastian",
+      "ape_paterno": "Palacios",
+      "ape_materno": "Herrera",
+      "email": "sebastianpalaciosherra@gmail.com",
+      "telefono": "5574451422",
+      "fk_clinica_id": 35,
+      "turno": "Completo (9:00 - 18:00)",
+      "clinica_nombre": "Casa Adulto Mayor Flores (Sede 35)",
+      "activo": true
+    },
+    {
+      "id": "REC-14-9208",
+      "Recepcionista_id": "REC-14-9208",
+      "nombre": "Camila",
+      "ape_paterno": "Prueba",
+      "ape_materno": "Uno",
+      "email": "camila@gmail.com",
+      "telefono": "5626225027",
+      "fk_clinica_id": 14,
+      "clinica_nombre": "DIF Lomas de Tecámac (Sede 14)",
+      "turno": "Completo (9:00 - 18:00)",
+      "activo": true,
+      "fecha_alta": "2026-11-20"
     }
   ],
   "avisos": [

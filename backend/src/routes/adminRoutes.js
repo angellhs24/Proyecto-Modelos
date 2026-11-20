@@ -21,6 +21,7 @@ router.delete('/recepcionistas/:id', adminController.eliminarRecepcionistaDefini
 
 // 4. Gestión de Clientes / Pacientes
 router.get('/pacientes', adminController.obtenerPacientesAdmin);
+router.get('/pacientes/:no_expediente', adminController.obtenerPacientePorExpedienteAdmin);
 router.put('/pacientes/:no_expediente', adminController.actualizarPacienteAdmin);
 
 // 5. Centro de Anuncios Web
