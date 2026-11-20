@@ -122,7 +122,8 @@ flowchart TD
   * **Diseño Editorial Boutique:** Tipografía refinada (*Outfit* & *Plus Jakarta Sans*), componentes visuales fluidos y fotografía clínica de alta gama.
   * **Historias y Anuncios Dinámicos:** Carrusel interactivo alimentado directamente desde la consola administrativa para publicar avisos, promociones o notas médicas.
   * **Catálogo de Servicios de Élite:** Quiropodía especializada, evaluación de pie diabético con prevención de úlceras, biomecánica computarizada y cirugía ungueal reconstructiva.
-  * **Agendamiento Exprés en Línea:** Asistente paso a paso para que cualquier paciente agende su cita eligiendo sede, motivo y horario sin requerir registro previo complejo.
+  * **Agendamiento Exprés en Línea (1:N por Sede):** Asistente paso a paso que filtra en tiempo real los podólogos asignados a la clínica seleccionada (`fk_clinica_id`) y valida horarios disponibles en MySQL.
+  * **Comprobante Clínico Oficial en PDF:** Al confirmar la cita, el paciente puede descargar un comprobante clínico institucional tamaño carta (`Comprobante_Cita_<FOLIO>.pdf`) generado con `jsPDF` y código de barras `Code 128` (`JsBarcode`), con datos demográficos, sede, especialista, indicaciones previas a consulta y confirmación directa por WhatsApp.
   * **Acceso Directo al Personal:** Botón discreto en el encabezado para redirigir al personal autorizado hacia el portal de acceso seguro.
 
 ---
@@ -176,7 +177,9 @@ flowchart TD
 * **Ruta de Acceso:** `http://localhost:4000/admin`
 * **Rol Autorizado:** `Admin_Global` (Rol ID: `100` / `1`)
 * **Capacidades:**
-  * **Gestión de Especialistas:** Alta, baja y actualización de podólogos con validación de cédulas profesionales.
+  * **Gestión de Especialistas:** Alta, pausa, baja definitiva y edición de podólogos con validación de cédulas profesionales, asignación obligatoria de **Clínica / Sede (`fk_clinica_id`)** y turno (`M` Matutino, `V` Vespertino, `C` Completo/Mixto).
+  * **Gestión de Recepcionistas:** Alta, edición de datos de contacto, asignación de sede y actualización persistente de horario/turno.
+  * **Directorio de Pacientes:** Consulta y edición completa de todos los campos del expediente en MySQL (`fecha_nacimiento`, `Sexo`, `ocupacion`, `calzado`, `calle_direccion`, `Municipio`, `es_diabetico`, `es_hipertenso`, `Antecedentes_patologicos`, `Notas`).
   * **Administración Multi-Sede:** Control centralizado de clínicas, consultorios, horarios de operación y teléfonos de atención.
   * **Editor de Avisos y Publicidad:** Publicación y retiro inmediato de anuncios en el carrusel público de la página web.
   * **Pistas de Auditoría RBAC:** Registro inmutable de eventos sensibles del sistema (inicios de sesión, cambios de rol, cancelaciones de citas) para cumplimiento y seguridad.
@@ -283,29 +286,37 @@ El motor relacional `Clinica_Podologia` articula la información mediante 9 enti
 ├─────────────────┤        ├──────────────────┤        ├─────────────────┤
 │ Rol_id (PK)     │◄───────┤ fk_rol_id (FK)   │   ┌───►│ Cedula_podo(PK) │
 │ nombre_rol      │        │ Usuario_id (PK)  │   │    │ fk_usuario_id   │
-└─────────────────┘        │ email            ├───┘    │ nombre, cedula  │
-                           │ password_hash    │        └────────┬────────┘
-                           └──────────────────┘                 │
+└─────────────────┘        │ email            ├───┘    │ fk_clinica_id   ├──┐
+                           │ password_hash    │        │ Turno (M/V/C)   │  │
+                           └──────────────────┘        └────────┬────────┘  │
+                                                                │           │
+┌─────────────────┐        ┌──────────────────┐                 │           │
+│    CLINICAS     │        │  RECEPCIONISTAS  │                 │           │
+├─────────────────┤        ├──────────────────┤                 │           │
+│ Clinica_id (PK) │◄───────┤ fk_clinica_id    │                 │           │
+│ Nombre          │◄───────┼──────────────────┼─────────────────┼───────────┘
+└─────────────────┘        └──────────────────┘                 │
                                                                 │
 ┌─────────────────┐        ┌──────────────────┐                 │
 │    PACIENTES    │        │    CONSULTAS     │                 │
 ├─────────────────┤        ├──────────────────┤                 │
-│ id_paciente(PK) │◄───────┤ fk_paciente_id   │                 │
-│ num_expediente  │        │ id_consulta (PK) │                 │
-│ nombre_completo │        │ fk_cedula_podo   ├─────────────────┘
-│ es_diabetico    │        │ fecha_cita, hora │
-│ es_hipertenso   │        │ estado           │
-└─────────────────┘        └────────┬─────────┘
-                                    │
-                           ┌────────┴─────────┐
+│ No_expediente   │◄───────┤ fk_no_expediente │                 │
+│ Nombres, apes   │        │ Consulta_id (PK) │                 │
+│ fecha_nacimiento│        │ fk_cedula_podo   ├─────────────────┘
+│ Sexo, calzado   │        │ fk_clinica_id    │
+│ calle_direccion │        │ fecha_hora       │
+│ Municipio       │        │ estado           │
+│ es_diabetico    │        └────────┬─────────┘
+│ es_hipertenso   │                 │
+└─────────────────┘        ┌────────┴─────────┐
                            ▼                  ▼
                   ┌─────────────────┐┌─────────────────┐
                   │  DIAGNOSTICOS   ││  TRATAMIENTOS   │
                   ├─────────────────┤├─────────────────┤
-                  │ id_diagnostico  ││ id_tratamiento  │
+                  │ Diagnostico_id  ││ Tratamiento_id  │
                   │ fk_consulta_id  ││ fk_consulta_id  │
-                  │ pie_izquierdo   ││ tratamiento     │
-                  │ pie_derecho     ││ costo           │
+                  │ pie_izquierdo   ││ procedimiento   │
+                  │ pie_derecho     ││ tratamiento     │
                   └─────────────────┘└─────────────────┘
 ```
 
@@ -334,9 +345,16 @@ Todos los endpoints responden con formato estándar `application/json` e impleme
 
 ### Módulo Administrativo y de Dirección (`/api/admin`)
 * `GET /api/admin/metricas`: Indicadores clave de rendimiento (KPIs), volumen de consultas y tendencias.
-* `GET /api/admin/especialistas`: Catálogo completo del personal médico registrado.
+* `GET /api/admin/podologos` · `POST /api/admin/podologos` · `PUT /api/admin/podologos/:cedula`: Gestión de especialistas vinculados a su sede clínica (`fk_clinica_id`) y turno (`M`/`V`/`C`).
+* `GET /api/admin/recepcionistas` · `POST /api/admin/recepcionistas` · `PUT /api/admin/recepcionistas/:id`: Gestión de recepcionistas, sede asignada y horario/turno.
+* `GET /api/admin/pacientes` · `GET /api/admin/pacientes/:no_expediente` · `PUT /api/admin/pacientes/:no_expediente`: Consulta y actualización integral de datos demográficos y clínicos de pacientes.
+* `GET /api/admin/clinicas` · `POST /api/admin/clinicas` · `PUT /api/admin/clinicas/:id`: Administración de sedes clínicas.
 * `POST /api/admin/avisos`: Creación de historias y anuncios visibles en la página web pública.
-* `GET /api/admin/auditoria`: Pistas de auditoría y bitácora de operaciones de seguridad.
+
+### Módulo Público de Citas y Especialistas (`/api/citas`, `/api/podologos`)
+* `GET /api/podologos`: Lista de podólogos activos con `fk_clinica_id` y `clinica_nombre` para filtrado por sede en el portal de citas.
+* `GET /api/citas/disponibilidad`: Horarios disponibles en tiempo real por clínica, especialista y fecha.
+* `POST /api/citas`: Registro de cita médica desde el portal público con validación de conflictos (`409 Conflict`).
 
 ---
 
