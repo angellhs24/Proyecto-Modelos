@@ -2,15 +2,17 @@
  * LÓGICA DE VANILLA JS: CONSULTORIO PODOLÓGICO (ROL ID: 4)
  * Elite Foot Care - Agenda Personal, Expediente Clínico y Mapa Podológico Interactivo
  */
-const escapeHtml = window.escapeHtml || ((str) => {
-  if (str === null || str === undefined) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-});
+if (typeof window.escapeHtml !== 'function') {
+  window.escapeHtml = (str) => {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  };
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
   // 1. Guardián de Acceso RBAC: Podólogo (Rol ID: 4) o Administrador (Rol ID: 1)
@@ -68,9 +70,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 let consultaActiva = null;
 let pacienteActivo = null;
 let misCitasCache = [];
+let consultasPacienteCache = [];
+let diagnosticosPacienteCache = [];
+let tratamientosPacienteCache = [];
+let recetasPacienteCache = [];
+let recetasConsultaCache = [];
+let mapaHallazgosPacienteCache = [];
 let hallazgosMapaCache = [];
 let vistaPieActual = 'plantar'; // 'plantar' | 'dorsal'
 let zonaSeleccionadaActual = null;
+let rangoFechaAgendaActual = 'todas';
 
 /**
  * Determina el prefijo respetuoso (Dra. o Dr.) según el nombre
@@ -145,16 +154,28 @@ function inicializarNavegacionTabs() {
       const targetPane = document.getElementById(targetId);
       if (targetPane) targetPane.classList.add('active');
 
-      // Si se abre Expediente y aún no se ha cargado un paciente, pero hay citas en la agenda, auto-cargar el primero
-      if (targetId === 'tab-expediente' && !pacienteActivo && misCitasCache.length > 0) {
-        await cargarExpedientePaciente(misCitasCache[0].fk_no_expediente);
+      // Si se abre Expediente y no hay paciente activo, mostrar aviso y ocultar formulario
+      if (targetId === 'tab-expediente' && !pacienteActivo) {
+        const citaEnAtencion = misCitasCache.find((c) => c.estado === 'En atención');
+        if (citaEnAtencion) {
+          consultaActiva = citaEnAtencion;
+          await cargarExpedientePaciente(citaEnAtencion.fk_no_expediente);
+        } else {
+          const alerta = document.getElementById('sin-paciente-alerta');
+          if (alerta) alerta.style.setProperty('display', 'flex', 'important');
+          const contenedor = document.getElementById('contenedor-expediente-completo');
+          if (contenedor) contenedor.style.display = 'none';
+        }
       }
 
-      // Si se abre Mapa Podológico y no hay consulta activa, enlazar con la primera consulta de la agenda
-      if (targetId === 'tab-mapa-podologico' && !consultaActiva && misCitasCache.length > 0) {
-        consultaActiva = misCitasCache[0];
-        actualizarIndicadorMapa(consultaActiva);
-        await cargarMapaConsulta(consultaActiva.Consulta_id);
+      // Si se abre Mapa Podológico y no hay consulta activa, solo enlazar si hay una consulta en atención
+      if (targetId === 'tab-mapa-podologico' && !consultaActiva) {
+        const citaEnAtencion = misCitasCache.find((c) => c.estado === 'En atención');
+        if (citaEnAtencion) {
+          consultaActiva = citaEnAtencion;
+          actualizarIndicadorMapa(consultaActiva);
+          await cargarMapaConsulta(consultaActiva.Consulta_id);
+        }
       }
     });
   });
@@ -163,6 +184,7 @@ function inicializarNavegacionTabs() {
 function cambiarPestana(tabId) {
   const btn = document.querySelector(`.nav-tab-btn[data-tab="${tabId}"]`);
   if (btn) btn.click();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /**
@@ -170,6 +192,40 @@ function cambiarPestana(tabId) {
  * 1. AGENDA PERSONAL (SOLO SUS CONSULTAS ASIGNADAS)
  * =========================================================================
  */
+function obtenerFechaLocalOffset(dias = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + dias);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function filtrarAgendaPorRango(rango, btn) {
+  rangoFechaAgendaActual = rango || 'todas';
+  const inputFecha = document.getElementById('podo-filtro-fecha');
+
+  document.querySelectorAll('.podo-rango-btn').forEach((b) => {
+    b.classList.remove('active', 'btn-primary');
+    if (b.dataset.rango === rangoFechaAgendaActual) {
+      b.classList.add('active', 'btn-primary');
+    }
+  });
+
+  if (inputFecha) {
+    if (rangoFechaAgendaActual === 'hoy') {
+      inputFecha.value = obtenerFechaLocalOffset(0);
+    } else if (rangoFechaAgendaActual === 'manana') {
+      inputFecha.value = obtenerFechaLocalOffset(1);
+    } else {
+      inputFecha.value = '';
+    }
+  }
+
+  cargarAgendaPersonal();
+}
+window.filtrarAgendaPorRango = filtrarAgendaPorRango;
+
 async function cargarAgendaPersonal() {
   const tbody = document.getElementById('tabla-agenda-personal-body');
   if (!tbody) return;
@@ -178,7 +234,11 @@ async function cargarAgendaPersonal() {
   const estado = document.getElementById('podo-filtro-estado')?.value || '';
 
   const params = new URLSearchParams();
-  if (fecha) params.append('fecha', fecha);
+  if (fecha) {
+    params.append('fecha', fecha);
+  } else if (rangoFechaAgendaActual && rangoFechaAgendaActual !== 'todas') {
+    params.append('rango', rangoFechaAgendaActual);
+  }
   if (estado) params.append('estado', estado);
 
   const res = await AppAuth.fetchApi(`/api/medico/agenda?${params.toString()}`);
@@ -188,6 +248,32 @@ async function cargarAgendaPersonal() {
     renderTablaAgendaPersonal(res.data);
     actualizarKPIsAgendaPersonal(res.data);
     poblarSelectoresPacientes(res.data);
+
+    const citaEnAtencion = res.data.find((c) => c.estado === 'En atención');
+    if (citaEnAtencion) {
+      if (!consultaActiva || consultaActiva.Consulta_id !== citaEnAtencion.Consulta_id || !pacienteActivo) {
+        consultaActiva = citaEnAtencion;
+        await cargarExpedientePaciente(citaEnAtencion.fk_no_expediente);
+      } else {
+        consultaActiva.estado = 'En atención';
+        actualizarHUDPaciente(pacienteActivo, consultaActiva);
+      }
+    } else if (!consultaActiva || consultaActiva.estado !== 'En atención') {
+      consultaActiva = null;
+      actualizarHUDPaciente(null, null);
+    }
+
+    const resumenEl = document.getElementById('podo-resumen-filtro');
+    if (resumenEl) {
+      const total = res.data.length;
+      if (fecha) {
+        resumenEl.textContent = `${total} paciente${total === 1 ? '' : 's'} agendado${total === 1 ? '' : 's'} para el ${fecha}`;
+      } else if (rangoFechaAgendaActual === 'proximas') {
+        resumenEl.textContent = `${total} cita${total === 1 ? '' : 's'} próxima${total === 1 ? '' : 's'}`;
+      } else {
+        resumenEl.textContent = `${total} cita${total === 1 ? '' : 's'} encontrada${total === 1 ? '' : 's'}`;
+      }
+    }
   } else {
     tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--color-danger); padding: 1.5rem;">Error al cargar la agenda personal del podólogo</td></tr>`;
   }
@@ -197,26 +283,51 @@ function poblarSelectoresPacientes(citas) {
   const selectExp = document.getElementById('select-paciente-agenda-expediente');
   const selectMap = document.getElementById('select-paciente-agenda-mapa');
 
+  const hoyStr = obtenerFechaLocalOffset(0);
+  const estadosActivos = ['Pendiente', 'Confirmada', 'Programada', 'En espera', 'En atención'];
+  const citasFiltradas = (citas || []).filter((c) => {
+    const esActivaHoy = estadosActivos.includes(c.estado) && String(c.fecha_hora || '').startsWith(hoyStr);
+    const esConsultaActual = consultaActiva && String(c.Consulta_id) === String(consultaActiva.Consulta_id);
+    return esActivaHoy || esConsultaActual;
+  });
+
+  const formatearHora = (fechaHora) => {
+    if (!fechaHora) return '';
+    const d = new Date(fechaHora);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  };
+
   if (selectExp) {
     const prevVal = selectExp.value;
-    selectExp.innerHTML = '<option value="">-- Seleccionar paciente de mi agenda --</option>' +
-      citas.map(c => `
-        <option value="${escapeHtml(c.fk_no_expediente)}" data-consulta="${escapeHtml(c.Consulta_id)}">
-          ${escapeHtml(c.paciente_nombre)} (Exp #${escapeHtml(c.fk_no_expediente)} · Cita: ${escapeHtml(c.Consulta_id)})
-        </option>
-      `).join('');
-    if (prevVal) selectExp.value = prevVal;
+    selectExp.innerHTML = '<option value="">-- Citas activas de hoy --</option>' +
+      citasFiltradas.map(c => {
+        const hora = formatearHora(c.fecha_hora);
+        return `
+          <option value="${escapeHtml(c.fk_no_expediente)}" data-consulta="${escapeHtml(c.Consulta_id)}">
+            ${hora ? `${escapeHtml(hora)} · ` : ''}${escapeHtml(c.paciente_nombre)} (${escapeHtml(c.estado)})
+          </option>
+        `;
+      }).join('');
+    if (prevVal && citasFiltradas.some(c => String(c.fk_no_expediente) === String(prevVal))) {
+      selectExp.value = prevVal;
+    }
   }
 
   if (selectMap) {
     const prevVal = selectMap.value;
-    selectMap.innerHTML = '<option value="">-- Seleccionar paciente de mi agenda --</option>' +
-      citas.map(c => `
-        <option value="${escapeHtml(c.Consulta_id)}" data-exp="${escapeHtml(c.fk_no_expediente)}">
-          ${escapeHtml(c.paciente_nombre)} (Cita: ${escapeHtml(c.Consulta_id)} · Exp #${escapeHtml(c.fk_no_expediente)})
-        </option>
-      `).join('');
-    if (prevVal) selectMap.value = prevVal;
+    selectMap.innerHTML = '<option value="">-- Citas activas de hoy --</option>' +
+      citasFiltradas.map(c => {
+        const hora = formatearHora(c.fecha_hora);
+        return `
+          <option value="${escapeHtml(c.Consulta_id)}" data-exp="${escapeHtml(c.fk_no_expediente)}">
+            ${hora ? `${escapeHtml(hora)} · ` : ''}${escapeHtml(c.paciente_nombre)} (${escapeHtml(c.estado)})
+          </option>
+        `;
+      }).join('');
+    if (prevVal && citasFiltradas.some(c => String(c.Consulta_id) === String(prevVal))) {
+      selectMap.value = prevVal;
+    }
   }
 }
 
@@ -243,6 +354,8 @@ function renderTablaAgendaPersonal(citas) {
     });
 
     const estadoBadgeClass = {
+      'Pendiente': 'badge-espera',
+      'Confirmada': 'badge-programada',
       'Programada': 'badge-programada',
       'En espera': 'badge-atencion',
       'En atención': 'badge-atencion',
@@ -260,6 +373,42 @@ function renderTablaAgendaPersonal(citas) {
     }
 
     const safeConsultaId = encodeURIComponent(String(c.Consulta_id));
+    const estaCerrada = ['Finalizada', 'Completada', 'Cancelada'].includes(c.estado);
+    const estaEnAtencion = c.estado === 'En atención';
+    const otraEnAtencion = citas.some(x => x.estado === 'En atención' && x.Consulta_id !== c.Consulta_id)
+      || (consultaActiva?.estado === 'En atención' && consultaActiva.Consulta_id !== c.Consulta_id);
+
+    let botonAccionHtml = '';
+    if (estaCerrada) {
+      const iconoCerrada = c.estado === 'Cancelada' ? 'fa-ban' : 'fa-check-double';
+      botonAccionHtml = `
+        <button type="button" class="btn-atender-deshabilitado" disabled title="Esta consulta está ${escapeHtml(c.estado)} y no puede reactivarse">
+          <i class="fa-solid ${iconoCerrada}"></i>
+          <span>Atender Paciente</span>
+        </button>
+      `;
+    } else if (estaEnAtencion) {
+      botonAccionHtml = `
+        <button type="button" class="btn-atender-en-curso" onclick="iniciarAtencionConsulta('${safeConsultaId}')" title="Abrir expediente de la consulta en curso">
+          <i class="fa-solid fa-stethoscope"></i>
+          <span>En Consulta</span>
+        </button>
+      `;
+    } else if (otraEnAtencion) {
+      botonAccionHtml = `
+        <button type="button" class="btn-atender-deshabilitado" disabled title="Finaliza la consulta actual antes de atender a otro paciente">
+          <i class="fa-solid fa-lock"></i>
+          <span>Atender Paciente</span>
+        </button>
+      `;
+    } else {
+      botonAccionHtml = `
+        <button type="button" class="btn-atender-activo" onclick="iniciarAtencionConsulta('${safeConsultaId}')">
+          <i class="fa-solid fa-notes-medical"></i>
+          <span>Atender Paciente</span>
+        </button>
+      `;
+    }
 
     return `
       <tr>
@@ -278,11 +427,7 @@ function renderTablaAgendaPersonal(citas) {
           ${escapeHtml(c.motivo_o_notas || '—')}
         </td>
         <td><span class="status-badge ${estadoBadgeClass}">${escapeHtml(c.estado)}</span></td>
-        <td>
-          <button class="btn btn-accent btn-sm" onclick="iniciarAtencionConsulta('${safeConsultaId}')">
-            <i class="fa-solid fa-notes-medical"></i> Atender Paciente
-          </button>
-        </td>
+        <td>${botonAccionHtml}</td>
       </tr>
     `;
   }).join('');
@@ -292,16 +437,28 @@ function actualizarKPIsAgendaPersonal(citas) {
   const kpiTotal = document.getElementById('kpi-mis-citas-total');
   const kpiEspera = document.getElementById('kpi-mis-citas-espera');
   const kpiAtencion = document.getElementById('kpi-mis-citas-atencion');
+  const kpiAtencionSub = document.getElementById('kpi-mis-citas-atencion-sub');
   const kpiFin = document.getElementById('kpi-mis-citas-finalizadas');
 
+  const citaEnAtencion = citas.find(c => c.estado === 'En atención') || (consultaActiva?.estado === 'En atención' ? consultaActiva : null);
+
   if (kpiTotal) kpiTotal.textContent = citas.length;
-  if (kpiEspera) kpiEspera.textContent = citas.filter(c => c.estado === 'Programada' || c.estado === 'En espera').length;
-  if (kpiAtencion) kpiAtencion.textContent = citas.filter(c => c.estado === 'En atención').length;
+  if (kpiEspera) kpiEspera.textContent = citas.filter(c => ['Pendiente', 'Confirmada', 'Programada', 'En espera'].includes(c.estado)).length;
+  if (kpiAtencion) kpiAtencion.textContent = citaEnAtencion ? 'Sí' : 'No';
+  if (kpiAtencionSub) {
+    kpiAtencionSub.textContent = citaEnAtencion
+      ? `Atendiendo a ${citaEnAtencion.paciente_nombre || pacienteActivo?.nombre_completo || 'paciente'}`
+      : 'Sin consulta en curso';
+  }
   if (kpiFin) kpiFin.textContent = citas.filter(c => c.estado === 'Finalizada' || c.estado === 'Completada').length;
 }
 
 function configurarEventosAgendaPersonal() {
-  document.getElementById('podo-filtro-fecha')?.addEventListener('change', cargarAgendaPersonal);
+  document.getElementById('podo-filtro-fecha')?.addEventListener('change', () => {
+    rangoFechaAgendaActual = 'personalizada';
+    document.querySelectorAll('.podo-rango-btn').forEach((b) => b.classList.remove('active', 'btn-primary'));
+    cargarAgendaPersonal();
+  });
   document.getElementById('podo-filtro-estado')?.addEventListener('change', cargarAgendaPersonal);
   document.getElementById('btn-recargar-agenda-podo')?.addEventListener('click', cargarAgendaPersonal);
 
@@ -316,19 +473,82 @@ function configurarEventosAgendaPersonal() {
 
     if (res.ok) {
       AppAuth.showToast('¡Consulta finalizada con éxito!', 'success');
-      consultaActiva.estado = 'Finalizada';
-      actualizarHUDPaciente(pacienteActivo, consultaActiva);
-      cargarAgendaPersonal();
+      limpiarExpedienteActivo();
+      await cargarAgendaPersonal();
     }
   });
+}
+
+function limpiarExpedienteActivo() {
+  consultaActiva = null;
+  pacienteActivo = null;
+  consultasPacienteCache = [];
+  diagnosticosPacienteCache = [];
+  tratamientosPacienteCache = [];
+  recetasPacienteCache = [];
+  recetasConsultaCache = [];
+  mapaHallazgosPacienteCache = [];
+  hallazgosMapaCache = [];
+
+  actualizarHUDPaciente(null, null);
+
+  const alerta = document.getElementById('sin-paciente-alerta');
+  if (alerta) alerta.style.setProperty('display', 'flex', 'important');
+
+  const contenedor = document.getElementById('contenedor-expediente-completo');
+  if (contenedor) contenedor.style.display = 'none';
+
+  // Limpiar campos de somatometría y antecedentes
+  ['exp-peso', 'exp-altura', 'exp-tipo-pisada', 'exp-alineacion', 'exp-observaciones', 'ant-calzado', 'ant-patologicos', 'ant-notas', 'receta-indicaciones', 'input-buscar-expediente'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['ant-diabetico', 'ant-hipertenso'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = false;
+  });
+
+  // Limpiar tablas y selectores
+  const tbodyDiag = document.getElementById('tabla-diagnosticos-body');
+  if (tbodyDiag) tbodyDiag.innerHTML = '';
+  const tbodyTrat = document.getElementById('tabla-tratamientos-body');
+  if (tbodyTrat) tbodyTrat.innerHTML = '';
+  const listaRecetas = document.getElementById('lista-recetas-emitidas');
+  if (listaRecetas) listaRecetas.innerHTML = '';
+
+  const selectExp = document.getElementById('select-paciente-agenda-expediente');
+  if (selectExp) selectExp.value = '';
+  const selectMap = document.getElementById('select-paciente-agenda-mapa');
+  if (selectMap) selectMap.value = '';
+
+  const indMapa = document.getElementById('mapa-paciente-indicador');
+  if (indMapa) indMapa.textContent = 'Ningún paciente seleccionado';
+
+  inicializarFormularioRecetaDinamica();
 }
 
 /**
  * Atender Paciente: Carga la consulta y paciente en turnos
  */
+function obtenerConsultaEnAtencion() {
+  if (consultaActiva?.estado === 'En atención') return consultaActiva;
+  return (misCitasCache || []).find(c => c.estado === 'En atención') || null;
+}
+
 window.iniciarAtencionConsulta = async (consultaId) => {
   const cita = misCitasCache.find(c => c.Consulta_id === consultaId);
   if (!cita) return;
+
+  if (['Finalizada', 'Completada', 'Cancelada'].includes(cita.estado)) {
+    AppAuth.showToast(`La consulta ${consultaId} ya está ${cita.estado} y no puede reabrirse.`, 'warning');
+    return;
+  }
+
+  const enCurso = obtenerConsultaEnAtencion();
+  if (enCurso && enCurso.Consulta_id !== consultaId) {
+    AppAuth.showToast(`Ya estás atendiendo a ${enCurso.paciente_nombre || 'un paciente'}. Finaliza la consulta actual antes de atender a otro.`, 'warning');
+    return;
+  }
 
   consultaActiva = cita;
 
@@ -338,12 +558,16 @@ window.iniciarAtencionConsulta = async (consultaId) => {
   if (selectMap) selectMap.value = String(cita.Consulta_id);
   actualizarIndicadorMapa(cita);
 
-  // Cambiar estado a 'En atención' si estaba programada
-  if (cita.estado === 'Programada' || cita.estado === 'En espera') {
-    await AppAuth.fetchApi(`/api/medico/consultas/${consultaId}/estado`, {
+  // Cambiar estado a 'En atención' si estaba pendiente/confirmada/programada/en espera
+  if (['Pendiente', 'Confirmada', 'Programada', 'En espera'].includes(cita.estado)) {
+    const resEst = await AppAuth.fetchApi(`/api/medico/consultas/${consultaId}/estado`, {
       method: 'PUT',
       body: JSON.stringify({ estado: 'En atención' })
     });
+    if (!resEst.ok) {
+      AppAuth.showToast(resEst.data?.error || 'No se pudo iniciar la atención', 'warning');
+      return;
+    }
     cita.estado = 'En atención';
   }
 
@@ -352,6 +576,9 @@ window.iniciarAtencionConsulta = async (consultaId) => {
 
   // Cargar mapa podológico de esta consulta
   await cargarMapaConsulta(consultaId);
+
+  // Actualizar tabla y KPIs para reflejar 'En atención' (Sí)
+  await cargarAgendaPersonal();
 
   // Cambiar a la pestaña de Expediente Clínico
   cambiarPestana('tab-expediente');
@@ -365,12 +592,12 @@ function actualizarHUDPaciente(paciente, consulta) {
   const hud = document.getElementById('hud-paciente-activo');
   if (!hud) return;
 
-  if (!paciente || !consulta) {
-    hud.style.display = 'none';
+  if (!paciente || !consulta || consulta.estado !== 'En atención') {
+    hud.style.setProperty('display', 'none', 'important');
     return;
   }
 
-  hud.style.display = 'flex';
+  hud.style.setProperty('display', 'flex', 'important');
   document.getElementById('hud-paciente-nombre').textContent = paciente.nombre_completo || `${paciente.Nombres} ${paciente.ape_paterno}`;
   document.getElementById('hud-paciente-exp').textContent = `#${paciente.No_expediente}`;
   document.getElementById('hud-consulta-id').textContent = consulta.Consulta_id;
@@ -434,8 +661,14 @@ async function cargarExpedientePaciente(expediente) {
   }
 
   pacienteActivo = res.data.paciente;
+  consultasPacienteCache = res.data.consultas || [];
+  diagnosticosPacienteCache = res.data.diagnosticos || [];
+  tratamientosPacienteCache = res.data.tratamientos || [];
+  recetasPacienteCache = res.data.recetas || [];
+  mapaHallazgosPacienteCache = res.data.mapaHallazgos || [];
+  renderHistorialMapasAnteriores();
 
-  document.getElementById('sin-paciente-alerta').style.display = 'none';
+  document.getElementById('sin-paciente-alerta')?.style.setProperty('display', 'none', 'important');
   document.getElementById('contenedor-expediente-completo').style.display = 'block';
 
   // Si no había consultaActiva seleccionada, usar la última consulta
@@ -475,6 +708,205 @@ async function cargarExpedientePaciente(expediente) {
     ]);
   }
 }
+
+function abrirModalInfoPacienteActivo() {
+  const modal = document.getElementById('modal-info-paciente-hud');
+  const body = document.getElementById('modal-info-paciente-body');
+  if (!modal || !body || !pacienteActivo) return;
+
+  const p = pacienteActivo;
+  const consultasPrevias = (consultasPacienteCache || []).filter(
+    (c) => !consultaActiva || c.Consulta_id !== consultaActiva.Consulta_id
+  );
+  const ultimaAtendida = consultasPrevias.find(
+    (c) => c.estado === 'Completada' || c.estado === 'Finalizada'
+  );
+  const ultimaVisita = ultimaAtendida || (consultasPrevias.length > 0 ? consultasPrevias[0] : null);
+  const fechaUltima = ultimaVisita?.fecha_hora
+    ? new Date(ultimaVisita.fecha_hora).toLocaleString('es-MX', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    : null;
+
+  const rawNac = p.fecha_nacimiento || p.Fecha_nacimiento || '';
+  const fechaNacTxt = rawNac ? String(rawNac).split('T')[0] : 'N/D';
+  const rawReg = p.Fecha_registro || p.fecha_registro || '';
+  const fechaRegTxt = rawReg ? String(rawReg).split('T')[0] : 'N/D';
+  const sexoTexto = p.Sexo === 'F' ? 'Femenino' : p.Sexo === 'M' ? 'Masculino' : (p.Sexo || 'No especificado');
+  const direccionTexto = [p.calle_direccion || p.Calle_direccion, p.Municipio].filter(Boolean).join(', ') || 'No registrada';
+
+  const diagPrevios = (diagnosticosPacienteCache || []).filter(
+    (d) => !consultaActiva || d.fk_consulta_id !== consultaActiva.Consulta_id
+  );
+  const tratPrevios = (tratamientosPacienteCache || []).filter(
+    (t) => !consultaActiva || t.fk_consulta_id !== consultaActiva.Consulta_id
+  );
+  const recetasPrevias = (recetasPacienteCache || []).filter(
+    (r) => !consultaActiva || r.fk_consulta_id !== consultaActiva.Consulta_id
+  );
+
+  const renderLat = (izq, der) => {
+    const l = [];
+    if (izq) l.push('Pie Izq');
+    if (der) l.push('Pie Der');
+    return l.length > 0 ? l.join(' / ') : 'Bilateral';
+  };
+
+  body.innerHTML = `
+    <div class="podo-info-3col">
+      <div class="podo-info-card">
+        <div style="font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700;">Paciente</div>
+        <div style="font-weight: 800; color: #0f172a; margin-top: 4px; font-size: 0.96rem;">${escapeHtml(p.nombre_completo || `${p.Nombres} ${p.ape_paterno}`)}</div>
+        <div style="font-size: 0.82rem; color: #475569; margin-top: 4px;">Expediente: <strong>#${escapeHtml(p.No_expediente)}</strong></div>
+        <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">Registro: ${escapeHtml(fechaRegTxt)}</div>
+      </div>
+      <div class="podo-info-card">
+        <div style="font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700;">Datos Demográficos</div>
+        <div style="font-weight: 700; color: #0f172a; margin-top: 4px; font-size: 0.94rem;">${p.edad ? `${escapeHtml(p.edad)} años` : 'N/D'} · ${escapeHtml(sexoTexto)}</div>
+        <div style="font-size: 0.8rem; color: #475569; margin-top: 3px;">Nacimiento: ${escapeHtml(fechaNacTxt)}</div>
+        <div style="font-size: 0.82rem; color: #475569; margin-top: 2px;"><i class="fa-solid fa-phone" style="font-size: 0.75rem; color: #0d9488;"></i> ${escapeHtml(p.telefono || 'Sin teléfono')}</div>
+      </div>
+      <div class="podo-info-card">
+        <div style="font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700;">Domicilio y Calzado</div>
+        <div style="font-weight: 700; color: #0f172a; margin-top: 4px; font-size: 0.92rem;">${escapeHtml(direccionTexto)}</div>
+        <div style="font-size: 0.82rem; color: #475569; margin-top: 4px;">Calzado: <strong>${escapeHtml(p.calzado || p.Calzado || 'N/D')} cm</strong></div>
+        <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">Ocupación: ${escapeHtml(p.ocupacion || p.Ocupacion || 'N/D')}</div>
+      </div>
+    </div>
+
+    <div class="podo-info-card" style="margin-bottom: 14px;">
+      <div style="font-size: 0.84rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+        <i class="fa-solid fa-clock-rotate-left" style="color: #0d9488;"></i>
+        <span>${ultimaAtendida ? 'Última Visita Atendida' : 'Última Cita Registrada'}</span>
+        <span style="margin-left: auto; font-size: 0.75rem; background: #f1f5f9; color: #0f172a; padding: 3px 10px; border-radius: 999px; font-weight: 700;">
+          ${consultasPrevias.length} consulta${consultasPrevias.length === 1 ? '' : 's'} previa${consultasPrevias.length === 1 ? '' : 's'}
+        </span>
+      </div>
+      ${
+        ultimaVisita
+          ? `
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px 16px; font-size: 0.86rem; color: #334155;">
+              <div><strong>Fecha:</strong> ${escapeHtml(fechaUltima)}</div>
+              <div><strong>Estado:</strong> ${escapeHtml(ultimaVisita.estado || 'N/D')}</div>
+              <div><strong>Especialista:</strong> ${escapeHtml(ultimaVisita.podologo_nombre || 'N/D')}</div>
+              <div><strong>Sede:</strong> ${escapeHtml(ultimaVisita.clinica_nombre || 'N/D')}</div>
+              <div><strong>Somatometría:</strong> ${ultimaVisita.Peso ? `${escapeHtml(ultimaVisita.Peso)} kg` : 'N/D'} · ${ultimaVisita.Altura ? `${escapeHtml(ultimaVisita.Altura)} m` : 'N/D'}</div>
+              <div><strong>Pisada / Alineación:</strong> ${escapeHtml(ultimaVisita.tipo_pisada || 'N/D')} / ${escapeHtml(ultimaVisita.alineacion || 'N/D')}</div>
+              <div style="grid-column: 1 / -1;"><strong>Motivo / Observaciones:</strong> ${escapeHtml(ultimaVisita.observaciones || ultimaVisita.motivo_o_notas || 'Sin observaciones')}</div>
+            </div>
+          `
+          : `<div style="font-size: 0.88rem; color: #64748b;">Primera consulta registrada para este paciente.</div>`
+      }
+    </div>
+
+    <div class="podo-info-card">
+      <div style="font-size: 0.84rem; font-weight: 700; color: #0f172a; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-notes-medical" style="color: #dc2626;"></i>
+        <span>Antecedentes y Notas Clínicas</span>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+        ${p.es_diabetico ? '<span class="badge-risk diabetic"><i class="fa-solid fa-triangle-exclamation"></i> Diabético</span>' : ''}
+        ${p.es_hipertenso ? '<span class="badge-risk hypertensive"><i class="fa-solid fa-heart-pulse"></i> Hipertenso</span>' : ''}
+        ${!p.es_diabetico && !p.es_hipertenso ? '<span style="font-size: 0.82rem; color: #059669; font-weight: 700; background: #ecfdf5; padding: 3px 10px; border-radius: 999px;">Sin alertas crónicas registradas</span>' : ''}
+      </div>
+      <div style="font-size: 0.86rem; color: #334155; line-height: 1.5;">
+        <div><strong>Antecedentes patológicos:</strong> ${escapeHtml(p.Antecedentes_patologicos || 'Ninguno registrado')}</div>
+        <div style="margin-top: 4px;"><strong>Notas:</strong> ${escapeHtml(p.Notas || 'Sin notas adicionales')}</div>
+      </div>
+    </div>
+
+    <div class="podo-info-card" style="margin-top: 14px;">
+      <div style="font-size: 0.84rem; font-weight: 700; color: #0f172a; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-file-medical" style="color: #7c3aed;"></i>
+        <span>Diagnósticos y Tratamientos de Consultas Anteriores</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px;">
+          <div style="font-size: 0.76rem; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 6px;">
+            Diagnósticos (${diagPrevios.length})
+          </div>
+          ${
+            diagPrevios.length > 0
+              ? diagPrevios.slice(0, 6).map(d => {
+                  const f = d.fecha_consulta ? String(d.fecha_consulta).split('T')[0] : '';
+                  return `
+                    <div style="font-size: 0.82rem; color: #1e293b; padding: 5px 0; border-bottom: 1px solid #e2e8f0;">
+                      <strong>${escapeHtml(d.padecimiento)}</strong>
+                      <span style="color: #64748b;"> · ${escapeHtml(renderLat(d.pie_izquierdo, d.pie_derecho))}</span>
+                      ${d.tipo_diagnostico ? `<span style="background: #ede9fe; color: #6d28d9; font-size: 0.7rem; padding: 1px 6px; border-radius: 999px; margin-left: 4px;">${escapeHtml(d.tipo_diagnostico)}</span>` : ''}
+                      ${f ? `<div style="font-size: 0.74rem; color: #64748b;">${escapeHtml(f)}${d.detalles_adicionales ? ' · ' + escapeHtml(d.detalles_adicionales) : ''}</div>` : ''}
+                    </div>
+                  `;
+                }).join('')
+              : '<div style="font-size: 0.82rem; color: #64748b;">Sin diagnósticos previos registrados.</div>'
+          }
+        </div>
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px;">
+          <div style="font-size: 0.76rem; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 6px;">
+            Tratamientos (${tratPrevios.length})
+          </div>
+          ${
+            tratPrevios.length > 0
+              ? tratPrevios.slice(0, 6).map(t => {
+                  const f = t.fecha_consulta ? String(t.fecha_consulta).split('T')[0] : '';
+                  return `
+                    <div style="font-size: 0.82rem; color: #1e293b; padding: 5px 0; border-bottom: 1px solid #e2e8f0;">
+                      <strong>${escapeHtml(t.procedimiento_servicio)}</strong>
+                      <span style="color: #64748b;"> · ${escapeHtml(renderLat(t.pie_izquierdo, t.pie_derecho))}</span>
+                      ${t.tratamiento_aplicado ? `<div style="font-size: 0.76rem; color: #475569;">${escapeHtml(t.tratamiento_aplicado)}</div>` : ''}
+                      ${f ? `<div style="font-size: 0.72rem; color: #64748b;">${escapeHtml(f)}</div>` : ''}
+                    </div>
+                  `;
+                }).join('')
+              : '<div style="font-size: 0.82rem; color: #64748b;">Sin tratamientos previos registrados.</div>'
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="podo-info-card" style="margin-top: 14px;">
+      <div style="font-size: 0.84rem; font-weight: 700; color: #0f172a; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-file-prescription" style="color: #2563eb;"></i>
+        <span>Historial de Recetas Médicas (${recetasPrevias.length})</span>
+      </div>
+      ${
+        recetasPrevias.length > 0
+          ? recetasPrevias.slice(0, 5).map(r => {
+              const folio = r.Receta_id || r.folio || 'RX-000';
+              const fechaR = r.fecha_emision ? String(r.fecha_emision).split('T')[0] : '';
+              const meds = Array.isArray(r.medicamentos) && r.medicamentos.length > 0 ? r.medicamentos : (r.detalles || []);
+              return `
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+                  <div style="flex: 1; min-width: 200px;">
+                    <div style="font-size: 0.82rem; font-weight: 700; color: #1e293b;">
+                      ${escapeHtml(folio)} ${fechaR ? `<span style="font-weight: 500; color: #64748b;">· ${escapeHtml(fechaR)}</span>` : ''}
+                    </div>
+                    <div style="font-size: 0.78rem; color: #475569; margin-top: 2px;">
+                      ${meds.length > 0 ? meds.map(m => escapeHtml(m.medicamento)).join(', ') : escapeHtml(r.indicaciones_generales || 'Sin detalle')}
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="descargarRecetaHistorial('${encodeURIComponent(String(folio))}')" style="border-radius: 999px; font-size: 0.76rem;">
+                    <i class="fa-solid fa-file-pdf" style="color: #dc2626;"></i> PDF
+                  </button>
+                </div>
+              `;
+            }).join('')
+          : '<div style="font-size: 0.82rem; color: #64748b;">Sin recetas emitidas en consultas anteriores.</div>'
+      }
+    </div>
+  `;
+
+  if (typeof modal.showModal === 'function') {
+    modal.showModal();
+  } else {
+    modal.setAttribute('open', 'true');
+  }
+}
+window.abrirModalInfoPacienteActivo = abrirModalInfoPacienteActivo;
 
 window.toggleAcordeon = (headerEl) => {
   const bodyEl = headerEl.nextElementSibling;
@@ -521,16 +953,17 @@ function configurarEventosExpediente() {
     }
   });
 
-  // Búsqueda manual de expediente
+  // Búsqueda manual de expediente para atención sin cita previa
   document.getElementById('btn-cargar-expediente-manual')?.addEventListener('click', () => {
-    const exp = document.getElementById('input-buscar-expediente').value;
-    if (exp) cargarExpedientePaciente(exp);
+    const exp = document.getElementById('input-buscar-expediente').value.trim();
+    if (exp) buscarPacientePorExpedienteParaAtender(exp);
   });
 
   document.getElementById('input-buscar-expediente')?.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
-      const exp = document.getElementById('input-buscar-expediente').value;
-      if (exp) cargarExpedientePaciente(exp);
+      e.preventDefault();
+      const exp = document.getElementById('input-buscar-expediente').value.trim();
+      if (exp) buscarPacientePorExpedienteParaAtender(exp);
     }
   });
 
@@ -696,22 +1129,27 @@ function configurarEventosExpediente() {
     }
 
     try {
-      const res = await AppAuth.fetchApi('/api/recetas', {
+      const res = await AppAuth.fetchApi(`/api/medico/consultas/${consultaActiva.Consulta_id}/recetas`, {
         method: 'POST',
         body: JSON.stringify(payload)
       });
 
       if (res.ok && res.data) {
-        AppAuth.showToast(`¡Receta médica emitida con éxito! Folio: ${res.data.folio || res.data.Receta_id}`, 'success');
+        const folioGenerado = res.data.Receta_id || res.data.folio || `RX-${Date.now().toString().slice(-6)}`;
+        AppAuth.showToast(`¡Receta médica emitida con éxito! Folio: ${folioGenerado}`, 'success');
         document.getElementById('receta-indicaciones').value = '';
         inicializarFormularioRecetaDinamica(); // Reiniciar a 1 fila vacía
-        cargarRecetasConsulta(consultaActiva.Consulta_id);
+        await cargarRecetasConsulta(consultaActiva.Consulta_id);
 
-        // Ofrecer apertura directa del PDF
-        const pdfUrl = res.data.url_pdf || `/api/recetas/${res.data.folio || res.data.Receta_id}/pdf`;
-        window.open(pdfUrl, '_blank');
+        // Generar y descargar PDF oficial de la receta
+        await generarRecetaPDF({
+          Receta_id: folioGenerado,
+          indicaciones_generales: payload.indicaciones_generales,
+          medicamentos: payload.medicamentos,
+          fecha_emision: new Date().toISOString()
+        });
       } else {
-        const errorMsg = res.error || 'No se pudo emitir la receta médica';
+        const errorMsg = res.data?.error || res.error || 'No se pudo emitir la receta médica';
         AppAuth.showToast(errorMsg, 'error');
       }
     } catch (err) {
@@ -792,7 +1230,16 @@ function agregarFilaMedicamento(item = {}) {
       </div>
       <div class="form-group" style="margin-bottom: 0;">
         <label class="form-label" style="font-size: 0.8rem; margin-bottom: 4px;">Frecuencia</label>
-        <input type="text" class="form-control med-frecuencia" placeholder="Ej. Cada 12 horas, Cada noche" value="${item.frecuencia || ''}">
+        <select class="form-select med-frecuencia">
+          <option value="Cada 8 horas" ${item.frecuencia === 'Cada 8 horas' ? 'selected' : ''}>Cada 8 horas</option>
+          <option value="Cada 12 horas" ${!item.frecuencia || item.frecuencia === 'Cada 12 horas' ? 'selected' : ''}>Cada 12 horas</option>
+          <option value="Cada 24 horas (Diario)" ${item.frecuencia === 'Cada 24 horas (Diario)' ? 'selected' : ''}>Cada 24 horas (Diario)</option>
+          <option value="Cada 3 días" ${item.frecuencia === 'Cada 3 días' ? 'selected' : ''}>Cada 3 días</option>
+          <option value="Cada 7 días (Semanal)" ${item.frecuencia === 'Cada 7 días (Semanal)' ? 'selected' : ''}>Cada 7 días (Semanal)</option>
+          <option value="Cada 15 días" ${item.frecuencia === 'Cada 15 días' ? 'selected' : ''}>Cada 15 días</option>
+          <option value="Cada 30 días (Mensual)" ${item.frecuencia === 'Cada 30 días (Mensual)' ? 'selected' : ''}>Cada 30 días (Mensual)</option>
+          <option value="Dosis única" ${item.frecuencia === 'Dosis única' ? 'selected' : ''}>Dosis única</option>
+        </select>
       </div>
       <div class="form-group" style="margin-bottom: 0;">
         <label class="form-label" style="font-size: 0.8rem; margin-bottom: 4px;">Duración</label>
@@ -880,14 +1327,22 @@ async function cargarTratamientosConsulta(consultaId) {
       if (t.pie_izquierdo) lat.push('<span class="status-badge badge-programada">Pie Izq</span>');
       if (t.pie_derecho) lat.push('<span class="status-badge badge-atencion">Pie Der</span>');
 
+      let frecuenciaTexto = t.frecuencia || '';
+      let detalleTexto = t.tratamiento_aplicado || '';
+      const matchFreq = detalleTexto.match(/\(?\s*Frecuencia:\s*([^)]+)\)?/i);
+      if (!frecuenciaTexto && matchFreq) {
+        frecuenciaTexto = matchFreq[1].trim();
+        detalleTexto = detalleTexto.replace(matchFreq[0], '').trim();
+      }
+
       const safeTratId = encodeURIComponent(String(t.Tratamiento_id));
 
       return `
         <tr>
           <td><strong>${escapeHtml(t.procedimiento_servicio)}</strong></td>
           <td>${lat.join(' ') || 'Bilateral'}</td>
-          <td>${escapeHtml(t.tratamiento_aplicado || '—')}</td>
-          <td>${escapeHtml(t.frecuencia || '—')}</td>
+          <td>${escapeHtml(detalleTexto || '—')}</td>
+          <td>${escapeHtml(frecuenciaTexto || '—')}</td>
           <td>
             <button class="btn btn-danger-outline btn-sm" onclick="eliminarTratamiento('${safeTratId}')">
               <i class="fa-solid fa-trash"></i>
@@ -918,13 +1373,14 @@ async function cargarRecetasConsulta(consultaId) {
     </div>
   `;
 
-  const res = await AppAuth.fetchApi(`/api/recetas/consulta/${consultaId}`);
+  const res = await AppAuth.fetchApi(`/api/medico/consultas/${consultaId}/recetas`);
   
   // La API puede retornar un objeto directo de la receta o un array
   let recetas = [];
   if (res.ok && res.data) {
     recetas = Array.isArray(res.data) ? res.data : [res.data];
   }
+  recetasConsultaCache = recetas;
 
   if (recetas.length === 0) {
     container.innerHTML = `
@@ -945,7 +1401,7 @@ async function cargarRecetasConsulta(consultaId) {
     }) : 'Fecha actual';
 
     const meds = Array.isArray(r.medicamentos) && r.medicamentos.length > 0 ? r.medicamentos : (r.detalles || []);
-    const pdfUrl = r.url_pdf || `/api/recetas/${encodeURIComponent(folio)}/pdf`;
+    const safeFolio = encodeURIComponent(String(folio));
 
     return `
       <div class="tarjeta-receta-emitida" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px 22px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); transition: all 0.2s ease;">
@@ -959,11 +1415,8 @@ async function cargarRecetasConsulta(consultaId) {
             </div>
           </div>
           <div style="display: flex; gap: 8px;">
-            <button class="btn btn-sm" onclick="window.open('${encodeURI(pdfUrl)}', '_blank')" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 9999px; padding: 6px 14px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" title="Ver receta membretada">
-              <i class="fa-solid fa-eye"></i> Ver PDF
-            </button>
-            <button class="btn btn-sm" onclick="window.open('${encodeURI(pdfUrl)}?autoprint=true', '_blank')" style="background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; border-radius: 9999px; padding: 6px 14px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" title="Imprimir o guardar PDF directamente">
-              <i class="fa-solid fa-print"></i> Imprimir / Guardar PDF
+            <button type="button" class="btn btn-sm" onclick="descargarRecetaPorId('${safeFolio}')" style="background: #0f172a; color: #ffffff; border: none; border-radius: 9999px; padding: 7px 15px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" title="Descargar receta médica en PDF">
+              <i class="fa-solid fa-file-pdf"></i> Descargar Receta (PDF)
             </button>
           </div>
         </div>
@@ -1085,15 +1538,18 @@ window.cambiarVistaPie = (vista) => {
 };
 
 async function cargarMapaConsulta(consultaId) {
+  const banner = document.getElementById('mapa-modo-historial-banner');
+  if (banner) banner.style.display = 'none';
+
   const res = await AppAuth.fetchApi(`/api/medico/consultas/${consultaId}/mapa`);
   if (res.ok && Array.isArray(res.data)) {
     hallazgosMapaCache = res.data;
-    renderListaHallazgos(res.data);
+    renderListaHallazgos(res.data, false);
     dibujarPinesEnMapa(res.data);
   }
 }
 
-function renderListaHallazgos(hallazgos) {
+function renderListaHallazgos(hallazgos, soloLectura = false) {
   const container = document.getElementById('lista-lesiones-registradas');
   const badgeTotal = document.getElementById('badge-total-lesiones');
   if (!container) return;
@@ -1115,12 +1571,95 @@ function renderListaHallazgos(hallazgos) {
         <p><i class="fa-solid fa-location-dot" style="color:#c084fc;"></i> ${escapeHtml(h.zona_pie)}</p>
         ${h.observaciones ? `<p style="color: #94a3b8; font-size: 0.78rem;">${escapeHtml(h.observaciones)}</p>` : ''}
       </div>
-      <button class="btn btn-danger-outline btn-sm" onclick="eliminarHallazgoMapa(${encodeURIComponent(String(h.Mapa_id))})" title="Eliminar hallazgo">
-        <i class="fa-solid fa-trash"></i>
-      </button>
+      ${
+        soloLectura
+          ? '<span style="font-size: 0.72rem; color: #64748b; background: #f1f5f9; padding: 3px 8px; border-radius: 999px;">Histórico</span>'
+          : `<button class="btn btn-danger-outline btn-sm" onclick="eliminarHallazgoMapa('${encodeURIComponent(String(h.Mapa_id))}')" title="Eliminar hallazgo">
+              <i class="fa-solid fa-trash"></i>
+            </button>`
+      }
     </div>
   `).join('');
 }
+
+function renderHistorialMapasAnteriores() {
+  const container = document.getElementById('lista-historial-mapas');
+  if (!container) return;
+
+  const hallazgosPrevios = (mapaHallazgosPacienteCache || []).filter(
+    (m) => !consultaActiva || String(m.fk_consulta_id) !== String(consultaActiva.Consulta_id)
+  );
+
+  if (hallazgosPrevios.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 1.25rem; font-size: 0.88rem; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+        No hay mapas podológicos registrados en consultas anteriores de este paciente.
+      </div>
+    `;
+    return;
+  }
+
+  const porConsulta = new Map();
+  hallazgosPrevios.forEach((m) => {
+    const cid = String(m.fk_consulta_id);
+    if (!porConsulta.has(cid)) porConsulta.set(cid, []);
+    porConsulta.get(cid).push(m);
+  });
+
+  container.innerHTML = Array.from(porConsulta.entries()).map(([cid, items]) => {
+    const con = (consultasPacienteCache || []).find((c) => String(c.Consulta_id) === cid);
+    const fechaTxt = con?.fecha_hora || items[0]?.fecha_consulta;
+    const fechaFormat = fechaTxt
+      ? new Date(fechaTxt).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })
+      : 'Fecha previa';
+    const podNombre = con?.podologo_nombre || 'Especialista';
+
+    return `
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-weight: 700; color: #0f172a; font-size: 0.88rem;">${escapeHtml(fechaFormat)}</span>
+            <span style="background: #ede9fe; color: #6d28d9; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px;">${items.length} hallazgo${items.length === 1 ? '' : 's'}</span>
+          </div>
+          <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 8px;">
+            <code>${escapeHtml(cid)}</code> · ${escapeHtml(podNombre)}
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+            ${items.slice(0, 4).map(it => `<span style="background: #ffffff; border: 1px solid #e2e8f0; color: #334155; font-size: 0.72rem; padding: 2px 7px; border-radius: 6px;">${escapeHtml(it.tipo_lesion)}</span>`).join('')}
+          </div>
+        </div>
+        <button type="button" class="btn btn-sm" onclick="verMapaConsultaHistorica('${encodeURIComponent(cid)}')" style="background: #0f172a; color: #ffffff; border: none; border-radius: 999px; padding: 7px 12px; font-weight: 700; font-size: 0.78rem; cursor: pointer; width: 100%;">
+          <i class="fa-solid fa-eye"></i> Ver en el Mapa
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+window.verMapaConsultaHistorica = (cidEncoded) => {
+  const cid = decodeURIComponent(cidEncoded);
+  const items = (mapaHallazgosPacienteCache || []).filter(m => String(m.fk_consulta_id) === cid);
+  const con = (consultasPacienteCache || []).find(c => String(c.Consulta_id) === cid);
+  const fechaTxt = con?.fecha_hora || items[0]?.fecha_consulta;
+  const fechaFormat = fechaTxt
+    ? new Date(fechaTxt).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })
+    : '';
+
+  const banner = document.getElementById('mapa-modo-historial-banner');
+  const bannerTxt = document.getElementById('mapa-historial-banner-texto');
+  if (banner) banner.style.display = 'flex';
+  if (bannerTxt) bannerTxt.textContent = `Mapa histórico: ${cid}${fechaFormat ? ' (' + fechaFormat + ')' : ''}`;
+
+  renderListaHallazgos(items, true);
+  dibujarPinesEnMapa(items);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.volverAMapaConsultaActual = async () => {
+  if (!consultaActiva) return;
+  await cargarMapaConsulta(consultaActiva.Consulta_id);
+};
+window.renderHistorialMapasAnteriores = renderHistorialMapasAnteriores;
 
 function dibujarPinesEnMapa(hallazgos) {
   const containerIzq = document.getElementById('izq-pines-container');
@@ -1248,3 +1787,368 @@ function configurarPruebasSeguridadRBAC() {
     }
   });
 }
+
+function cargarLogoPodologoDataURL(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth || 128;
+        canvas.height = img.naturalHeight || 128;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      } catch {
+        resolve(null);
+      }
+    };
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+window.descargarRecetaPorId = async (folioEncoded) => {
+  const folio = decodeURIComponent(folioEncoded);
+  const receta = recetasConsultaCache.find(r => String(r.Receta_id || r.folio) === String(folio))
+    || recetasPacienteCache.find(r => String(r.Receta_id || r.folio) === String(folio));
+  if (!receta) {
+    AppAuth.showToast('No se encontró la receta para descargar.', 'warning');
+    return;
+  }
+  await generarRecetaPDF(receta);
+};
+
+window.descargarRecetaHistorial = window.descargarRecetaPorId;
+
+/**
+ * Genera y descarga el PDF oficial de la Receta Médica (doble talón con corte en hoja carta)
+ */
+async function generarRecetaPDF(receta) {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    AppAuth.showToast('El generador de PDF aún está cargando, intenta nuevamente en un segundo.', 'warning');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+  const pageW = doc.internal.pageSize.getWidth(); // 215.9 mm
+  const pageH = doc.internal.pageSize.getHeight(); // 279.4 mm
+  const halfH = pageH / 2; // 139.7 mm
+  const margin = 16;
+  const rightX = pageW - margin;
+
+  const user = AppAuth.getCurrentUser() || {};
+  const podNombre = user.nombre_completo || (user.nombre ? `${obtenerTituloProfesional(user.nombre)} ${user.nombre} ${user.ape_paterno || ''} ${user.ape_materno || ''}`.trim() : 'Especialista en Podología');
+  const podCedula = user.cedula || user.Cedula_podologo || 'Registrada';
+  const clinicaNombre = user.clinica_nombre || consultaActiva?.clinica_nombre || 'Elite Foot Care';
+  const clinicaDir = user.clinica_direccion || 'Tecámac, Estado de México';
+  const turnoCode = String(user.turno || 'C').toUpperCase();
+  const horarioTexto = turnoCode === 'M'
+    ? 'Horario de Lunes a Sábado: 9:00 a 14:00 hrs'
+    : turnoCode === 'V'
+      ? 'Horario de Lunes a Sábado: 14:00 a 19:00 hrs'
+      : 'Horario de Lunes a Sábado: 9:00 a 19:00 hrs';
+
+  const p = pacienteActivo || {};
+  const pacNombre = p.nombre_completo || consultaActiva?.paciente_nombre || 'Paciente';
+  const pacExp = p.No_expediente || consultaActiva?.fk_no_expediente || '—';
+  const pacEdad = p.edad ? `${p.edad} años` : (consultaActiva?.paciente_edad ? `${consultaActiva.paciente_edad} años` : '—');
+  const pesoVal = document.getElementById('exp-peso')?.value || consultaActiva?.Peso || '';
+  const tallaVal = document.getElementById('exp-altura')?.value || consultaActiva?.Altura || '';
+  const pesoTxt = pesoVal ? `${pesoVal} kg` : '—';
+  const tallaTxt = tallaVal ? `${tallaVal} m` : '—';
+
+  const fechaObj = receta.fecha_emision ? new Date(receta.fecha_emision) : new Date();
+  const fechaTxt = fechaObj.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const folio = receta.Receta_id || receta.folio || 'RX-000';
+  const meds = Array.isArray(receta.medicamentos) && receta.medicamentos.length > 0 ? receta.medicamentos : (receta.detalles || []);
+  const logoData = await cargarLogoPodologoDataURL('/assets/icons/favicon-podologo.png?v=2');
+
+  const dibujarTalon = (offsetY) => {
+    // 1. Logo a la izquierda
+    if (logoData) {
+      doc.addImage(logoData, 'PNG', margin + 4, offsetY + 9, 19, 19);
+    }
+
+    // 2. Encabezado médico en azul institucional (#1e3a8a)
+    doc.setTextColor(30, 58, 138);
+    doc.setFont('helvetica', 'bolditalic');
+    doc.setFontSize(14);
+    doc.text(podNombre, pageW / 2 + 4, offsetY + 13, { align: 'center' });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.text('Especialista en Podología Clínica · Elite Foot Care', pageW / 2 + 4, offsetY + 18, { align: 'center' });
+    doc.text(`Cédula Profesional: ${podCedula}`, pageW / 2 + 4, offsetY + 22, { align: 'center' });
+    doc.text(`${clinicaNombre} · ${clinicaDir}`, pageW / 2 + 4, offsetY + 26, { align: 'center' });
+
+    // Folio discreto arriba a la derecha
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Folio: ${folio}`, rightX, offsetY + 10, { align: 'right' });
+
+    // 3. Líneas de datos del paciente
+    let y = offsetY + 36;
+    doc.setDrawColor(30, 58, 138);
+    doc.setLineWidth(0.45);
+    doc.setFontSize(8.5);
+
+    // Fila 1: NOMBRE y FECHA
+    doc.setTextColor(30, 58, 138);
+    doc.setFont('helvetica', 'bold');
+    doc.text('NOMBRE:', margin, y);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'normal');
+    doc.text(String(pacNombre).toUpperCase(), margin + 18, y);
+    doc.line(margin + 17, y + 1.2, 146, y + 1.2);
+
+    doc.setTextColor(30, 58, 138);
+    doc.setFont('helvetica', 'bold');
+    doc.text('FECHA:', 150, y);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'normal');
+    doc.text(fechaTxt, 165, y);
+    doc.line(164, y + 1.2, rightX, y + 1.2);
+
+    // Fila 2: PESO, TALLA, EDAD, EXP
+    y += 7;
+    doc.setTextColor(30, 58, 138);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PESO:', margin, y);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'normal');
+    doc.text(pesoTxt, margin + 12, y);
+    doc.line(margin + 11, y + 1.2, 54, y + 1.2);
+
+    doc.setTextColor(30, 58, 138);
+    doc.setFont('helvetica', 'bold');
+    doc.text('TALLA:', 58, y);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'normal');
+    doc.text(tallaTxt, 71, y);
+    doc.line(70, y + 1.2, 98, y + 1.2);
+
+    doc.setTextColor(30, 58, 138);
+    doc.setFont('helvetica', 'bold');
+    doc.text('EDAD:', 102, y);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'normal');
+    doc.text(pacEdad, 114, y);
+    doc.line(113, y + 1.2, 146, y + 1.2);
+
+    doc.setTextColor(30, 58, 138);
+    doc.setFont('helvetica', 'bold');
+    doc.text('EXP.:', 150, y);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`#${pacExp}`, 162, y);
+    doc.line(161, y + 1.2, rightX, y + 1.2);
+
+    // 4. Cuerpo RX:
+    y += 9;
+    doc.setTextColor(30, 58, 138);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9.5);
+    doc.text('RX:', margin, y);
+
+    y += 5.5;
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(8.5);
+    meds.forEach((m, idx) => {
+      if (y > offsetY + halfH - 30) return;
+      doc.setFont('helvetica', 'bold');
+      const lineaMed = `${idx + 1}. ${m.medicamento || ''} — ${m.dosis || ''}`;
+      doc.text(lineaMed, margin + 4, y, { maxWidth: rightX - margin - 6 });
+      y += 4;
+      doc.setFont('helvetica', 'normal');
+      const detalleMed = `   Vía: ${m.via_administracion || m.via || 'Tópica'}  |  Frecuencia: ${m.frecuencia || 'Cada 12 horas'}  |  Duración: ${m.duracion || '7 días'}`;
+      doc.text(detalleMed, margin + 4, y, { maxWidth: rightX - margin - 6 });
+      y += 5;
+    });
+
+    if (receta.indicaciones_generales && y <= offsetY + halfH - 24) {
+      y += 1;
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(30, 58, 138);
+      doc.text('Indicaciones:', margin + 4, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(15, 23, 42);
+      const indWrapped = doc.splitTextToSize(String(receta.indicaciones_generales), rightX - margin - 28);
+      doc.text(indWrapped.slice(0, 3), margin + 27, y);
+    }
+
+    // 5. Pie de receta
+    const footY = offsetY + halfH - 18;
+    doc.setTextColor(30, 58, 138);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.8);
+    doc.text(horarioTexto, margin + 4, footY);
+    if (user.clinica_telefono) {
+      doc.text(`Tel. Sede: ${user.clinica_telefono}`, margin + 4, footY + 4);
+    }
+
+    doc.setDrawColor(30, 58, 138);
+    doc.setLineWidth(0.45);
+    doc.line(138, footY - 1, rightX - 4, footY - 1);
+    doc.setFont('helvetica', 'bold');
+    doc.text('FIRMA DEL MÉDICO / PODÓLOGO', (138 + rightX - 4) / 2, footY + 3.5, { align: 'center' });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text('FAVOR DE TRAER SU RECETA EN LA PRÓXIMA CITA', pageW / 2, offsetY + halfH - 6, { align: 'center' });
+  };
+
+  // Dibujar talón superior (Original Paciente)
+  dibujarTalon(0);
+
+  // Línea punteada de corte al centro de la hoja
+  doc.setDrawColor(100, 116, 139);
+  doc.setLineWidth(0.35);
+  doc.setLineDashPattern([3, 2], 0);
+  doc.line(6, halfH, pageW - 6, halfH);
+  doc.setLineDashPattern([], 0);
+
+  // Dibujar talón inferior (Copia Clínica)
+  dibujarTalon(halfH);
+
+  doc.save(`Receta_${folio}_Exp_${pacExp}.pdf`);
+}
+window.generarRecetaPDF = generarRecetaPDF;
+
+/**
+ * Busca un paciente por No. de Expediente y muestra tarjeta profesional para atenderlo sin cita previa
+ */
+async function buscarPacientePorExpedienteParaAtender(expediente) {
+  const box = document.getElementById('resultado-busqueda-paciente-box');
+  if (!box) return;
+
+  box.style.display = 'block';
+  box.innerHTML = `
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px 20px; text-align: center; color: #64748b;">
+      <i class="fa-solid fa-spinner fa-spin"></i> Buscando expediente #${escapeHtml(expediente)}...
+    </div>
+  `;
+
+  const res = await AppAuth.fetchApi(`/api/medico/expediente/${encodeURIComponent(expediente)}`);
+  if (!res.ok || !res.data?.paciente) {
+    box.innerHTML = `
+      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 16px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="color: #b91c1c; font-size: 0.9rem;">
+          <i class="fa-solid fa-circle-xmark"></i> No se encontró ningún paciente registrado con el expediente <strong>#${escapeHtml(expediente)}</strong>.
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('resultado-busqueda-paciente-box').style.display='none'">Cerrar</button>
+      </div>
+    `;
+    return;
+  }
+
+  const p = res.data.paciente;
+  const consultas = res.data.consultas || [];
+  const ultima = consultas.find(c => c.estado === 'Completada' || c.estado === 'Finalizada') || consultas[0];
+  const ultimaFecha = ultima?.fecha_hora
+    ? new Date(ultima.fecha_hora).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })
+    : 'Sin visitas previas';
+  const sexoTxt = p.Sexo === 'F' ? 'Femenino' : p.Sexo === 'M' ? 'Masculino' : (p.Sexo || 'N/D');
+
+  const enCurso = obtenerConsultaEnAtencion();
+  const bloqueadoPorConsulta = Boolean(enCurso);
+
+  box.innerHTML = `
+    <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 18px; padding: 20px 22px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);">
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <div style="display: flex; gap: 14px; align-items: center;">
+          <div style="width: 48px; height: 48px; border-radius: 14px; background: #0f172a; color: #ffffff; display: grid; place-items: center; font-size: 1.2rem; flex-shrink: 0;">
+            <i class="fa-solid fa-user-check"></i>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <h3 style="margin: 0; font-size: 1.08rem; font-weight: 800; color: #0f172a;">${escapeHtml(p.nombre_completo || `${p.Nombres} ${p.ape_paterno}`)}</h3>
+              <span style="background: #f1f5f9; color: #0f172a; font-size: 0.76rem; font-weight: 700; padding: 3px 10px; border-radius: 999px;">Exp. #${escapeHtml(p.No_expediente)}</span>
+              ${p.es_diabetico ? '<span class="badge-risk diabetic"><i class="fa-solid fa-triangle-exclamation"></i> Diabético</span>' : ''}
+              ${p.es_hipertenso ? '<span class="badge-risk hypertensive"><i class="fa-solid fa-heart-pulse"></i> Hipertenso</span>' : ''}
+            </div>
+            <div style="font-size: 0.84rem; color: #475569; margin-top: 4px;">
+              ${p.edad ? `${escapeHtml(p.edad)} años` : 'N/D'} · ${escapeHtml(sexoTxt)} · Tel: ${escapeHtml(p.telefono || 'Sin tel')} · Última visita: <strong>${escapeHtml(ultimaFecha)}</strong>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('resultado-busqueda-paciente-box').style.display='none'" title="Cerrar búsqueda" style="border-radius: 999px;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      ${
+        bloqueadoPorConsulta
+          ? `
+            <div style="margin-top: 14px; padding: 10px 14px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; color: #b45309; font-size: 0.84rem; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+              <span><i class="fa-solid fa-lock"></i> Ya tienes en atención a <strong>${escapeHtml(enCurso.paciente_nombre || 'un paciente')}</strong> (${escapeHtml(enCurso.Consulta_id)}). Finaliza la consulta actual para poder atender a otro paciente.</span>
+            </div>
+          `
+          : `
+            <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid #f1f5f9; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+              <input type="text" id="input-motivo-sin-cita" class="form-control" style="flex: 1; min-width: 240px;" placeholder="Motivo de atención (opcional, ej. Quiropodía sin cita previa)">
+              <button type="button" id="btn-atender-ahora-sin-cita" class="btn btn-success" onclick="atenderPacienteSinCita('${escapeHtml(String(p.No_expediente))}')" style="border-radius: 999px; padding: 0.6rem 1.35rem; font-weight: 700;">
+                <i class="fa-solid fa-stethoscope"></i> Atender Ahora (Crear Consulta)
+              </button>
+            </div>
+          `
+      }
+    </div>
+  `;
+}
+
+window.atenderPacienteSinCita = async (expediente) => {
+  const enCurso = obtenerConsultaEnAtencion();
+  if (enCurso) {
+    AppAuth.showToast(`Ya estás atendiendo a ${enCurso.paciente_nombre || 'un paciente'}. Finaliza la consulta actual primero.`, 'warning');
+    return;
+  }
+
+  const btn = document.getElementById('btn-atender-ahora-sin-cita');
+  const motivo = document.getElementById('input-motivo-sin-cita')?.value.trim() || '';
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Iniciando consulta...';
+  }
+
+  try {
+    const res = await AppAuth.fetchApi('/api/medico/consultas/sin-cita', {
+      method: 'POST',
+      body: JSON.stringify({
+        no_expediente: expediente,
+        motivo_o_notas: motivo
+      })
+    });
+
+    if (!res.ok || !res.data?.consulta) {
+      AppAuth.showToast(res.data?.error || 'No se pudo iniciar la consulta sin cita', 'error');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-stethoscope"></i> Atender Ahora (Crear Consulta)';
+      }
+      return;
+    }
+
+    const nuevaConsulta = res.data.consulta;
+    consultaActiva = nuevaConsulta;
+
+    const box = document.getElementById('resultado-busqueda-paciente-box');
+    if (box) box.style.display = 'none';
+
+    await cargarExpedientePaciente(expediente);
+    await cargarMapaConsulta(nuevaConsulta.Consulta_id);
+    await cargarAgendaPersonal();
+    actualizarIndicadorMapa(nuevaConsulta);
+
+    AppAuth.showToast(`Consulta ${nuevaConsulta.Consulta_id} iniciada para ${nuevaConsulta.paciente_nombre}`, 'success');
+  } catch (err) {
+    AppAuth.showToast('Error de conexión al iniciar consulta', 'error');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-stethoscope"></i> Atender Ahora (Crear Consulta)';
+    }
+  }
+};

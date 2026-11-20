@@ -1,9 +1,54 @@
+const fs = require('fs');
+const path = require('path');
 const db = require('../config/db');
 
-// Almacenes de persistencia en memoria para tablas complementarias en caso de no existir en MySQL DDL
-const memoryMapaStore = [];
-let nextMapaId = 1;
-const memoryRecetasStore = [];
+// Almacenes de respaldo persistente en caso de no existir tablas complementarias en MySQL
+const MAPA_STORE_PATH = path.join(__dirname, '../data/mapa_store.json');
+const RECETAS_STORE_PATH = path.join(__dirname, '../data/recetas_store.json');
+
+function leerMapaStore() {
+  try {
+    if (fs.existsSync(MAPA_STORE_PATH)) {
+      const parsed = JSON.parse(fs.readFileSync(MAPA_STORE_PATH, 'utf8'));
+      return Array.isArray(parsed) ? parsed : [];
+    }
+  } catch (e) {
+    // Ignorar error de lectura
+  }
+  return [];
+}
+
+function guardarMapaStore(lista) {
+  try {
+    const dir = path.dirname(MAPA_STORE_PATH);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(MAPA_STORE_PATH, JSON.stringify(lista, null, 2), 'utf8');
+  } catch (e) {
+    console.warn('No se pudo guardar mapa_store.json:', e.message);
+  }
+}
+
+function leerRecetasStore() {
+  try {
+    if (fs.existsSync(RECETAS_STORE_PATH)) {
+      const parsed = JSON.parse(fs.readFileSync(RECETAS_STORE_PATH, 'utf8'));
+      return Array.isArray(parsed) ? parsed : [];
+    }
+  } catch (e) {
+    // Ignorar error de lectura
+  }
+  return [];
+}
+
+function guardarRecetasStore(lista) {
+  try {
+    const dir = path.dirname(RECETAS_STORE_PATH);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(RECETAS_STORE_PATH, JSON.stringify(lista, null, 2), 'utf8');
+  } catch (e) {
+    console.warn('No se pudo guardar recetas_store.json:', e.message);
+  }
+}
 
 /**
  * -------------------------------------------------------------
@@ -37,7 +82,7 @@ const obtenerAgendaPersonal = async (req, res) => {
       return res.status(403).json({ error: 'No se encontró la cédula profesional asociada a este usuario podólogo' });
     }
 
-    const { fecha, estado } = req.query;
+    const { fecha, estado, rango } = req.query;
 
     let sql = `
       SELECT c.Consulta_id, c.fk_no_expediente, c.fk_clinica_id, c.fk_cedula_podologo,
@@ -59,6 +104,12 @@ const obtenerAgendaPersonal = async (req, res) => {
     if (fecha) {
       sql += ` AND DATE(c.fecha_hora) = ?`;
       params.push(fecha);
+    } else if (rango === 'hoy') {
+      sql += ` AND DATE(c.fecha_hora) = CURDATE()`;
+    } else if (rango === 'manana') {
+      sql += ` AND DATE(c.fecha_hora) = DATE_ADD(CURDATE(), INTERVAL 1 DAY)`;
+    } else if (rango === 'proximas') {
+      sql += ` AND DATE(c.fecha_hora) >= CURDATE() AND c.estado != 'Cancelada'`;
     }
 
     if (estado) {
@@ -92,6 +143,18 @@ const actualizarEstadoConsulta = async (req, res) => {
   }
 
   try {
+    if (estado === 'En atención' && cedula) {
+      const [enAtencion] = await db.pool.query(
+        `SELECT Consulta_id FROM Consultas WHERE fk_cedula_podologo = ? AND estado = 'En atención' AND Consulta_id != ? LIMIT 1`,
+        [cedula, id]
+      );
+      if (enAtencion.length > 0) {
+        return res.status(409).json({
+          error: `Ya tienes una consulta en atención (${enAtencion[0].Consulta_id}). Finaliza la consulta actual antes de atender a otro paciente.`
+        });
+      }
+    }
+
     const sql = esAdmin
       ? `UPDATE Consultas SET estado = ? WHERE Consulta_id = ?`
       : `UPDATE Consultas SET estado = ? WHERE Consulta_id = ? AND fk_cedula_podologo = ?`;
@@ -264,12 +327,15 @@ const obtenerExpedienteClinico = async (req, res) => {
       );
       mapaHallazgos = resMapa;
     } catch (err) {
-      mapaHallazgos = memoryMapaStore.filter(m => {
-        return consultas.some(c => String(c.Consulta_id) === String(m.fk_consulta_id));
-      });
+      mapaHallazgos = leerMapaStore()
+        .filter(m => consultas.some(c => String(c.Consulta_id) === String(m.fk_consulta_id)))
+        .map(m => {
+          const con = consultas.find(c => String(c.Consulta_id) === String(m.fk_consulta_id));
+          return { ...m, fecha_consulta: m.fecha_consulta || con?.fecha_hora || null };
+        });
     }
 
-    // 6. Recetas emitidas
+    // 6. Recetas emitidas (con sus medicamentos)
     let recetas = [];
     try {
       const [resRecetas] = await db.pool.query(
@@ -281,9 +347,22 @@ const obtenerExpedienteClinico = async (req, res) => {
          ORDER BY r.fecha_emision DESC`,
         [expediente]
       );
+      for (const r of resRecetas) {
+        try {
+          const [detalles] = await db.pool.query(
+            `SELECT * FROM Detalles_Receta WHERE fk_receta_id = ?`,
+            [r.Receta_id]
+          );
+          r.detalles = detalles;
+          r.medicamentos = detalles;
+        } catch {
+          r.detalles = [];
+          r.medicamentos = [];
+        }
+      }
       recetas = resRecetas;
     } catch (err) {
-      recetas = memoryRecetasStore.filter(r => {
+      recetas = leerRecetasStore().filter(r => {
         return consultas.some(c => String(c.Consulta_id) === String(r.fk_consulta_id));
       });
     }
@@ -543,7 +622,7 @@ const obtenerRecetasConsulta = async (req, res) => {
 
       return res.json(recetas);
     } catch (dbErr) {
-      const recetas = memoryRecetasStore.filter(r => String(r.fk_consulta_id) === String(id));
+      const recetas = leerRecetasStore().filter(r => String(r.fk_consulta_id) === String(id));
       return res.json(recetas);
     }
   } catch (error) {
@@ -568,7 +647,7 @@ const crearReceta = async (req, res) => {
 
       if (Array.isArray(medicamentos) && medicamentos.length > 0) {
         for (const med of medicamentos) {
-          if (med.medicamento && med.dosis) {
+          if (med.medicamento) {
             await db.pool.query(
               `INSERT INTO Detalles_Receta (
                 fk_receta_id, medicamento, dosis, via_administracion, frecuencia, duracion
@@ -576,7 +655,7 @@ const crearReceta = async (req, res) => {
               [
                 recetaId,
                 med.medicamento,
-                med.dosis,
+                med.dosis || 'Dosis indicada',
                 med.via_administracion || 'Tópica',
                 med.frecuencia || 'Cada 12 horas',
                 med.duracion || '7 días'
@@ -586,15 +665,16 @@ const crearReceta = async (req, res) => {
         }
       }
     } catch (dbErr) {
-      const nuevaReceta = {
+      const lista = leerRecetasStore();
+      lista.unshift({
         Receta_id: recetaId,
         fk_consulta_id: id,
         indicaciones_generales: indicaciones_generales || 'Seguir indicaciones especificadas',
         fecha_emision: new Date().toISOString(),
         medicamentos,
         detalles: medicamentos
-      };
-      memoryRecetasStore.push(nuevaReceta);
+      });
+      guardarRecetasStore(lista);
     }
 
     res.status(201).json({
@@ -628,7 +708,7 @@ const obtenerMapaConsulta = async (req, res) => {
       );
       return res.json(rows);
     } catch (dbErr) {
-      const rows = memoryMapaStore.filter(m => String(m.fk_consulta_id) === String(id));
+      const rows = leerMapaStore().filter(m => String(m.fk_consulta_id) === String(id));
       return res.json(rows);
     }
   } catch (error) {
@@ -669,15 +749,17 @@ const registrarDetalleMapa = async (req, res) => {
         }
       });
     } catch (dbErr) {
+      const lista = leerMapaStore();
       const nuevoDetalle = {
-        Mapa_id: nextMapaId++,
+        Mapa_id: `MAP-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`,
         fk_consulta_id: id,
         zona_pie: zona_pie.trim(),
         tipo_lesion: tipo_lesion.trim(),
         observaciones: observaciones ? observaciones.trim() : null,
         fecha_creacion: new Date().toISOString()
       };
-      memoryMapaStore.push(nuevoDetalle);
+      lista.push(nuevoDetalle);
+      guardarMapaStore(lista);
       return res.status(201).json({
         mensaje: 'Hallazgo podológico registrado en el Mapa',
         detalle: nuevoDetalle
@@ -699,8 +781,9 @@ const eliminarDetalleMapa = async (req, res) => {
         [mapaId]
       );
     } catch (dbErr) {
-      const idx = memoryMapaStore.findIndex(m => String(m.Mapa_id) === String(mapaId));
-      if (idx !== -1) memoryMapaStore.splice(idx, 1);
+      const lista = leerMapaStore();
+      const filtrada = lista.filter(m => String(m.Mapa_id) !== String(mapaId));
+      guardarMapaStore(filtrada);
     }
     res.json({ mensaje: 'Hallazgo eliminado del mapa podológico', Mapa_id: mapaId });
   } catch (error) {
@@ -709,10 +792,115 @@ const eliminarDetalleMapa = async (req, res) => {
   }
 };
 
+// Crear consulta inmediata sin cita previa para un paciente existente
+const iniciarConsultaSinCita = async (req, res) => {
+  const { no_expediente, motivo_o_notas } = req.body;
+  if (!no_expediente) {
+    return res.status(400).json({ error: 'El número de expediente es obligatorio' });
+  }
+
+  let cedula = req.user?.cedula || req.user?.Cedula_podologo;
+  let clinicaId = req.user?.fk_clinica_id;
+
+  try {
+    if ((!cedula || !clinicaId) && req.user?.Usuario_id) {
+      const [podos] = await db.pool.query(
+        'SELECT Cedula_podologo, fk_clinica_id FROM Podologos WHERE fk_usuario_id = ? LIMIT 1',
+        [req.user.Usuario_id]
+      );
+      if (podos.length > 0) {
+        cedula = cedula || podos[0].Cedula_podologo;
+        clinicaId = clinicaId || podos[0].fk_clinica_id;
+      }
+    }
+
+    if (!cedula) {
+      return res.status(403).json({ error: 'No se encontró la cédula profesional del podólogo en sesión' });
+    }
+    clinicaId = clinicaId || 14;
+
+    // Bloquear si el podólogo ya tiene un paciente en atención
+    const [enAtencion] = await db.pool.query(
+      `SELECT Consulta_id FROM Consultas WHERE fk_cedula_podologo = ? AND estado = 'En atención' LIMIT 1`,
+      [cedula]
+    );
+    if (enAtencion.length > 0) {
+      return res.status(409).json({
+        error: `Ya tienes una consulta en atención (${enAtencion[0].Consulta_id}). Finaliza la consulta actual antes de atender a otro paciente.`
+      });
+    }
+
+    const [pacs] = await db.pool.query(
+      `SELECT No_expediente, Nombres, ape_paterno, ape_materno,
+              TRIM(CONCAT(Nombres, ' ', ape_paterno, ' ', COALESCE(ape_materno, ''))) AS paciente_nombre,
+              telefono AS paciente_telefono, Sexo, es_diabetico, es_hipertenso,
+              TIMESTAMPDIFF(YEAR, fecha_nacimiento, CURDATE()) AS paciente_edad
+       FROM Pacientes
+       WHERE No_expediente = ?`,
+      [no_expediente]
+    );
+
+    if (pacs.length === 0) {
+      return res.status(404).json({ error: 'No se encontró ningún paciente con ese número de expediente' });
+    }
+
+    const anio = new Date().getFullYear();
+    const clinicaStr = String(clinicaId).padStart(2, '0').slice(-2);
+    const prefijo = `CON${anio}${clinicaStr}`;
+    const [maxRows] = await db.pool.query(
+      `SELECT MAX(Consulta_id) AS max_id FROM Consultas WHERE Consulta_id LIKE ?`,
+      [`${prefijo}%`]
+    );
+
+    let consultaId = `${prefijo}0001`;
+    const maxId = maxRows[0]?.max_id;
+    if (maxId) {
+      const num = parseInt(String(maxId).slice(-4), 10);
+      consultaId = Number.isNaN(num)
+        ? `${prefijo}${Date.now().toString().slice(-4)}`
+        : `${prefijo}${String(num + 1).padStart(4, '0')}`;
+    }
+
+    const motivoFinal = (motivo_o_notas || '').trim() || 'Consulta sin cita previa (Atención inmediata)';
+
+    await db.pool.query(
+      `INSERT INTO Consultas (
+        Consulta_id, fk_no_expediente, fk_clinica_id, fk_cedula_podologo,
+        fecha_hora, estado, motivo_o_notas
+      ) VALUES (?, ?, ?, ?, NOW(), 'En atención', ?)`,
+      [consultaId, no_expediente, clinicaId, cedula, motivoFinal]
+    );
+
+    const pac = pacs[0];
+    res.status(201).json({
+      mensaje: 'Consulta iniciada y registrada en agenda',
+      consulta: {
+        Consulta_id: consultaId,
+        fk_no_expediente: pac.No_expediente,
+        fk_clinica_id: clinicaId,
+        fk_cedula_podologo: cedula,
+        fecha_hora: new Date().toISOString(),
+        estado: 'En atención',
+        motivo_o_notas: motivoFinal,
+        paciente_nombre: pac.paciente_nombre,
+        paciente_telefono: pac.paciente_telefono,
+        paciente_edad: pac.paciente_edad,
+        Sexo: pac.Sexo,
+        es_diabetico: pac.es_diabetico,
+        es_hipertenso: pac.es_hipertenso
+      }
+    });
+  } catch (error) {
+    console.error('Error al iniciar consulta sin cita:', error);
+    res.status(500).json({ error: 'Error al registrar la consulta sin cita previa' });
+  }
+};
+
 module.exports = {
   obtenerAgendaPersonal,
   actualizarEstadoConsulta,
   registrarExploracionFisica,
+  iniciarConsultaSinCita,
   obtenerExpedienteClinico,
   actualizarHistorialClinico,
   obtenerDiagnosticosConsulta,

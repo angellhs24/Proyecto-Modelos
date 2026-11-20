@@ -858,7 +858,7 @@ h4 { font-size: 1.05rem; }
   border: 1px solid var(--color-ash-border) !important;
   border-radius: var(--radius-cards) !important;
   padding: 16px 20px !important;
-  display: flex !important;
+  display: flex;
   align-items: center !important;
   gap: 14px !important;
   box-shadow: var(--shadow-subtle) !important;

@@ -17,10 +17,13 @@
   
   <!-- Font Awesome Icons 6.5.2 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  
+
+  <!-- Generación de Receta Médica Oficial en PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+
   <!-- Unified Clinical Design System -->
-  <link rel="stylesheet" href="css/design-system.css">
-  <link rel="stylesheet" href="css/consultorio.css">
+  <link rel="stylesheet" href="css/design-system.css?v=20261119l">
+  <link rel="stylesheet" href="css/consultorio.css?v=20261119l">
 </head>
 <body>
   <div class="app-container">
@@ -109,7 +112,7 @@
           </div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end;">
           <div class="patient-hud-badges" id="hud-badges-riesgo">
             <!-- Badges dinámicos de Diabético / Hipertenso -->
           </div>
@@ -117,7 +120,10 @@
             <span class="imc-indicator imc-normal" id="hud-imc-dot"></span>
             <span>IMC: <strong id="hud-imc-val">—</strong> (<span id="hud-imc-label">Pendiente</span>)</span>
           </div>
-          <button class="btn btn-success" id="btn-finalizar-consulta-activa">
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-info-paciente-hud" onclick="abrirModalInfoPacienteActivo()" style="border-radius: 999px; padding: 0.5rem 0.95rem;">
+            <i class="fa-solid fa-circle-info" style="color: #2563eb;"></i> Info del Paciente
+          </button>
+          <button class="btn btn-success btn-sm" id="btn-finalizar-consulta-activa" style="border-radius: 999px; padding: 0.5rem 1rem;">
             <i class="fa-solid fa-flag-checkered"></i> Finalizar Consulta
           </button>
         </div>
@@ -167,8 +173,8 @@
                 <i class="fa-solid fa-stethoscope" style="color: #2563eb;"></i>
               </div>
             </div>
-            <div class="kpi-value" id="kpi-mis-citas-atencion">0</div>
-            <div class="kpi-trend">Consulta en curso</div>
+            <div class="kpi-value" id="kpi-mis-citas-atencion">No</div>
+            <div class="kpi-trend" id="kpi-mis-citas-atencion-sub">Sin consulta en curso</div>
           </div>
 
           <div class="kpi-card">
@@ -185,25 +191,34 @@
 
         <!-- Tabla de Agenda Personal -->
         <div class="card">
-          <div class="card-header">
+          <div class="card-header podo-agenda-header">
             <div>
               <h2 class="card-title">
                 <i class="fa-solid fa-user-doctor" style="color: var(--color-midnight-ink);"></i>
                 <span>Mis Pacientes Citados</span>
               </h2>
-              <p class="card-subtitle">Consultas asignadas a tu cédula profesional</p>
+              <p class="card-subtitle">Consultas asignadas a tu cédula profesional · <span id="podo-resumen-filtro">Mostrando todas las citas</span></p>
             </div>
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-              <input type="date" id="podo-filtro-fecha" class="form-control" style="width: auto;">
-              <select id="podo-filtro-estado" class="form-select" style="width: auto;">
+            <div class="podo-toolbar">
+              <div class="podo-segmented-group" role="group" aria-label="Filtro rápido por fecha">
+                <button type="button" class="podo-rango-btn active" data-rango="todas" onclick="filtrarAgendaPorRango('todas', this)">Todas</button>
+                <button type="button" class="podo-rango-btn" data-rango="hoy" onclick="filtrarAgendaPorRango('hoy', this)">Hoy</button>
+                <button type="button" class="podo-rango-btn" data-rango="manana" onclick="filtrarAgendaPorRango('manana', this)">Mañana</button>
+                <button type="button" class="podo-rango-btn" data-rango="proximas" onclick="filtrarAgendaPorRango('proximas', this)">Próximas</button>
+              </div>
+              <input type="date" id="podo-filtro-fecha" class="form-control podo-toolbar-control" title="Ver pacientes agendados en un día específico">
+              <select id="podo-filtro-estado" class="form-select podo-toolbar-control">
                 <option value="">Todos los Estados</option>
-                <option value="Programada">Programada</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Confirmada">Confirmada</option>
                 <option value="En espera">En espera</option>
                 <option value="En atención">En atención</option>
-                <option value="Finalizada">Finalizada</option>
+                <option value="Completada">Completada</option>
+                <option value="Cancelada">Cancelada</option>
               </select>
-              <button id="btn-recargar-agenda-podo" class="btn btn-secondary">
-                <i class="fa-solid fa-arrows-rotate"></i> Actualizar
+              <button id="btn-recargar-agenda-podo" class="podo-btn-refresh">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>Actualizar</span>
               </button>
             </div>
           </div>
@@ -262,10 +277,13 @@
             <label class="form-label" style="margin-bottom: 0; white-space: nowrap;">O buscar No. Exp:</label>
             <input type="number" id="input-buscar-expediente" class="form-control" placeholder="Número de Expediente (ej. 2025350001)" style="max-width: 240px;">
             <button id="btn-cargar-expediente-manual" class="btn btn-secondary">
-              <i class="fa-solid fa-magnifying-glass"></i> Cargar Ficha
+              <i class="fa-solid fa-magnifying-glass"></i> Buscar Paciente
             </button>
           </div>
         </div>
+
+        <!-- Resultado de Búsqueda de Paciente para Atención sin Cita -->
+        <div id="resultado-busqueda-paciente-box" style="display: none; margin-bottom: 20px;"></div>
 
         <div id="contenedor-expediente-completo" style="display: none;">
           <!-- 1. Acordeón: Somatometría y Exploración Física -->
@@ -443,7 +461,18 @@
                   </div>
                   <div class="form-group">
                     <label class="form-label">Frecuencia / Periodicidad</label>
-                    <input type="text" id="trat-frecuencia" class="form-control" placeholder="Ej. Sesión cada 21 días / Dosis única">
+                    <select id="trat-frecuencia" class="form-select">
+                      <option value="">Seleccionar frecuencia...</option>
+                      <option value="Dosis única">Dosis única</option>
+                      <option value="Cada 8 horas">Cada 8 horas</option>
+                      <option value="Cada 12 horas">Cada 12 horas</option>
+                      <option value="Cada 24 horas (Diario)">Cada 24 horas (Diario)</option>
+                      <option value="Cada 3 días">Cada 3 días</option>
+                      <option value="Cada 7 días (Semanal)">Cada 7 días (Semanal)</option>
+                      <option value="Cada 15 días">Cada 15 días</option>
+                      <option value="Cada 21 días">Cada 21 días</option>
+                      <option value="Cada 30 días (Mensual)">Cada 30 días (Mensual)</option>
+                    </select>
                   </div>
                 </div>
 
@@ -553,6 +582,24 @@
             </div>
           </div>
         </div>
+
+        <!-- Historial de Mapas Podológicos de Consultas Anteriores -->
+        <div class="card" id="seccion-historial-mapas-anteriores" style="margin-top: 22px;">
+          <div class="card-header" style="margin-bottom: 14px;">
+            <div>
+              <h3 class="card-title" style="font-size: 1.05rem;">
+                <i class="fa-solid fa-clock-rotate-left" style="color: #7c3aed;"></i>
+                <span>Historial de Mapas de Consultas Anteriores</span>
+              </h3>
+              <p class="card-subtitle">Selecciona cualquier consulta previa para visualizar sus hallazgos en el diagrama anatómico</p>
+            </div>
+          </div>
+          <div id="lista-historial-mapas" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px;">
+            <div style="grid-column: 1 / -1; text-align: center; color: var(--color-stone); padding: 1.25rem; font-size: 0.88rem;">
+              Selecciona o atiende un paciente para consultar sus mapas anteriores.
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- =====================================================================
@@ -568,14 +615,17 @@
           </p>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px; background: #ffffff; padding: 12px 18px; border-radius: 14px; border: 1px solid #e2e8f0; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-          <label class="form-label" style="margin-bottom: 0; font-weight: 600; white-space: nowrap;">
-            <i class="fa-solid fa-user-doctor" style="color: #7c3aed;"></i> Paciente a Explorar:
-          </label>
-          <select id="select-paciente-agenda-mapa" class="form-select" style="max-width: 360px;">
-            <option value="">-- Seleccionar paciente de mi agenda --</option>
-          </select>
-          <span id="mapa-paciente-indicador" style="font-size: 0.88rem; color: #64748b; font-weight: 500;"></span>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; background: #ffffff; padding: 14px 18px; border-radius: 14px; border: 1px solid #e2e8f0; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-user-check" style="color: #7c3aed; font-size: 1rem;"></i>
+            <span id="mapa-paciente-indicador" style="font-size: 0.9rem; color: #334155; font-weight: 500;">Ningún paciente en atención</span>
+          </div>
+          <div id="mapa-modo-historial-banner" style="display: none; align-items: center; gap: 10px; background: #eff6ff; border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 999px;">
+            <span id="mapa-historial-banner-texto" style="font-size: 0.8rem; color: #1d4ed8; font-weight: 600;">Viendo mapa histórico</span>
+            <button type="button" class="btn btn-sm" onclick="volverAMapaConsultaActual()" style="background: #0f172a; color: #ffffff; border: none; border-radius: 999px; padding: 4px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+              Volver a consulta actual
+            </button>
+          </div>
         </div>
 
         <div class="foot-map-container">
@@ -732,6 +782,24 @@
             </div>
           </div>
         </div>
+
+        <!-- Historial de Mapas Podológicos de Consultas Anteriores -->
+        <div class="card" id="seccion-historial-mapas-anteriores" style="margin-top: 22px;">
+          <div class="card-header" style="margin-bottom: 14px;">
+            <div>
+              <h3 class="card-title" style="font-size: 1.05rem;">
+                <i class="fa-solid fa-clock-rotate-left" style="color: #7c3aed;"></i>
+                <span>Historial de Mapas de Consultas Anteriores</span>
+              </h3>
+              <p class="card-subtitle">Selecciona cualquier consulta previa para visualizar sus hallazgos en el diagrama anatómico</p>
+            </div>
+          </div>
+          <div id="lista-historial-mapas" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px;">
+            <div style="grid-column: 1 / -1; text-align: center; color: var(--color-stone); padding: 1.25rem; font-size: 0.88rem;">
+              Selecciona o atiende un paciente para consultar sus mapas anteriores.
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- =====================================================================
@@ -788,11 +856,37 @@
     </main>
   </div>
 
+  <!-- Modal: Información Detallada del Paciente en Atención -->
+  <dialog id="modal-info-paciente-hud" class="podo-info-modal">
+    <div class="podo-info-modal-header">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div class="podo-info-modal-icon">
+          <i class="fa-solid fa-user-injured"></i>
+        </div>
+        <div>
+          <h3 style="margin: 0; font-size: 1.12rem; font-weight: 800; color: #0f172a;">Información Clínica del Paciente</h3>
+          <p style="margin: 2px 0 0; font-size: 0.8rem; color: #64748b;">Resumen demográfico, última visita y antecedentes</p>
+        </div>
+      </div>
+      <button type="button" class="podo-info-modal-close" onclick="document.getElementById('modal-info-paciente-hud').close()" title="Cerrar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div id="modal-info-paciente-body" class="podo-info-modal-body">
+      <!-- Renderizado dinámicamente -->
+    </div>
+    <div class="podo-info-modal-footer">
+      <button type="button" class="podo-info-modal-btn-cerrar" onclick="document.getElementById('modal-info-paciente-hud').close()">
+        Cerrar
+      </button>
+    </div>
+  </dialog>
+
   <!-- Contenedor de Toasts -->
   <div id="toast-container"></div>
 
   <!-- Scripts Vanilla JS -->
-  <script src="js/session.js?v=20261119"></script>
-  <script src="js/consultorio.js?v=20261119"></script>
+  <script src="js/session.js?v=20261119r"></script>
+  <script src="js/consultorio.js?v=20261119r"></script>
 </body>
 </html>

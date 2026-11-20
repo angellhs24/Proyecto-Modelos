@@ -201,9 +201,11 @@ async function verificarAutenticacion(req, res, next) {
     if (rolNorm === 4) {
       try {
         const [podos] = await db.pool.query(
-          `SELECT p.Cedula_podologo, p.Nombre, p.ape_paterno, p.ape_materno, p.Telefono_pod
+          `SELECT p.Cedula_podologo, p.Nombre, p.ape_paterno, p.ape_materno, p.Telefono_pod, p.Turno,
+                  p.fk_clinica_id, cl.Nombre AS clinica_nombre, cl.Calle_clinica, cl.Municipio_clinica, cl.Telefono AS clinica_telefono
            FROM Podologos p
            LEFT JOIN Usuarios u ON p.fk_usuario_id = u.Usuario_id
+           LEFT JOIN Clinicas cl ON p.fk_clinica_id = cl.Clinica_id
            WHERE p.fk_usuario_id = ? OR p.Cedula_podologo = ? OR LOWER(u.email) = LOWER(?) LIMIT 1`,
           [usuario.Usuario_id, usuario.email, usuario.email]
         );
@@ -218,6 +220,11 @@ async function verificarAutenticacion(req, res, next) {
           req.user.titulo = titulo;
           req.user.nombre_completo = `${titulo} ${p.Nombre} ${p.ape_paterno} ${p.ape_materno || ''}`.trim();
           req.user.telefono = p.Telefono_pod;
+          req.user.turno = p.Turno || 'C';
+          req.user.fk_clinica_id = p.fk_clinica_id || null;
+          req.user.clinica_nombre = p.clinica_nombre || 'Elite Foot Care';
+          req.user.clinica_direccion = [p.Calle_clinica, p.Municipio_clinica].filter(Boolean).join(', ') || 'Tecámac, Estado de México';
+          req.user.clinica_telefono = p.clinica_telefono || '';
         } else {
           req.user.cedula = 'CED12345678';
           req.user.Cedula_podologo = 'CED12345678';

@@ -22,6 +22,7 @@ router.use(bloquearPagosInventarioParaPodologo);
 // 1. AGENDA PERSONAL (Solo visualiza citas con su fk_cedula_podologo)
 // -------------------------------------------------------------------------
 router.get('/agenda', podologoController.obtenerAgendaPersonal);
+router.post('/consultas/sin-cita', podologoController.iniciarConsultaSinCita);
 router.put('/consultas/:id/estado', podologoController.actualizarEstadoConsulta);
 router.put('/consultas/:id/exploracion', podologoController.registrarExploracionFisica);
 
