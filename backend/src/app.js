@@ -108,6 +108,7 @@ app.get(['/recepcion', '/recepcion.html'], (req, res) => {
   res.sendFile(path.join(adminPath, 'recepcion.html'));
 });
 app.get(['/consultorio', '/consultorio.html'], (req, res) => {
+  res.set('Cache-Control', 'no-store');
   res.sendFile(path.join(adminPath, 'consultorio.html'));
 });
 app.get(['/inventario', '/inventario.html'], (req, res) => {

@@ -79,6 +79,7 @@ let mapaHallazgosPacienteCache = [];
 let hallazgosMapaCache = [];
 let vistaPieActual = 'plantar'; // 'plantar' | 'dorsal'
 let zonaSeleccionadaActual = null;
+let zonasSeleccionadasMapa = [];
 let rangoFechaAgendaActual = 'todas';
 
 /**
@@ -168,13 +169,20 @@ function inicializarNavegacionTabs() {
         }
       }
 
-      // Si se abre Mapa Podológico y no hay consulta activa, solo enlazar si hay una consulta en atención
-      if (targetId === 'tab-mapa-podologico' && !consultaActiva) {
-        const citaEnAtencion = misCitasCache.find((c) => c.estado === 'En atención');
+      // Si se abre Mapa Podológico, sincronizar indicador, hallazgos e historial de mapas
+      if (targetId === 'tab-mapa-podologico') {
+        const citaEnAtencion = consultaActiva || misCitasCache.find((c) => c.estado === 'En atención');
         if (citaEnAtencion) {
           consultaActiva = citaEnAtencion;
-          actualizarIndicadorMapa(consultaActiva);
+          const exp = pacienteActivo?.No_expediente || citaEnAtencion.fk_no_expediente;
+          if (!pacienteActivo || String(pacienteActivo.No_expediente) !== String(exp)) {
+            await cargarExpedientePaciente(exp);
+          }
+          actualizarIndicadorMapa(consultaActiva, pacienteActivo);
           await cargarMapaConsulta(consultaActiva.Consulta_id);
+          await cargarHistorialMapasPaciente(exp);
+        } else {
+          renderHistorialMapasAnteriores();
         }
       }
     });
@@ -331,11 +339,16 @@ function poblarSelectoresPacientes(citas) {
   }
 }
 
-function actualizarIndicadorMapa(cita) {
+function actualizarIndicadorMapa(cita, paciente = null) {
   const ind = document.getElementById('mapa-paciente-indicador');
-  if (ind && cita) {
-    ind.innerHTML = `Paciente activo: <strong>${escapeHtml(cita.paciente_nombre)}</strong> (Exp: #${escapeHtml(cita.fk_no_expediente)} · Consulta: <code>${escapeHtml(cita.Consulta_id)}</code>)`;
+  if (!ind) return;
+  if (!cita) {
+    ind.textContent = 'Ningún paciente en atención';
+    return;
   }
+  const nombre = cita.paciente_nombre || paciente?.nombre_completo || (paciente ? `${paciente.Nombres} ${paciente.ape_paterno}`.trim() : 'Paciente');
+  const exp = cita.fk_no_expediente || paciente?.No_expediente || '—';
+  ind.innerHTML = `Paciente activo: <strong>${escapeHtml(nombre)}</strong> (Exp: #${escapeHtml(exp)} · Consulta: <code>${escapeHtml(cita.Consulta_id)}</code>)`;
 }
 
 function renderTablaAgendaPersonal(citas) {
@@ -522,7 +535,16 @@ function limpiarExpedienteActivo() {
   if (selectMap) selectMap.value = '';
 
   const indMapa = document.getElementById('mapa-paciente-indicador');
-  if (indMapa) indMapa.textContent = 'Ningún paciente seleccionado';
+  if (indMapa) indMapa.textContent = 'Ningún paciente en atención';
+
+  const listaHistMapas = document.getElementById('lista-historial-mapas');
+  if (listaHistMapas) {
+    listaHistMapas.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; color: var(--color-stone); padding: 1.25rem; font-size: 0.88rem;">
+        Selecciona o atiende un paciente para consultar sus mapas anteriores.
+      </div>
+    `;
+  }
 
   inicializarFormularioRecetaDinamica();
 }
@@ -598,6 +620,7 @@ function actualizarHUDPaciente(paciente, consulta) {
   }
 
   hud.style.setProperty('display', 'flex', 'important');
+  actualizarIndicadorMapa(consulta, paciente);
   document.getElementById('hud-paciente-nombre').textContent = paciente.nombre_completo || `${paciente.Nombres} ${paciente.ape_paterno}`;
   document.getElementById('hud-paciente-exp').textContent = `#${paciente.No_expediente}`;
   document.getElementById('hud-consulta-id').textContent = consulta.Consulta_id;
@@ -1452,6 +1475,36 @@ async function cargarRecetasConsulta(consultaId) {
  * 3. MAPA PODOLÓGICO INTERACTIVO (Detalles_Mapa_Podologico)
  * =========================================================================
  */
+function actualizarResumenZonasSeleccionadas() {
+  const displayTitulo = document.getElementById('display-zona-seleccionada');
+  const displayAyuda = document.getElementById('display-zona-ayuda');
+  const inputValor = document.getElementById('mapa-zona-pie-valor');
+
+  if (!displayTitulo || !displayAyuda || !inputValor) return;
+
+  if (zonasSeleccionadasMapa.length === 0) {
+    displayTitulo.textContent = 'Ninguna zona seleccionada';
+    displayAyuda.textContent = 'Toca una o varias zonas anatómicas en los pies del diagrama';
+    inputValor.value = '';
+  } else if (zonasSeleccionadasMapa.length === 1) {
+    displayTitulo.textContent = zonasSeleccionadasMapa[0];
+    displayAyuda.innerHTML = 'Zona lista para asociar patología (puedes tocar más zonas) · <a href="#" onclick="limpiarSeleccionMapa(event)" style="color:#7c3aed;font-weight:700;">Limpiar</a>';
+    inputValor.value = zonasSeleccionadasMapa[0];
+  } else {
+    displayTitulo.textContent = `${zonasSeleccionadasMapa.length} zonas seleccionadas`;
+    displayAyuda.innerHTML = `${escapeHtml(zonasSeleccionadasMapa.join(' · '))} <a href="#" onclick="limpiarSeleccionMapa(event)" style="color:#7c3aed;font-weight:700;margin-left:6px;">Limpiar</a>`;
+    inputValor.value = zonasSeleccionadasMapa.join(' | ');
+  }
+}
+
+window.limpiarSeleccionMapa = (e) => {
+  if (e) e.preventDefault();
+  zonasSeleccionadasMapa = [];
+  zonaSeleccionadaActual = null;
+  document.querySelectorAll('.foot-zone').forEach(z => z.classList.remove('selected'));
+  actualizarResumenZonasSeleccionadas();
+};
+
 function configurarMapaPodologicoInteractivo() {
   const zonas = document.querySelectorAll('.foot-zone');
 
@@ -1459,67 +1512,84 @@ function configurarMapaPodologicoInteractivo() {
     zona.addEventListener('click', (e) => {
       e.stopPropagation();
 
-      // Remover selección previa
-      zonas.forEach(z => z.classList.remove('selected'));
-
-      // Activar zona seleccionada
-      zona.classList.add('selected');
-
       const pie = zona.getAttribute('data-pie');
       const nombreZona = zona.getAttribute('data-zona');
-      zonaSeleccionadaActual = `${pie} (${vistaPieActual.toUpperCase()}): ${nombreZona}`;
+      const etiqueta = `${pie} (${vistaPieActual.toUpperCase()}): ${nombreZona}`;
 
-      document.getElementById('display-zona-seleccionada').textContent = zonaSeleccionadaActual;
-      document.getElementById('display-zona-ayuda').textContent = 'Zona lista para asociar patología';
-      document.getElementById('mapa-zona-pie-valor').value = zonaSeleccionadaActual;
+      if (zona.classList.contains('selected')) {
+        zona.classList.remove('selected');
+        zonasSeleccionadasMapa = zonasSeleccionadasMapa.filter(z => z !== etiqueta);
+      } else {
+        zona.classList.add('selected');
+        if (!zonasSeleccionadasMapa.includes(etiqueta)) {
+          zonasSeleccionadasMapa.push(etiqueta);
+        }
+      }
 
-      AppAuth.showToast(`Zona seleccionada: ${nombreZona}`, 'info');
+      zonaSeleccionadaActual = zonasSeleccionadasMapa[zonasSeleccionadasMapa.length - 1] || null;
+      actualizarResumenZonasSeleccionadas();
     });
   });
 
-  // Submit registro de lesión en mapa
+  // Submit registro de lesión en mapa (soporta 1 o múltiples zonas seleccionadas)
   const formMapa = document.getElementById('form-registro-mapa');
   formMapa?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     if (!consultaActiva) {
-      if (misCitasCache.length > 0) {
-        consultaActiva = misCitasCache[0];
-        actualizarIndicadorMapa(consultaActiva);
-      } else {
-        AppAuth.showToast('Primero debes seleccionar un paciente o consulta activa en el selector superior', 'warning');
-        return;
-      }
-    }
-
-    const zonaPie = document.getElementById('mapa-zona-pie-valor').value;
-    const tipoLesion = document.getElementById('mapa-tipo-lesion').value;
-    const observaciones = document.getElementById('mapa-observaciones').value;
-
-    if (!zonaPie) {
-      AppAuth.showToast('Por favor selecciona primero una zona en el pie anatómico', 'warning');
+      AppAuth.showToast('Primero debes tener un paciente en atención para registrar hallazgos', 'warning');
       return;
     }
 
-    const payload = {
-      zona_pie: zonaPie,
-      tipo_lesion: tipoLesion,
-      observaciones
-    };
+    const zonasARegistrar = zonasSeleccionadasMapa.length > 0
+      ? [...zonasSeleccionadasMapa]
+      : (document.getElementById('mapa-zona-pie-valor').value ? [document.getElementById('mapa-zona-pie-valor').value] : []);
+    const tipoLesion = document.getElementById('mapa-tipo-lesion').value;
+    const observaciones = document.getElementById('mapa-observaciones').value;
 
-    const res = await AppAuth.fetchApi(`/api/medico/consultas/${consultaActiva.Consulta_id}/mapa`, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
+    if (zonasARegistrar.length === 0) {
+      AppAuth.showToast('Por favor selecciona al menos una zona en el pie anatómico', 'warning');
+      return;
+    }
 
-    if (res.ok) {
-      AppAuth.showToast('¡Hallazgo guardado en el Mapa Podológico!', 'success');
-      formMapa.reset();
-      document.getElementById('display-zona-seleccionada').textContent = 'Ninguna zona seleccionada';
-      document.getElementById('mapa-zona-pie-valor').value = '';
-      zonas.forEach(z => z.classList.remove('selected'));
+    const btnSubmit = document.getElementById('btn-guardar-lesion-mapa');
+    if (btnSubmit) {
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+    }
 
-      await cargarMapaConsulta(consultaActiva.Consulta_id);
+    try {
+      const resultados = await Promise.all(
+        zonasARegistrar.map((zonaPie) =>
+          AppAuth.fetchApi(`/api/medico/consultas/${consultaActiva.Consulta_id}/mapa`, {
+            method: 'POST',
+            body: JSON.stringify({
+              zona_pie: zonaPie,
+              tipo_lesion: tipoLesion,
+              observaciones
+            })
+          })
+        )
+      );
+
+      if (resultados.every(r => r.ok)) {
+        AppAuth.showToast(
+          zonasARegistrar.length > 1
+            ? `¡${zonasARegistrar.length} hallazgos guardados en el Mapa Podológico!`
+            : '¡Hallazgo guardado en el Mapa Podológico!',
+          'success'
+        );
+        formMapa.reset();
+        limpiarSeleccionMapa();
+        await cargarMapaConsulta(consultaActiva.Consulta_id);
+      } else {
+        AppAuth.showToast('Algunos hallazgos no se pudieron guardar', 'error');
+      }
+    } finally {
+      if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="fa-solid fa-map-pin"></i> Registrar en Mapa Podológico';
+      }
     }
   });
 }
@@ -1537,6 +1607,15 @@ window.cambiarVistaPie = (vista) => {
   }
 };
 
+async function cargarHistorialMapasPaciente(expediente) {
+  if (!expediente) return;
+  const res = await AppAuth.fetchApi(`/api/medico/pacientes/${encodeURIComponent(expediente)}/mapas`);
+  if (res.ok && Array.isArray(res.data)) {
+    mapaHallazgosPacienteCache = res.data;
+    renderHistorialMapasAnteriores();
+  }
+}
+
 async function cargarMapaConsulta(consultaId) {
   const banner = document.getElementById('mapa-modo-historial-banner');
   if (banner) banner.style.display = 'none';
@@ -1546,6 +1625,12 @@ async function cargarMapaConsulta(consultaId) {
     hallazgosMapaCache = res.data;
     renderListaHallazgos(res.data, false);
     dibujarPinesEnMapa(res.data);
+  }
+  const exp = pacienteActivo?.No_expediente || consultaActiva?.fk_no_expediente;
+  if (exp) {
+    await cargarHistorialMapasPaciente(exp);
+  } else {
+    renderHistorialMapasAnteriores();
   }
 }
 

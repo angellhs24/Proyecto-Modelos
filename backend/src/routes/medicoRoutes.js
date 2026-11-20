@@ -50,6 +50,7 @@ router.post('/consultas/:id/recetas', podologoController.crearReceta);
 // 3. MAPA PODOLÓGICO INTERACTIVO (Detalles_Mapa_Podologico)
 // -------------------------------------------------------------------------
 router.get('/consultas/:id/mapa', podologoController.obtenerMapaConsulta);
+router.get('/pacientes/:expediente/mapas', podologoController.obtenerHistorialMapasPaciente);
 router.post('/consultas/:id/mapa', podologoController.registrarDetalleMapa);
 router.delete('/mapa/:mapaId', podologoController.eliminarDetalleMapa);
 

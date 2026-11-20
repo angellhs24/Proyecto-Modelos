@@ -717,7 +717,43 @@ const obtenerMapaConsulta = async (req, res) => {
   }
 };
 
-// Registrar una nueva lesión en el mapa podológico interactivo
+// Obtener historial completo de mapas de un paciente (todas sus consultas)
+const obtenerHistorialMapasPaciente = async (req, res) => {
+  const { expediente } = req.params;
+  try {
+    try {
+      const [rows] = await db.pool.query(
+        `SELECT m.Mapa_id, m.fk_consulta_id, m.zona_pie, m.tipo_lesion, m.observaciones, m.fecha_creacion,
+                c.fecha_hora AS fecha_consulta, c.estado AS estado_consulta,
+                TRIM(CONCAT(pod.Nombre, ' ', pod.ape_paterno)) AS podologo_nombre
+         FROM Detalles_Mapa_Podologico m
+         JOIN Consultas c ON m.fk_consulta_id = c.Consulta_id
+         LEFT JOIN Podologos pod ON c.fk_cedula_podologo = pod.Cedula_podologo
+         WHERE c.fk_no_expediente = ?
+         ORDER BY c.fecha_hora DESC, m.Mapa_id ASC`,
+        [expediente]
+      );
+      return res.json(rows);
+    } catch (dbErr) {
+      const [consultas] = await db.pool.query(
+        'SELECT Consulta_id, fecha_hora FROM Consultas WHERE fk_no_expediente = ?',
+        [expediente]
+      );
+      const rows = leerMapaStore()
+        .filter(m => consultas.some(c => String(c.Consulta_id) === String(m.fk_consulta_id)))
+        .map(m => {
+          const con = consultas.find(c => String(c.Consulta_id) === String(m.fk_consulta_id));
+          return { ...m, fecha_consulta: con?.fecha_hora || null };
+        });
+      return res.json(rows);
+    }
+  } catch (error) {
+    console.error('Error al obtener historial de mapas:', error);
+    res.status(500).json({ error: 'Error al consultar historial de mapas podológicos' });
+  }
+};
+
+// Registrar una nueva lesión en el mapa podológico interactivo (con ID propio MAP...)
 const registrarDetalleMapa = async (req, res) => {
   const { id } = req.params;
   const { zona_pie, tipo_lesion, observaciones } = req.body;
@@ -727,31 +763,81 @@ const registrarDetalleMapa = async (req, res) => {
   }
 
   try {
+    // Generar ID propio tipo MAP2026350001
+    let clinicaId = req.user?.fk_clinica_id || 14;
     try {
-      const [result] = await db.pool.query(
+      const [conRows] = await db.pool.query('SELECT fk_clinica_id FROM Consultas WHERE Consulta_id = ? LIMIT 1', [id]);
+      if (conRows.length > 0 && conRows[0].fk_clinica_id) {
+        clinicaId = conRows[0].fk_clinica_id;
+      }
+    } catch {}
+
+    const anio = new Date().getFullYear();
+    const clinicaStr = String(clinicaId).padStart(2, '0').slice(-2);
+    const prefijo = `MAP${anio}${clinicaStr}`;
+    let mapaIdGenerado = `${prefijo}0001`;
+    try {
+      const [maxRows] = await db.pool.query(
+        `SELECT MAX(CAST(SUBSTRING(Mapa_id, 10) AS UNSIGNED)) AS max_seq
+         FROM Detalles_Mapa_Podologico
+         WHERE CAST(Mapa_id AS CHAR) LIKE ?`,
+        [`${prefijo}%`]
+      );
+      const maxSeq = maxRows[0]?.max_seq;
+      if (maxSeq && !Number.isNaN(Number(maxSeq))) {
+        mapaIdGenerado = `${prefijo}${String(Number(maxSeq) + 1).padStart(4, '0')}`;
+      }
+    } catch {}
+
+    try {
+      await db.pool.query(
         `INSERT INTO Detalles_Mapa_Podologico (
+          Mapa_id,
           fk_consulta_id,
           zona_pie,
           tipo_lesion,
           observaciones
-        ) VALUES (?, ?, ?, ?)`,
-        [id, zona_pie.trim(), tipo_lesion.trim(), observaciones ? observaciones.trim() : null]
+        ) VALUES (?, ?, ?, ?, ?)`,
+        [mapaIdGenerado, id, zona_pie.trim(), tipo_lesion.trim(), observaciones ? observaciones.trim() : null]
       );
 
       return res.status(201).json({
         mensaje: 'Hallazgo podológico registrado en el Mapa',
         detalle: {
-          Mapa_id: result.insertId,
+          Mapa_id: mapaIdGenerado,
           fk_consulta_id: id,
           zona_pie,
           tipo_lesion,
           observaciones
         }
       });
-    } catch (dbErr) {
+    } catch (insertIdErr) {
+      // Si la columna Mapa_id aún es INT AUTO_INCREMENT en MySQL, insertar sin Mapa_id
+      if (insertIdErr.code === 'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD' || insertIdErr.errno === 1366) {
+        const [result] = await db.pool.query(
+          `INSERT INTO Detalles_Mapa_Podologico (
+            fk_consulta_id,
+            zona_pie,
+            tipo_lesion,
+            observaciones
+          ) VALUES (?, ?, ?, ?)`,
+          [id, zona_pie.trim(), tipo_lesion.trim(), observaciones ? observaciones.trim() : null]
+        );
+        return res.status(201).json({
+          mensaje: 'Hallazgo podológico registrado en el Mapa',
+          detalle: {
+            Mapa_id: result.insertId,
+            fk_consulta_id: id,
+            zona_pie,
+            tipo_lesion,
+            observaciones
+          }
+        });
+      }
+
       const lista = leerMapaStore();
       const nuevoDetalle = {
-        Mapa_id: `MAP-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`,
+        Mapa_id: mapaIdGenerado,
         fk_consulta_id: id,
         zona_pie: zona_pie.trim(),
         tipo_lesion: tipo_lesion.trim(),
@@ -912,6 +998,7 @@ module.exports = {
   obtenerRecetasConsulta,
   crearReceta,
   obtenerMapaConsulta,
+  obtenerHistorialMapasPaciente,
   registrarDetalleMapa,
   eliminarDetalleMapa
 };
